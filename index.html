@@ -30,10 +30,11 @@
 <body class="bg-kn-light flex h-screen overflow-hidden font-sans text-slate-800">
 
     <!-- ================= SIDEBAR ================= -->
-    <aside id="sidebar" class="w-64 bg-kn-navy text-white flex flex-col justify-between transition-all duration-300 z-20 shadow-lg flex-shrink-0">
-        <div>
+    <aside class="w-64 bg-kn-navy text-white flex flex-col justify-between z-20 shadow-lg flex-shrink-0">
+        <div class="flex-1 flex flex-col overflow-hidden">
+            
             <!-- Header Sidebar / Logo Kuehne+Nagel e Botão Toggle -->
-            <div class="p-4 border-b border-white/10 flex items-center justify-between">
+            <div class="p-4 border-b border-white/10 flex items-center justify-between bg-kn-navy z-30">
                 <div class="flex items-center space-x-3">
                     <svg class="w-8 h-8 text-white flex-shrink-0" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="8">
                         <circle cx="50" cy="50" r="42" />
@@ -46,49 +47,50 @@
                         <span class="text-[10px] text-slate-300 tracking-widest uppercase">Operations</span>
                     </div>
                 </div>
-                <!-- Botão para esconder/mostrar o menu -->
-                <button onclick="toggleMenuLateral()" class="p-1 hover:bg-kn-blue rounded transition">
+                <!-- Botão para esconder/mostrar o menu de forma limpa -->
+                <button onclick="toggleMenuLateral()" class="p-1 hover:bg-kn-blue rounded transition focus:outline-none">
                     <i data-lucide="menu" class="w-5 h-5"></i>
                 </button>
             </div>
 
-            <!-- Navegação (Ocultável) -->
-            <nav id="nav-menu" class="p-3 space-y-2 text-xs transition-all duration-300">
+            <!-- Navegação (Menu expansível) -->
+            <nav id="nav-menu" class="p-3 space-y-1.5 text-xs overflow-y-auto flex-1">
                 
+                <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider px-3 pb-1 pt-2">Operacional</div>
                 <!-- Aba Operação -->
                 <button onclick="mudarAba('operacao')" id="btn-aba-operacao" class="w-full flex items-center space-x-3 p-3 rounded-md bg-kn-blue text-white transition">
                     <i data-lucide="barcode" class="w-4 h-4"></i>
-                    <span class="font-medium text-sm">Operação (Bipagem)</span>
+                    <span class="font-medium text-sm">Bipagem do Piso</span>
                 </button>
 
-                <!-- Aba Gráficos -->
-                <button onclick="mudarAba('graficos')" id="btn-aba-graficos" class="w-full flex items-center space-x-3 p-3 rounded-md hover:bg-kn-blue/50 text-slate-200 hover:text-white transition">
-                    <i data-lucide="pie-chart" class="w-4 h-4"></i>
-                    <span class="font-medium text-sm">Painel de Gráficos</span>
+                <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider px-3 pb-1 pt-4">Dashboards</div>
+                
+                <!-- Aba Gráficos Geral -->
+                <button onclick="mudarAba('graficos-geral')" id="btn-aba-graficos-geral" class="w-full flex items-center space-x-3 p-3 rounded-md hover:bg-kn-blue/50 text-slate-200 hover:text-white transition">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                    <span class="font-medium text-sm">Visão Geral (Comparativo)</span>
                 </button>
 
-                <hr class="border-white/10 my-2">
+                <!-- Aba Gráficos AM -->
+                <button onclick="mudarAba('graficos-am')" id="btn-aba-graficos-am" class="w-full flex items-center space-x-3 p-3 rounded-md hover:bg-kn-blue/50 text-slate-200 hover:text-white transition">
+                    <i data-lucide="sun" class="w-4 h-4"></i>
+                    <span class="font-medium text-sm">Ciclo AM</span>
+                </button>
 
-                <!-- Filtros rápidos para a tabela (aparecem apenas na aba operação, mas deixaremos acessíveis) -->
-                <div class="space-y-1 pt-2">
-                    <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider px-3 pb-1">Filtros da Tabela</div>
-                    <a href="#" onclick="filtrarStatus('TODOS'); mudarAba('operacao');" class="flex items-center space-x-3 p-2 rounded hover:bg-kn-blue/40 text-slate-300">
-                        <i data-lucide="list" class="w-3.5 h-3.5"></i> <span>Ver Todos</span>
-                    </a>
-                    <a href="#" onclick="filtrarStatus('SAIU_PARA_ENTREGA'); mudarAba('operacao');" class="flex items-center space-x-3 p-2 rounded hover:bg-kn-blue/40 text-slate-300">
-                        <i data-lucide="truck" class="w-3.5 h-3.5"></i> <span>Saiu pra Entrega</span>
-                    </a>
-                    <a href="#" onclick="filtrarStatus('FICOU_NO_PISO'); mudarAba('operacao');" class="flex items-center space-x-3 p-2 rounded hover:bg-kn-blue/40 text-slate-300">
-                        <i data-lucide="package-open" class="w-3.5 h-3.5"></i> <span>Ficou no Piso</span>
-                    </a>
-                </div>
+                <!-- Aba Gráficos PM -->
+                <button onclick="mudarAba('graficos-pm')" id="btn-aba-graficos-pm" class="w-full flex items-center space-x-3 p-3 rounded-md hover:bg-kn-blue/50 text-slate-200 hover:text-white transition">
+                    <i data-lucide="moon" class="w-4 h-4"></i>
+                    <span class="font-medium text-sm">Ciclo PM</span>
+                </button>
+                
             </nav>
         </div>
 
-        <div class="p-4 border-t border-white/10 text-[11px] text-slate-300 text-center flex flex-col items-center justify-center space-y-1">
+        <!-- Rodapé do Desenvolvedor -->
+        <div class="p-4 border-t border-white/10 text-[11px] text-slate-300 text-center flex flex-col items-center justify-center space-y-1 bg-kn-navy">
             <i data-lucide="code" class="w-4 h-4 mb-1"></i>
-            <span class="font-semibold tracking-wide">Desenvolvido por Nathan</span>
-            <span class="text-[9px] text-slate-500">Automação Pós Sorting v2.0</span>
+            <span class="font-semibold tracking-wide text-white">Desenvolvido por Nathan</span>
+            <span class="text-[9px] text-slate-400">Automação Pós Sorting v2.0</span>
         </div>
     </aside>
 
@@ -116,7 +118,7 @@
 
         <div class="p-8 space-y-6">
 
-            <!-- CARDS DE RESUMO (GARGALOS / KPIS) - Ficam visíveis em ambas as abas -->
+            <!-- CARDS DE RESUMO (GARGALOS / KPIS) - Sempre visíveis no topo -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div class="bg-white p-4 rounded-lg shadow-sm border border-kn-gray border-l-4 border-l-kn-navy">
                     <span class="text-[11px] font-bold text-slate-400 uppercase">Total Bipado</span>
@@ -139,7 +141,6 @@
             <!-- ================= ABA 1: OPERAÇÃO (BIPAGEM) ================= -->
             <section id="aba-operacao" class="grid grid-cols-1 lg:grid-cols-3 gap-6 fade-in">
                 
-                <!-- Card de Leitura / Digitação -->
                 <div class="bg-white p-6 rounded-lg shadow-sm border border-kn-gray space-y-5 h-fit">
                     <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                         <h2 class="text-sm font-bold text-kn-navy uppercase tracking-wider">Bipador / Digitação</h2>
@@ -157,7 +158,6 @@
                             </div>
                         </div>
 
-                        <!-- Opções de Parâmetros -->
                         <div class="grid grid-cols-2 gap-3 pt-3 border-t border-slate-100">
                             <div>
                                 <label class="text-xs font-semibold text-slate-500">Rota/Gaiola:</label>
@@ -182,7 +182,6 @@
                     </div>
                 </div>
 
-                <!-- Tabela de Pacotes Persistidos -->
                 <div class="bg-white p-6 rounded-lg shadow-sm border border-kn-gray lg:col-span-2 space-y-4">
                     <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                         <h2 class="text-sm font-bold text-kn-navy uppercase tracking-wider">Histórico de Registros</h2>
@@ -201,47 +200,54 @@
                                 </tr>
                             </thead>
                             <tbody id="tabelaBips" class="divide-y divide-slate-100">
-                                <!-- Preenchido via JavaScript -->
                             </tbody>
                         </table>
                     </div>
                 </div>
             </section>
 
-            <!-- ================= ABA 2: GRÁFICOS ================= -->
-            <section id="aba-graficos" class="hidden space-y-6 fade-in">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    
-                    <!-- Gráfico Ciclo AM -->
-                    <div class="bg-white p-6 rounded-lg shadow-sm border border-kn-gray">
-                        <h2 class="text-sm font-bold text-kn-navy uppercase tracking-wider border-b border-slate-100 pb-3 mb-4">
-                            Performance Operacional - Ciclo AM
-                        </h2>
-                        <div class="relative h-64">
-                            <canvas id="graficoAM"></canvas>
-                        </div>
+            <!-- ================= ABA 2: GRÁFICOS GERAL (Comparativo) ================= -->
+            <section id="aba-graficos-geral" class="hidden space-y-6 fade-in">
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-kn-gray">
+                    <h2 class="text-sm font-bold text-kn-navy uppercase tracking-wider border-b border-slate-100 pb-3 mb-4">
+                        Comparativo Geral de Operação: Ciclo AM vs Ciclo PM
+                    </h2>
+                    <div class="relative h-96 w-full">
+                        <canvas id="graficoGeral"></canvas>
                     </div>
+                </div>
+            </section>
 
-                    <!-- Gráfico Ciclo PM -->
-                    <div class="bg-white p-6 rounded-lg shadow-sm border border-kn-gray">
-                        <h2 class="text-sm font-bold text-kn-navy uppercase tracking-wider border-b border-slate-100 pb-3 mb-4">
-                            Performance Operacional - Ciclo PM
-                        </h2>
-                        <div class="relative h-64">
-                            <canvas id="graficoPM"></canvas>
-                        </div>
+            <!-- ================= ABA 3: GRÁFICOS AM ================= -->
+            <section id="aba-graficos-am" class="hidden space-y-6 fade-in">
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-kn-gray">
+                    <h2 class="text-sm font-bold text-kn-navy uppercase tracking-wider border-b border-slate-100 pb-3 mb-4">
+                        Performance Operacional Isolada - Ciclo AM
+                    </h2>
+                    <div class="relative h-96 w-full">
+                        <canvas id="graficoAM"></canvas>
                     </div>
+                </div>
+            </section>
 
+            <!-- ================= ABA 4: GRÁFICOS PM ================= -->
+            <section id="aba-graficos-pm" class="hidden space-y-6 fade-in">
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-kn-gray">
+                    <h2 class="text-sm font-bold text-kn-navy uppercase tracking-wider border-b border-slate-100 pb-3 mb-4">
+                        Performance Operacional Isolada - Ciclo PM
+                    </h2>
+                    <div class="relative h-96 w-full">
+                        <canvas id="graficoPM"></canvas>
+                    </div>
                 </div>
             </section>
 
         </div>
     </main>
 
-    <!-- Estilo extra para a animação das abas -->
     <style>
-        .fade-in { animation: fadeIn 0.3s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.2s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 
     <!-- ================= JAVASCRIPT ================= -->
@@ -251,68 +257,53 @@
         const STORAGE_KEY = 'kn_logistica_dados';
         let dadosOperacao = carregardados();
         
-        // Variáveis globais para os gráficos
         let chartAM = null;
         let chartPM = null;
+        let chartGeral = null;
 
         window.onload = function() {
             renderizarTabela(dadosOperacao);
             atualizarKPIs();
-            renderizarGraficos();
         };
 
-        // Função para esconder/mostrar o Menu Lateral
+        // Mostrar / Esconder o Menu sem quebrar o layout (sem borrão)
         function toggleMenuLateral() {
             const navMenu = document.getElementById('nav-menu');
-            if (navMenu.classList.contains('hidden')) {
-                navMenu.classList.remove('hidden');
+            navMenu.classList.toggle('hidden');
+        }
+
+        // Sistema de Abas atualizado
+        function mudarAba(abaSelecionada) {
+            const abas = ['operacao', 'graficos-geral', 'graficos-am', 'graficos-pm'];
+            
+            // Oculta todas as seções e reseta as cores dos botões
+            abas.forEach(aba => {
+                document.getElementById('aba-' + aba).classList.add('hidden');
+                
+                const btn = document.getElementById('btn-aba-' + aba);
+                btn.classList.remove('bg-kn-blue', 'text-white');
+                btn.classList.add('hover:bg-kn-blue/50', 'text-slate-200');
+            });
+
+            // Mostra a seção selecionada e acende o botão
+            document.getElementById('aba-' + abaSelecionada).classList.remove('hidden');
+            
+            const btnAtivo = document.getElementById('btn-aba-' + abaSelecionada);
+            btnAtivo.classList.add('bg-kn-blue', 'text-white');
+            btnAtivo.classList.remove('hover:bg-kn-blue/50', 'text-slate-200');
+
+            // Renderiza o gráfico se for uma aba de Dashboard (Para evitar o bug do canvas vazio)
+            if (abaSelecionada.includes('graficos')) {
+                setTimeout(renderizarGraficos, 50); 
             } else {
-                navMenu.classList.add('hidden');
-            }
-        }
-
-        // Sistema de Abas
-        function mudarAba(aba) {
-            const secOperacao = document.getElementById('aba-operacao');
-            const secGraficos = document.getElementById('aba-graficos');
-            const btnOperacao = document.getElementById('btn-aba-operacao');
-            const btnGraficos = document.getElementById('btn-aba-graficos');
-
-            if (aba === 'operacao') {
-                secOperacao.classList.remove('hidden');
-                secGraficos.classList.add('hidden');
-                
-                // Estilo ativo no botão Operação
-                btnOperacao.classList.add('bg-kn-blue', 'text-white');
-                btnOperacao.classList.remove('hover:bg-kn-blue/50', 'text-slate-200');
-                
-                // Remove estilo ativo do botão Gráficos
-                btnGraficos.classList.remove('bg-kn-blue', 'text-white');
-                btnGraficos.classList.add('hover:bg-kn-blue/50', 'text-slate-200');
-                
                 document.getElementById('barcodeInput').focus();
-            } else if (aba === 'graficos') {
-                secOperacao.classList.add('hidden');
-                secGraficos.classList.remove('hidden');
-                
-                // Estilo ativo no botão Gráficos
-                btnGraficos.classList.add('bg-kn-blue', 'text-white');
-                btnGraficos.classList.remove('hover:bg-kn-blue/50', 'text-slate-200');
-                
-                // Remove estilo ativo do botão Operação
-                btnOperacao.classList.remove('bg-kn-blue', 'text-white');
-                btnOperacao.classList.add('hover:bg-kn-blue/50', 'text-slate-200');
-
-                // Atualiza gráficos sempre que a aba for aberta
-                renderizarGraficos();
             }
         }
 
-        // Salvar no LocalStorage
         function salvardados() {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(dadosOperacao));
             atualizarKPIs();
-            renderizarGraficos(); // Mantém gráficos sincronizados
+            renderizarGraficos(); 
         }
 
         function carregardados() {
@@ -325,7 +316,6 @@
             document.getElementById('badge-ciclo').innerText = `Ciclo ${ciclo}`;
         }
 
-        // Bipador Físico
         document.getElementById('barcodeInput').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
@@ -370,7 +360,7 @@
             }
 
             tbody.innerHTML = lista.map(item => `
-                <tr class="hover:bg-slate-50 font-mono">
+                <tr class="hover:bg-slate-50 font-mono border-b border-slate-50 last:border-0">
                     <td class="px-4 py-2 font-bold text-slate-800">${item.barcode}</td>
                     <td class="px-4 py-2"><span class="px-2 py-0.5 text-[10px] rounded ${item.ciclo === 'AM' ? 'bg-blue-100 text-blue-900' : 'bg-slate-200 text-slate-800'}">${item.ciclo}</span></td>
                     <td class="px-4 py-2 text-slate-600 font-sans">${item.atribuicao}</td>
@@ -379,7 +369,7 @@
                             ${item.status === 'SAIU_PARA_ENTREGA' ? 'SAÍDA' : 'PISO'}
                         </span>
                     </td>
-                    <td class="px-4 py-2 text-slate-400 font-sans">${item.hora} (${item.data})</td>
+                    <td class="px-4 py-2 text-slate-400 font-sans">${item.hora}</td>
                 </tr>
             `).join('');
         }
@@ -395,15 +385,6 @@
             document.getElementById('kpiCiclos').innerText = `${am} (AM) / ${pm} (PM)`;
             document.getElementById('kpiPiso').innerText = piso;
             document.getElementById('kpiSaida').innerText = saida;
-        }
-
-        function filtrarStatus(status) {
-            if (status === 'TODOS') {
-                renderizarTabela(dadosOperacao);
-            } else {
-                const filtrados = dadosOperacao.filter(d => d.status === status);
-                renderizarTabela(filtrados);
-            }
         }
 
         function limparBase() {
@@ -438,68 +419,83 @@
 
         // ================= FUNÇÃO DE GRÁFICOS (CHART.JS) =================
         function renderizarGraficos() {
-            // Conta os dados do Ciclo AM
+            // Contagens AM
             const amTotal = dadosOperacao.filter(d => d.ciclo === 'AM').length;
             const amSaida = dadosOperacao.filter(d => d.ciclo === 'AM' && d.status === 'SAIU_PARA_ENTREGA').length;
             const amPiso = dadosOperacao.filter(d => d.ciclo === 'AM' && d.status === 'FICOU_NO_PISO').length;
 
-            // Conta os dados do Ciclo PM
+            // Contagens PM
             const pmTotal = dadosOperacao.filter(d => d.ciclo === 'PM').length;
             const pmSaida = dadosOperacao.filter(d => d.ciclo === 'PM' && d.status === 'SAIU_PARA_ENTREGA').length;
             const pmPiso = dadosOperacao.filter(d => d.ciclo === 'PM' && d.status === 'FICOU_NO_PISO').length;
 
-            // Configuração visual padrão
-            const cores = {
-                total: '#004B93',   // Azul KN
-                saida: '#10B981',   // Emerald
-                piso: '#F59E0B'     // Amber
-            };
+            const cores = { total: '#004B93', saida: '#10B981', piso: '#F59E0B' };
 
-            // Gráfico AM
-            const ctxAM = document.getElementById('graficoAM').getContext('2d');
-            if (chartAM) chartAM.destroy(); // Apaga o antigo antes de desenhar o novo
-            
-            chartAM = new Chart(ctxAM, {
-                type: 'bar',
-                data: {
-                    labels: ['Total Lidos', 'Saíram pra Entrega', 'Ficaram no Piso'],
-                    datasets: [{
-                        label: 'Volume de Pacotes - AM',
-                        data: [amTotal, amSaida, amPiso],
-                        backgroundColor: [cores.total, cores.saida, cores.piso],
-                        borderRadius: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
-                }
-            });
+            // 1. Gráfico Visão Geral (Comparativo)
+            const canvasGeral = document.getElementById('graficoGeral');
+            if (canvasGeral) {
+                const ctxGeral = canvasGeral.getContext('2d');
+                if (chartGeral) chartGeral.destroy();
+                chartGeral = new Chart(ctxGeral, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Total Lidos', 'Saíram pra Entrega', 'Ficaram no Piso'],
+                        datasets: [
+                            {
+                                label: 'Ciclo AM',
+                                data: [amTotal, amSaida, amPiso],
+                                backgroundColor: '#0ea5e9', // Azul Claro
+                                borderRadius: 4
+                            },
+                            {
+                                label: 'Ciclo PM',
+                                data: [pmTotal, pmSaida, pmPiso],
+                                backgroundColor: '#003366', // Azul Marinho KN
+                                borderRadius: 4
+                            }
+                        ]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+                });
+            }
 
-            // Gráfico PM
-            const ctxPM = document.getElementById('graficoPM').getContext('2d');
-            if (chartPM) chartPM.destroy();
+            // 2. Gráfico Isolado AM
+            const canvasAM = document.getElementById('graficoAM');
+            if (canvasAM) {
+                const ctxAM = canvasAM.getContext('2d');
+                if (chartAM) chartAM.destroy();
+                chartAM = new Chart(ctxAM, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Volume AM'],
+                        datasets: [
+                            { label: 'Total Lidos', data: [amTotal], backgroundColor: cores.total, borderRadius: 4 },
+                            { label: 'Saiu para Entrega', data: [amSaida], backgroundColor: cores.saida, borderRadius: 4 },
+                            { label: 'Ficou no Piso', data: [amPiso], backgroundColor: cores.piso, borderRadius: 4 }
+                        ]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+                });
+            }
 
-            chartPM = new Chart(ctxPM, {
-                type: 'bar',
-                data: {
-                    labels: ['Total Lidos', 'Saíram pra Entrega', 'Ficaram no Piso'],
-                    datasets: [{
-                        label: 'Volume de Pacotes - PM',
-                        data: [pmTotal, pmSaida, pmPiso],
-                        backgroundColor: [cores.total, cores.saida, cores.piso],
-                        borderRadius: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
-                }
-            });
+            // 3. Gráfico Isolado PM
+            const canvasPM = document.getElementById('graficoPM');
+            if (canvasPM) {
+                const ctxPM = canvasPM.getContext('2d');
+                if (chartPM) chartPM.destroy();
+                chartPM = new Chart(ctxPM, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Volume PM'],
+                        datasets: [
+                            { label: 'Total Lidos', data: [pmTotal], backgroundColor: cores.total, borderRadius: 4 },
+                            { label: 'Saiu para Entrega', data: [pmSaida], backgroundColor: cores.saida, borderRadius: 4 },
+                            { label: 'Ficou no Piso', data: [pmPiso], backgroundColor: cores.piso, borderRadius: 4 }
+                        ]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+                });
+            }
         }
     </script>
 </body>
