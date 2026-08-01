@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KUEHNE+NAGEL - Conferência de Operação</title>
-    <!-- Tailwind CSS via CDN -->
+    <title>KUEHNE+NAGEL - Automação Pós Sorting</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -24,77 +24,79 @@
     </script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js para os Gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-kn-light flex h-screen overflow-hidden font-sans text-slate-800">
 
     <!-- ================= SIDEBAR ================= -->
-    <aside id="sidebar" class="w-64 bg-kn-navy text-white flex flex-col justify-between transition-all duration-300 z-20 shadow-lg">
+    <aside id="sidebar" class="w-64 bg-kn-navy text-white flex flex-col justify-between transition-all duration-300 z-20 shadow-lg flex-shrink-0">
         <div>
-            <!-- Header Sidebar / Logo Kuehne+Nagel -->
-            <div class="p-5 border-b border-white/10 flex items-center space-x-3">
-                <svg class="w-8 h-8 text-white flex-shrink-0" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="8">
-                    <circle cx="50" cy="50" r="42" />
-                    <line x1="50" y1="25" x2="50" y2="75" />
-                    <circle cx="50" cy="32" r="6" />
-                    <path d="M28 58 C 28 72, 72 72, 72 58" />
-                </svg>
-                <div class="flex flex-col">
-                    <span class="font-bold tracking-wider text-sm leading-tight">KUEHNE+NAGEL</span>
-                    <span class="text-[10px] text-slate-300 tracking-widest uppercase">Operations</span>
+            <!-- Header Sidebar / Logo Kuehne+Nagel e Botão Toggle -->
+            <div class="p-4 border-b border-white/10 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <svg class="w-8 h-8 text-white flex-shrink-0" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="8">
+                        <circle cx="50" cy="50" r="42" />
+                        <line x1="50" y1="25" x2="50" y2="75" />
+                        <circle cx="50" cy="32" r="6" />
+                        <path d="M28 58 C 28 72, 72 72, 72 58" />
+                    </svg>
+                    <div class="flex flex-col whitespace-nowrap">
+                        <span class="font-bold tracking-wider text-sm leading-tight">KUEHNE+NAGEL</span>
+                        <span class="text-[10px] text-slate-300 tracking-widest uppercase">Operations</span>
+                    </div>
                 </div>
+                <!-- Botão para esconder/mostrar o menu -->
+                <button onclick="toggleMenuLateral()" class="p-1 hover:bg-kn-blue rounded transition">
+                    <i data-lucide="menu" class="w-5 h-5"></i>
+                </button>
             </div>
 
-            <!-- Navegação -->
-            <nav class="p-3 space-y-1 text-xs">
+            <!-- Navegação (Ocultável) -->
+            <nav id="nav-menu" class="p-3 space-y-2 text-xs transition-all duration-300">
                 
-                <a href="#" onclick="filtrarStatus('TODOS')" class="flex items-center space-x-3 p-3 rounded-md hover:bg-kn-blue/50 text-slate-200 hover:text-white transition">
-                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-                    <span class="font-medium">Visão Geral (Todos)</span>
-                </a>
+                <!-- Aba Operação -->
+                <button onclick="mudarAba('operacao')" id="btn-aba-operacao" class="w-full flex items-center space-x-3 p-3 rounded-md bg-kn-blue text-white transition">
+                    <i data-lucide="barcode" class="w-4 h-4"></i>
+                    <span class="font-medium text-sm">Operação (Bipagem)</span>
+                </button>
 
-                <!-- Dropdown Menu: Conferência & Bipagem -->
-                <div>
-                    <button onclick="toggleDropdown('menu-bipagem', 'seta-bipagem')" class="w-full flex items-center justify-between p-3 rounded-md hover:bg-kn-blue/50 text-slate-200 hover:text-white transition">
-                        <div class="flex items-center space-x-3">
-                            <i data-lucide="barcode" class="w-4 h-4"></i>
-                            <span class="font-medium">Conferência Por Ciclo</span>
-                        </div>
-                        <i id="seta-bipagem" data-lucide="chevron-down" class="w-3.5 h-3.5 transition-transform"></i>
-                    </button>
-                    <div id="menu-bipagem" class="pl-10 pr-2 py-1 space-y-1 bg-black/10 rounded-b-md">
-                        <a href="#" onclick="filtrarCiclo('AM')" class="block p-2 rounded hover:bg-kn-blue/40 text-slate-300 hover:text-white">Filtrar Ciclo AM</a>
-                        <a href="#" onclick="filtrarCiclo('PM')" class="block p-2 rounded hover:bg-kn-blue/40 text-slate-300 hover:text-white">Filtrar Ciclo PM</a>
-                    </div>
+                <!-- Aba Gráficos -->
+                <button onclick="mudarAba('graficos')" id="btn-aba-graficos" class="w-full flex items-center space-x-3 p-3 rounded-md hover:bg-kn-blue/50 text-slate-200 hover:text-white transition">
+                    <i data-lucide="pie-chart" class="w-4 h-4"></i>
+                    <span class="font-medium text-sm">Painel de Gráficos</span>
+                </button>
+
+                <hr class="border-white/10 my-2">
+
+                <!-- Filtros rápidos para a tabela (aparecem apenas na aba operação, mas deixaremos acessíveis) -->
+                <div class="space-y-1 pt-2">
+                    <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider px-3 pb-1">Filtros da Tabela</div>
+                    <a href="#" onclick="filtrarStatus('TODOS'); mudarAba('operacao');" class="flex items-center space-x-3 p-2 rounded hover:bg-kn-blue/40 text-slate-300">
+                        <i data-lucide="list" class="w-3.5 h-3.5"></i> <span>Ver Todos</span>
+                    </a>
+                    <a href="#" onclick="filtrarStatus('SAIU_PARA_ENTREGA'); mudarAba('operacao');" class="flex items-center space-x-3 p-2 rounded hover:bg-kn-blue/40 text-slate-300">
+                        <i data-lucide="truck" class="w-3.5 h-3.5"></i> <span>Saiu pra Entrega</span>
+                    </a>
+                    <a href="#" onclick="filtrarStatus('FICOU_NO_PISO'); mudarAba('operacao');" class="flex items-center space-x-3 p-2 rounded hover:bg-kn-blue/40 text-slate-300">
+                        <i data-lucide="package-open" class="w-3.5 h-3.5"></i> <span>Ficou no Piso</span>
+                    </a>
                 </div>
-
-                <!-- Dropdown Menu: Piso & Retidos -->
-                <div>
-                    <button onclick="toggleDropdown('menu-piso', 'seta-piso')" class="w-full flex items-center justify-between p-3 rounded-md hover:bg-kn-blue/50 text-slate-200 hover:text-white transition">
-                        <div class="flex items-center space-x-3">
-                            <i data-lucide="package-open" class="w-4 h-4"></i>
-                            <span class="font-medium">Gestão do Piso</span>
-                        </div>
-                        <i id="seta-piso" data-lucide="chevron-down" class="w-3.5 h-3.5 transition-transform"></i>
-                    </button>
-                    <div id="menu-piso" class="hidden pl-10 pr-2 py-1 space-y-1 bg-black/10 rounded-b-md">
-                        <a href="#" onclick="filtrarStatus('FICOU_NO_PISO')" class="block p-2 rounded hover:bg-kn-blue/40 text-slate-300 hover:text-white">Pacotes no Piso</a>
-                        <a href="#" onclick="filtrarStatus('SAIU_PARA_ENTREGA')" class="block p-2 rounded hover:bg-kn-blue/40 text-slate-300 hover:text-white">Saíram pra Entrega</a>
-                    </div>
-                </div>
-
             </nav>
         </div>
 
-        <div class="p-4 border-t border-white/10 text-[11px] text-slate-400 text-center">
-            Local Storage Mode Active
+        <div class="p-4 border-t border-white/10 text-[11px] text-slate-300 text-center flex flex-col items-center justify-center space-y-1">
+            <i data-lucide="code" class="w-4 h-4 mb-1"></i>
+            <span class="font-semibold tracking-wide">Desenvolvido por Nathan</span>
+            <span class="text-[9px] text-slate-500">Automação Pós Sorting v2.0</span>
         </div>
     </aside>
 
     <!-- ================= ÁREA DE CONTEÚDO ================= -->
-    <main class="flex-1 flex flex-col overflow-y-auto">
+    <main class="flex-1 flex flex-col overflow-y-auto relative">
         
         <!-- Header Superior -->
-        <header class="bg-white border-b border-kn-gray px-8 py-4 flex items-center justify-between">
+        <header class="bg-white border-b border-kn-gray px-8 py-4 flex items-center justify-between sticky top-0 z-10">
             <div>
                 <h1 id="titulo-pagina" class="text-lg font-bold text-kn-navy tracking-tight">Registro e Reconciliação Operacional</h1>
                 <p class="text-xs text-slate-500">Dados armazenados localmente no navegador</p>
@@ -114,7 +116,7 @@
 
         <div class="p-8 space-y-6">
 
-            <!-- CARDS DE RESUMO (GARGALOS / KPIS) -->
+            <!-- CARDS DE RESUMO (GARGALOS / KPIS) - Ficam visíveis em ambas as abas -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div class="bg-white p-4 rounded-lg shadow-sm border border-kn-gray border-l-4 border-l-kn-navy">
                     <span class="text-[11px] font-bold text-slate-400 uppercase">Total Bipado</span>
@@ -134,8 +136,8 @@
                 </div>
             </div>
 
-            <!-- SEÇÃO DE BIPAGEM E ENTRADA MANUAL -->
-            <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- ================= ABA 1: OPERAÇÃO (BIPAGEM) ================= -->
+            <section id="aba-operacao" class="grid grid-cols-1 lg:grid-cols-3 gap-6 fade-in">
                 
                 <!-- Card de Leitura / Digitação -->
                 <div class="bg-white p-6 rounded-lg shadow-sm border border-kn-gray space-y-5 h-fit">
@@ -146,7 +148,7 @@
 
                     <div class="space-y-4">
                         <div>
-                            <label class="text-xs font-semibold text-slate-500 uppercase">Código de Barras ou QR Code</label>
+                            <label class="text-xs font-semibold text-slate-500 uppercase">Código de Barras</label>
                             <div class="flex space-x-2 mt-1">
                                 <input type="text" id="barcodeInput" autofocus placeholder="Bipe ou digite aqui..." class="w-full p-2.5 border border-slate-300 rounded font-mono text-sm focus:ring-2 focus:ring-kn-navy focus:border-kn-navy focus:outline-none">
                                 <button onclick="processarBip()" class="bg-kn-navy hover:bg-kn-blue text-white px-4 py-2.5 rounded font-semibold text-xs transition">
@@ -158,11 +160,11 @@
                         <!-- Opções de Parâmetros -->
                         <div class="grid grid-cols-2 gap-3 pt-3 border-t border-slate-100">
                             <div>
-                                <label class="text-xs font-semibold text-slate-500">Atribuir Rota/Gaiola:</label>
-                                <input type="text" id="atribuicaoInput" placeholder="Ex: Gaiola 01 / Rota 10" class="w-full p-2 border border-slate-300 rounded text-xs mt-1 focus:outline-none focus:border-kn-navy">
+                                <label class="text-xs font-semibold text-slate-500">Rota/Gaiola:</label>
+                                <input type="text" id="atribuicaoInput" placeholder="Ex: Gaiola 01" class="w-full p-2 border border-slate-300 rounded text-xs mt-1 focus:outline-none focus:border-kn-navy">
                             </div>
                             <div>
-                                <label class="text-xs font-semibold text-slate-500">Ciclo Operacional:</label>
+                                <label class="text-xs font-semibold text-slate-500">Ciclo:</label>
                                 <select id="selectCiclo" onchange="atualizarCicloBadge()" class="w-full p-2 border border-slate-300 rounded text-xs mt-1 bg-white focus:outline-none focus:border-kn-navy">
                                     <option value="AM">AM</option>
                                     <option value="PM">PM</option>
@@ -183,7 +185,7 @@
                 <!-- Tabela de Pacotes Persistidos -->
                 <div class="bg-white p-6 rounded-lg shadow-sm border border-kn-gray lg:col-span-2 space-y-4">
                     <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                        <h2 class="text-sm font-bold text-kn-navy uppercase tracking-wider">Histórico de Registros (Salvo Localmente)</h2>
+                        <h2 class="text-sm font-bold text-kn-navy uppercase tracking-wider">Histórico de Registros</h2>
                         <span id="contadorBips" class="text-xs font-semibold bg-slate-100 text-kn-navy px-3 py-1 rounded-full border border-slate-200">0 Pacotes</span>
                     </div>
 
@@ -204,41 +206,118 @@
                         </table>
                     </div>
                 </div>
-
             </section>
+
+            <!-- ================= ABA 2: GRÁFICOS ================= -->
+            <section id="aba-graficos" class="hidden space-y-6 fade-in">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    
+                    <!-- Gráfico Ciclo AM -->
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-kn-gray">
+                        <h2 class="text-sm font-bold text-kn-navy uppercase tracking-wider border-b border-slate-100 pb-3 mb-4">
+                            Performance Operacional - Ciclo AM
+                        </h2>
+                        <div class="relative h-64">
+                            <canvas id="graficoAM"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Gráfico Ciclo PM -->
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-kn-gray">
+                        <h2 class="text-sm font-bold text-kn-navy uppercase tracking-wider border-b border-slate-100 pb-3 mb-4">
+                            Performance Operacional - Ciclo PM
+                        </h2>
+                        <div class="relative h-64">
+                            <canvas id="graficoPM"></canvas>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
         </div>
     </main>
+
+    <!-- Estilo extra para a animação das abas -->
+    <style>
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
 
     <!-- ================= JAVASCRIPT ================= -->
     <script>
         lucide.createIcons();
         
-        // CHAVE DE ARMAZENAMENTO NO NAVEGADOR
         const STORAGE_KEY = 'kn_logistica_dados';
         let dadosOperacao = carregardados();
+        
+        // Variáveis globais para os gráficos
+        let chartAM = null;
+        let chartPM = null;
 
-        // Inicializa ao carregar a página
         window.onload = function() {
             renderizarTabela(dadosOperacao);
             atualizarKPIs();
+            renderizarGraficos();
         };
 
-        // Salvar no LocalStorage (Não apaga ao atualizar F5)
+        // Função para esconder/mostrar o Menu Lateral
+        function toggleMenuLateral() {
+            const navMenu = document.getElementById('nav-menu');
+            if (navMenu.classList.contains('hidden')) {
+                navMenu.classList.remove('hidden');
+            } else {
+                navMenu.classList.add('hidden');
+            }
+        }
+
+        // Sistema de Abas
+        function mudarAba(aba) {
+            const secOperacao = document.getElementById('aba-operacao');
+            const secGraficos = document.getElementById('aba-graficos');
+            const btnOperacao = document.getElementById('btn-aba-operacao');
+            const btnGraficos = document.getElementById('btn-aba-graficos');
+
+            if (aba === 'operacao') {
+                secOperacao.classList.remove('hidden');
+                secGraficos.classList.add('hidden');
+                
+                // Estilo ativo no botão Operação
+                btnOperacao.classList.add('bg-kn-blue', 'text-white');
+                btnOperacao.classList.remove('hover:bg-kn-blue/50', 'text-slate-200');
+                
+                // Remove estilo ativo do botão Gráficos
+                btnGraficos.classList.remove('bg-kn-blue', 'text-white');
+                btnGraficos.classList.add('hover:bg-kn-blue/50', 'text-slate-200');
+                
+                document.getElementById('barcodeInput').focus();
+            } else if (aba === 'graficos') {
+                secOperacao.classList.add('hidden');
+                secGraficos.classList.remove('hidden');
+                
+                // Estilo ativo no botão Gráficos
+                btnGraficos.classList.add('bg-kn-blue', 'text-white');
+                btnGraficos.classList.remove('hover:bg-kn-blue/50', 'text-slate-200');
+                
+                // Remove estilo ativo do botão Operação
+                btnOperacao.classList.remove('bg-kn-blue', 'text-white');
+                btnOperacao.classList.add('hover:bg-kn-blue/50', 'text-slate-200');
+
+                // Atualiza gráficos sempre que a aba for aberta
+                renderizarGraficos();
+            }
+        }
+
+        // Salvar no LocalStorage
         function salvardados() {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(dadosOperacao));
             atualizarKPIs();
+            renderizarGraficos(); // Mantém gráficos sincronizados
         }
 
-        // Carregar do LocalStorage
         function carregardados() {
             const dadosSalvos = localStorage.getItem(STORAGE_KEY);
             return dadosSalvos ? JSON.parse(dadosSalvos) : [];
-        }
-
-        // Alterna menus da sidebar
-        function toggleDropdown(menuId, setaId) {
-            document.getElementById(menuId).classList.toggle('hidden');
-            document.getElementById(setaId).classList.toggle('rotate-180');
         }
 
         function atualizarCicloBadge() {
@@ -246,7 +325,7 @@
             document.getElementById('badge-ciclo').innerText = `Ciclo ${ciclo}`;
         }
 
-        // Bipador Físico ou Enter do Teclado
+        // Bipador Físico
         document.getElementById('barcodeInput').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
@@ -254,7 +333,6 @@
             }
         });
 
-        // Grava o pacote
         function processarBip() {
             const input = document.getElementById('barcodeInput');
             const barcode = input.value.trim();
@@ -282,7 +360,6 @@
             input.focus();
         }
 
-        // Atualiza a visualização da Tabela
         function renderizarTabela(lista) {
             const tbody = document.getElementById('tabelaBips');
             document.getElementById('contadorBips').innerText = `${lista.length} Pacotes`;
@@ -307,7 +384,6 @@
             `).join('');
         }
 
-        // Atualiza KPIs
         function atualizarKPIs() {
             const total = dadosOperacao.length;
             const am = dadosOperacao.filter(d => d.ciclo === 'AM').length;
@@ -321,12 +397,6 @@
             document.getElementById('kpiSaida').innerText = saida;
         }
 
-        // Filtros Rápidos
-        function filtrarCiclo(ciclo) {
-            const filtrados = dadosOperacao.filter(d => d.ciclo === ciclo);
-            renderizarTabela(filtrados);
-        }
-
         function filtrarStatus(status) {
             if (status === 'TODOS') {
                 renderizarTabela(dadosOperacao);
@@ -336,17 +406,16 @@
             }
         }
 
-        // Limpar Dados do Navegador
         function limparBase() {
             if (confirm("Tem certeza que deseja apagar todos os registros da memória local?")) {
                 localStorage.removeItem(STORAGE_KEY);
                 dadosOperacao = [];
                 renderizarTabela(dadosOperacao);
                 atualizarKPIs();
+                renderizarGraficos();
             }
         }
 
-        // Exportar Relatório em CSV (compatível com Excel)
         function exportarCSV() {
             if (dadosOperacao.length === 0) {
                 alert("Não há dados para exportar.");
@@ -365,6 +434,72 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+        }
+
+        // ================= FUNÇÃO DE GRÁFICOS (CHART.JS) =================
+        function renderizarGraficos() {
+            // Conta os dados do Ciclo AM
+            const amTotal = dadosOperacao.filter(d => d.ciclo === 'AM').length;
+            const amSaida = dadosOperacao.filter(d => d.ciclo === 'AM' && d.status === 'SAIU_PARA_ENTREGA').length;
+            const amPiso = dadosOperacao.filter(d => d.ciclo === 'AM' && d.status === 'FICOU_NO_PISO').length;
+
+            // Conta os dados do Ciclo PM
+            const pmTotal = dadosOperacao.filter(d => d.ciclo === 'PM').length;
+            const pmSaida = dadosOperacao.filter(d => d.ciclo === 'PM' && d.status === 'SAIU_PARA_ENTREGA').length;
+            const pmPiso = dadosOperacao.filter(d => d.ciclo === 'PM' && d.status === 'FICOU_NO_PISO').length;
+
+            // Configuração visual padrão
+            const cores = {
+                total: '#004B93',   // Azul KN
+                saida: '#10B981',   // Emerald
+                piso: '#F59E0B'     // Amber
+            };
+
+            // Gráfico AM
+            const ctxAM = document.getElementById('graficoAM').getContext('2d');
+            if (chartAM) chartAM.destroy(); // Apaga o antigo antes de desenhar o novo
+            
+            chartAM = new Chart(ctxAM, {
+                type: 'bar',
+                data: {
+                    labels: ['Total Lidos', 'Saíram pra Entrega', 'Ficaram no Piso'],
+                    datasets: [{
+                        label: 'Volume de Pacotes - AM',
+                        data: [amTotal, amSaida, amPiso],
+                        backgroundColor: [cores.total, cores.saida, cores.piso],
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                }
+            });
+
+            // Gráfico PM
+            const ctxPM = document.getElementById('graficoPM').getContext('2d');
+            if (chartPM) chartPM.destroy();
+
+            chartPM = new Chart(ctxPM, {
+                type: 'bar',
+                data: {
+                    labels: ['Total Lidos', 'Saíram pra Entrega', 'Ficaram no Piso'],
+                    datasets: [{
+                        label: 'Volume de Pacotes - PM',
+                        data: [pmTotal, pmSaida, pmPiso],
+                        backgroundColor: [cores.total, cores.saida, cores.piso],
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                }
+            });
         }
     </script>
 </body>
