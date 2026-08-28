@@ -186,7 +186,7 @@
                         <div>
                             <label class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Cole os IDs (um por linha)</label>
                             <textarea id="bulkInput" rows="4" placeholder="Cole vários IDs aqui...&#10;Ex: ID001&#10;ID002" class="w-full p-3 border border-slate-300 rounded-lg font-mono text-xs mt-1 focus:ring-2 focus:ring-kn-navy focus:outline-none bg-slate-50/50 resize-none"></textarea>
-                            <span class="text-[10px] text-slate-400 mt-1 block">Muda automaticamente para "Ficou no Piso" em qualquer ciclo (AM/PM).</span>
+                            <span class="text-[10px] text-slate-400 mt-1 block">Insere novos IDs ou atualiza existentes para "Ficou no Piso" no histórico.</span>
                         </div>
                         <button onclick="processarMassaPiso()" class="w-full bg-amber-600 hover:bg-amber-700 text-white p-2.5 rounded-lg text-xs font-bold transition shadow-sm flex items-center justify-center space-x-2">
                             <i data-lucide="check-check" class="w-4 h-4"></i>
@@ -232,7 +232,7 @@
                                 <tr>
                                     <th class="px-4 py-3">Código de Barras</th>
                                     <th class="px-4 py-3">Ciclo</th>
-                                    <th class="px-4 py-3">Atribuição</th>
+                                    <th class="px-4 py-3">Atribuição / Rota</th>
                                     <th class="px-4 py-3">Status</th>
                                     <th class="px-4 py-3">Horário</th>
                                 </tr>
@@ -262,7 +262,7 @@
                     <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider border-b border-slate-100 pb-3 mb-4">
                         Analytics Operacional - Ciclo AM
                     </h2>
-                    <div class="relative h-96 w-full">
+                    <div class="relative h-96 w-full flex justify-center">
                         <canvas id="graficoAM"></canvas>
                     </div>
                 </div>
@@ -274,7 +274,7 @@
                     <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider border-b border-slate-100 pb-3 mb-4">
                         Analytics Operacional - Ciclo PM
                     </h2>
-                    <div class="relative h-96 w-full">
+                    <div class="relative h-96 w-full flex justify-center">
                         <canvas id="graficoPM"></canvas>
                     </div>
                 </div>
@@ -419,21 +419,59 @@
                 return;
             }
 
+            const ciclo = document.getElementById('selectCiclo').value;
+            const atribuicao = document.getElementById('atribuicaoInput').value.trim() || 'Sem Rota';
+
             let alterados = 0;
+            let inseridos = 0;
+
             linhas.forEach(barcode => {
-                // Atualiza em qualquer ciclo (AM ou PM) onde o ID for encontrado
-                let itensEncontrados = dadosOperacao.filter(d => d.barcode === barcode);
-                itensEncontrados.forEach(item => {
-                    item.status = 'FICOU_NO_PISO';
-                    item.hora = new Date().toLocaleTimeString('pt-BR');
-                    alterados++;
-                });
+                let itensEncontrados = dadosOperacao.filter(d => d.barcode === barcode && d.ciclo === ciclo);
+                
+                if (itensEncontrados.length > 0) {
+                    itensEncontrados.forEach(item => {
+                        item.status = 'FICOU_NO_PISO';
+                        item.hora = new Date().toLocaleTimeString('pt-BR');
+                        alterados++;
+                    });
+                } else {
+                    const novoItem = {
+                        id: Date.now() + Math.random(),
+                        barcode: barcode,
+                        ciclo: ciclo,
+                        atribuicao: atribuicao,
+                        status: 'FICOU_NO_PISO',
+                        hora: new Date().toLocaleTimeString('pt-BR'),
+                        data: new Date().toLocaleDateString('pt-BR')
+                    };
+                    dadosOperacao.unshift(novoItem);
+                    inseridos++;
+                }
             });
 
             salvardados();
             aplicarFiltros();
             textarea.value = '';
-            mostrarAlerta(`⚙️ ${alterados} registro(s) atualizado(s) para 'Ficou no Piso' em massa.`, 'warning');
+            mostrarAlerta(`⚙️ ${inseridos + alterados} registro(s) processado(s) (${inseridos} inseridos como novo no Piso, ${alterados} atualizados).`, 'warning');
+        }
+
+        function alterarStatusManual(id, novoStatus) {
+            const item = dadosOperacao.find(d => d.id === id);
+            if (item) {
+                item.status = novoStatus;
+                item.hora = new Date().toLocaleTimeString('pt-BR');
+                salvardados();
+                aplicarFiltros();
+            }
+        }
+
+        // Função para alterar e salvar a rota manualmente na tabela de histórico
+        function alterarAtribuicaoManual(id, novaAtribuicao) {
+            const item = dadosOperacao.find(d => d.id === id);
+            if (item) {
+                item.atribuicao = novaAtribuicao.trim() || 'Sem Rota';
+                salvardados();
+            }
         }
 
         function aplicarFiltros() {
@@ -464,11 +502,14 @@
                 <tr class="hover:bg-slate-50/80 font-mono border-b border-slate-100 transition">
                     <td class="px-4 py-3 font-bold text-slate-800">${item.barcode}</td>
                     <td class="px-4 py-3"><span class="px-2 py-0.5 text-[10px] rounded font-semibold ${item.ciclo === 'AM' ? 'bg-sky-100 text-sky-900' : 'bg-indigo-100 text-indigo-900'}">${item.ciclo}</span></td>
-                    <td class="px-4 py-3 text-slate-600 font-sans">${item.atribuicao}</td>
                     <td class="px-4 py-3 font-sans">
-                        <span class="px-2 py-1 text-[10px] rounded font-bold ${item.status === 'SAIU_PARA_ENTREGA' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
-                            ${item.status === 'SAIU_PARA_ENTREGA' ? 'SAÍDA' : 'PISO'}
-                        </span>
+                        <input type="text" value="${item.atribuicao}" onchange="alterarAtribuicaoManual(${item.id}, this.value)" class="w-full p-1.5 border border-slate-300 rounded text-xs focus:outline-none focus:border-kn-navy bg-white hover:bg-slate-50 font-medium text-slate-700 transition" placeholder="Digitar rota...">
+                    </td>
+                    <td class="px-4 py-3 font-sans">
+                        <select onchange="alterarStatusManual(${item.id}, this.value)" class="p-1.5 rounded text-[10px] font-bold border cursor-pointer focus:outline-none ${item.status === 'SAIU_PARA_ENTREGA' ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-amber-100 text-amber-800 border-amber-300'}">
+                            <option value="SAIU_PARA_ENTREGA" ${item.status === 'SAIU_PARA_ENTREGA' ? 'selected' : ''}>SAÍDA</option>
+                            <option value="FICOU_NO_PISO" ${item.status === 'FICOU_NO_PISO' ? 'selected' : ''}>PISO</option>
+                        </select>
                     </td>
                     <td class="px-4 py-3 text-slate-400 font-sans">${item.hora}</td>
                 </tr>
@@ -552,16 +593,12 @@
                 const ctxAM = canvasAM.getContext('2d');
                 if (chartAM) chartAM.destroy();
                 chartAM = new Chart(ctxAM, {
-                    type: 'bar',
+                    type: 'doughnut',
                     data: {
-                        labels: ['Volume AM'],
-                        datasets: [
-                            { label: 'Total Lidos', data: [amTotal], backgroundColor: cores.total, borderRadius: 6 },
-                            { label: 'Saiu para Entrega', data: [amSaida], backgroundColor: cores.saida, borderRadius: 6 },
-                            { label: 'Ficou no Piso', data: [amPiso], backgroundColor: cores.piso, borderRadius: 6 }
-                        ]
+                        labels: ['Saíram pra Entrega', 'Ficaram no Piso'],
+                        datasets: [{ data: [amSaida, amPiso], backgroundColor: [cores.saida, cores.piso] }]
                     },
-                    options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+                    options: { responsive: true, maintainAspectRatio: false }
                 });
             }
 
@@ -570,16 +607,12 @@
                 const ctxPM = canvasPM.getContext('2d');
                 if (chartPM) chartPM.destroy();
                 chartPM = new Chart(ctxPM, {
-                    type: 'bar',
+                    type: 'doughnut',
                     data: {
-                        labels: ['Volume PM'],
-                        datasets: [
-                            { label: 'Total Lidos', data: [pmTotal], backgroundColor: cores.total, borderRadius: 6 },
-                            { label: 'Saiu para Entrega', data: [pmSaida], backgroundColor: cores.saida, borderRadius: 6 },
-                            { label: 'Ficou no Piso', data: [pmPiso], backgroundColor: cores.piso, borderRadius: 6 }
-                        ]
+                        labels: ['Saíram pra Entrega', 'Ficaram no Piso'],
+                        datasets: [{ data: [pmSaida, pmPiso], backgroundColor: [cores.saida, cores.piso] }]
                     },
-                    options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+                    options: { responsive: true, maintainAspectRatio: false }
                 });
             }
         }
