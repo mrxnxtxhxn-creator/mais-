@@ -140,7 +140,7 @@
             <!-- ================= ABA 1: BIPAGEM INTELIGENTE ================= -->
             <section id="aba-operacao" class="grid grid-cols-1 lg:grid-cols-3 gap-6 fade-in">
                 
-                <!-- Coluna Esquerda: Leitor Óptico + Verificação em Massa -->
+                <!-- Coluna Esquerda: Leitor + Massa + Resumo por Rota -->
                 <div class="space-y-6">
                     <!-- Caixa de Leitura / Input Individual -->
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border space-y-5">
@@ -177,6 +177,17 @@
                         </div>
                     </div>
 
+                    <!-- NOVO CARD: Resumo de Pacotes por Rota -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border space-y-4">
+                        <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                            <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider">Volume por Rota / Gaiola</h2>
+                            <i data-lucide="truck" class="w-4 h-4 text-kn-navy"></i>
+                        </div>
+                        <div id="resumoRotasContainer" class="space-y-2 max-h-56 overflow-y-auto pr-1">
+                            <!-- Inserido dinamicamente pelo JavaScript -->
+                        </div>
+                    </div>
+
                     <!-- Verificação em Massa (Piso) -->
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border space-y-4">
                         <div class="flex justify-between items-center border-b border-slate-100 pb-3">
@@ -185,7 +196,7 @@
                         </div>
                         <div>
                             <label class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Cole os IDs (um por linha)</label>
-                            <textarea id="bulkInput" rows="4" placeholder="Cole vários IDs aqui...&#10;Ex: ID001&#10;ID002" class="w-full p-3 border border-slate-300 rounded-lg font-mono text-xs mt-1 focus:ring-2 focus:ring-kn-navy focus:outline-none bg-slate-50/50 resize-none"></textarea>
+                            <textarea id="bulkInput" rows="3" placeholder="Cole vários IDs aqui...&#10;Ex: ID001&#10;ID002" class="w-full p-3 border border-slate-300 rounded-lg font-mono text-xs mt-1 focus:ring-2 focus:ring-kn-navy focus:outline-none bg-slate-50/50 resize-none"></textarea>
                             <span class="text-[10px] text-slate-400 mt-1 block">Insere novos IDs ou atualiza existentes para "Ficou no Piso" no histórico.</span>
                         </div>
                         <button onclick="processarMassaPiso()" class="w-full bg-amber-600 hover:bg-amber-700 text-white p-2.5 rounded-lg text-xs font-bold transition shadow-sm flex items-center justify-center space-x-2">
@@ -226,7 +237,7 @@
                         </div>
                     </div>
 
-                    <div class="overflow-x-auto max-h-[360px]">
+                    <div class="overflow-x-auto max-h-[500px]">
                         <table class="w-full text-xs text-left text-slate-600">
                             <thead class="text-[10px] text-kn-navy uppercase bg-slate-50 border-b border-slate-200 sticky top-0 font-bold">
                                 <tr>
@@ -302,6 +313,7 @@
         window.onload = function() {
             aplicarFiltros();
             atualizarKPIs();
+            atualizarResumoRotas();
             document.getElementById('barcodeInput').focus();
         };
 
@@ -335,6 +347,7 @@
         function salvardados() {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(dadosOperacao));
             atualizarKPIs();
+            atualizarResumoRotas();
             renderizarGraficos(); 
         }
 
@@ -465,13 +478,44 @@
             }
         }
 
-        // Função para alterar e salvar a rota manualmente na tabela de histórico
         function alterarAtribuicaoManual(id, novaAtribuicao) {
             const item = dadosOperacao.find(d => d.id === id);
             if (item) {
                 item.atribuicao = novaAtribuicao.trim() || 'Sem Rota';
                 salvardados();
             }
+        }
+
+        // Função que gera a listagem dinâmica de pacotes por Rota
+        function atualizarResumoRotas() {
+            const container = document.getElementById('resumoRotasContainer');
+            if (!container) return;
+
+            const contagemRotas = {};
+
+            dadosOperacao.forEach(item => {
+                const rota = item.atribuicao.trim() || 'Sem Rota';
+                contagemRotas[rota] = (contagemRotas[rota] || 0) + 1;
+            });
+
+            const rotasOrdenadas = Object.entries(contagemRotas).sort((a, b) => b[1] - a[1]);
+
+            if (rotasOrdenadas.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 italic text-center py-4">Nenhuma rota registrada.</p>`;
+                return;
+            }
+
+            container.innerHTML = rotasOrdenadas.map(([rota, total]) => `
+                <div class="flex items-center justify-between p-2.5 bg-slate-50 border border-slate-200 rounded-lg hover:border-kn-navy/30 transition">
+                    <div class="flex items-center space-x-2.5 truncate pr-2">
+                        <i data-lucide="truck" class="w-3.5 h-3.5 text-kn-navy flex-shrink-0"></i>
+                        <span class="text-xs font-bold text-slate-700 truncate">${rota}</span>
+                    </div>
+                    <span class="px-2.5 py-0.5 text-[11px] font-black bg-kn-navy text-white rounded-full flex-shrink-0">${total} ${total === 1 ? 'ID' : 'IDs'}</span>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
         }
 
         function aplicarFiltros() {
@@ -535,6 +579,7 @@
                 dadosOperacao = [];
                 aplicarFiltros();
                 atualizarKPIs();
+                atualizarResumoRotas();
                 renderizarGraficos();
                 document.getElementById('barcodeInput').focus();
             }
