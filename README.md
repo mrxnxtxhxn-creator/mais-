@@ -541,7 +541,7 @@
             const texto = textarea.value.trim();
 
             if (!texto) {
-                alert("Cole o texto copiado da tela do Mercado Livre para processar.");
+                alert("Cole o conteúdo copiado da tela do Mercado Livre para processar.");
                 return;
             }
 
@@ -550,22 +550,23 @@
             let processados = 0;
 
             linhas.forEach(linha => {
-                const matchID = linha.match(/([A-Z0-9]{8,22})/i);
+                const matchID = linha.match(/(MLB\d+|\d{10,13}|[A-Za-z0-9_-]{6,})/i);
                 if (!matchID) return;
 
                 const barcode = matchID[0].toUpperCase();
-                let statusCalculado = 'NULO';
+                const linhaLower = linha.toLowerCase();
 
-                const linhaLC = linha.toLowerCase();
-                if (linhaLC.includes('despachar')) {
-                    statusCalculado = 'FICOU_NO_PISO';
-                } else if (linhaLC.includes('em rota') || linhaLC.includes('saiu')) {
-                    statusCalculado = 'SAIU_PARA_ENTREGA';
+                let status = 'NULO';
+                if (linhaLower.includes('despachar')) {
+                    status = 'FICOU_NO_PISO';
+                } else if (linhaLower.includes('em rota') || linhaLower.includes('rota de entrega')) {
+                    status = 'SAIU_PARA_ENTREGA';
                 }
 
                 let itemExistente = dadosOperacao.find(d => d.barcode === barcode && d.ciclo === ciclo);
+
                 if (itemExistente) {
-                    itemExistente.status = statusCalculado;
+                    itemExistente.status = status;
                     itemExistente.hora = new Date().toLocaleTimeString('pt-BR');
                 } else {
                     dadosOperacao.unshift({
@@ -573,7 +574,7 @@
                         barcode: barcode,
                         ciclo: ciclo,
                         atribuicao: 'Mercado Livre',
-                        status: statusCalculado,
+                        status: status,
                         hora: new Date().toLocaleTimeString('pt-BR'),
                         data: new Date().toLocaleDateString('pt-BR')
                     });
@@ -584,166 +585,160 @@
             salvardados();
             aplicarFiltros();
             textarea.value = '';
-            mostrarAlerta(`📦 ${processados} item(ns) reconciliado(s) com sucesso via Mercado Livre.`, 'info');
+            mostrarAlerta(`🔄 Reconciliação concluída! ${processados} item(ns) do Mercado Livre processado(s).`, 'info');
         }
 
-        /* 4. FILTROS E RENDERIZAÇÃO DA TABELA */
+        /* 4. FILTROS E TABELA */
         function aplicarFiltros() {
             const texto = document.getElementById('filtroTexto').value.toLowerCase();
             const status = document.getElementById('filtroStatus').value;
             const ciclo = document.getElementById('filtroCiclo').value;
 
             const filtrados = dadosOperacao.filter(item => {
-                const bateTexto = item.barcode.toLowerCase().includes(texto) || item.atribuicao.toLowerCase().includes(texto);
-                const bateStatus = !status || item.status === status;
-                const bateCiclo = !ciclo || item.ciclo === ciclo;
-                return bateTexto && bateStatus && bateCiclo;
+                const matchTexto = item.barcode.toLowerCase().includes(texto) || item.atribuicao.toLowerCase().includes(texto);
+                const matchStatus = status ? item.status === status : true;
+                const matchCiclo = ciclo ? item.ciclo === ciclo : true;
+                return matchTexto && matchStatus && matchCiclo;
             });
 
-            renderizarTabela(filtrados);
-            document.getElementById('contadorBips').innerText = `${filtrados.length} Pacotes`;
-        }
-
-        function renderizarTabela(lista) {
             const tbody = document.getElementById('tabelaBips');
             tbody.innerHTML = '';
 
-            if (lista.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-6 text-center text-slate-400">Nenhum registro encontrado.</td></tr>`;
-                return;
-            }
-
-            lista.forEach(item => {
+            filtrados.forEach(item => {
                 let badgeStatus = '';
                 if (item.status === 'SAIU_PARA_ENTREGA') {
-                    badgeStatus = '<span class="px-2 py-0.5 text-[10px] bg-emerald-100 text-emerald-800 rounded font-bold">SAIU PARA ENTREGA</span>';
+                    badgeStatus = '<span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold text-[10px]">Saiu para Entrega</span>';
                 } else if (item.status === 'FICOU_NO_PISO') {
-                    badgeStatus = '<span class="px-2 py-0.5 text-[10px] bg-amber-100 text-amber-800 rounded font-bold">FICOU NO PISO</span>';
+                    badgeStatus = '<span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold text-[10px]">Ficou no Piso</span>';
                 } else {
-                    badgeStatus = '<span class="px-2 py-0.5 text-[10px] bg-slate-100 text-slate-700 rounded font-bold">NULO</span>';
+                    badgeStatus = '<span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-bold text-[10px]">Status Nulo</span>';
                 }
 
                 const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-50 border-b border-slate-100';
+                tr.className = 'hover:bg-slate-50 transition border-b border-slate-100';
                 tr.innerHTML = `
-                    <td class="px-4 py-3 font-mono font-bold text-slate-800">${item.barcode}</td>
-                    <td class="px-4 py-3"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${item.ciclo === 'AM' ? 'bg-amber-100 text-amber-800' : 'bg-indigo-100 text-indigo-800'}">${item.ciclo}</span></td>
-                    <td class="px-4 py-3 text-slate-600">${item.atribuicao}</td>
-                    <td class="px-4 py-3">${badgeStatus}</td>
-                    <td class="px-4 py-3 text-slate-400 text-[11px] font-mono">${item.hora}</td>
+                    <td class="px-4 py-2.5 font-mono font-semibold text-slate-800">${item.barcode}</td>
+                    <td class="px-4 py-2.5 font-bold">${item.ciclo}</td>
+                    <td class="px-4 py-2.5 text-slate-600">${item.atribuicao}</td>
+                    <td class="px-4 py-2.5">${badgeStatus}</td>
+                    <td class="px-4 py-2.5 text-slate-500 text-[11px]">${item.hora}</td>
                 `;
                 tbody.appendChild(tr);
             });
+
+            document.getElementById('contadorBips').innerText = `${filtrados.length} Pacotes`;
         }
 
-        /* 5. ATUALIZAÇÃO DOS KPIS DA TELA */
+        /* 5. METRICAS / KPIS */
         function atualizarKPIs() {
             const total = dadosOperacao.length;
             const totalAM = dadosOperacao.filter(d => d.ciclo === 'AM').length;
             const totalPM = dadosOperacao.filter(d => d.ciclo === 'PM').length;
-            const totalPiso = dadosOperacao.filter(d => d.status === 'FICOU_NO_PISO').length;
-            const totalSaida = dadosOperacao.filter(d => d.status === 'SAIU_PARA_ENTREGA').length;
-            const totalNulo = dadosOperacao.filter(d => d.status === 'NULO').length;
+            const piso = dadosOperacao.filter(d => d.status === 'FICOU_NO_PISO').length;
+            const saida = dadosOperacao.filter(d => d.status === 'SAIU_PARA_ENTREGA').length;
+            const nulo = dadosOperacao.filter(d => d.status === 'NULO').length;
 
             document.getElementById('kpiTotal').innerText = total;
             document.getElementById('kpiCiclos').innerText = `${totalAM} / ${totalPM}`;
-            document.getElementById('kpiPiso').innerText = totalPiso;
-            document.getElementById('kpiSaida').innerText = totalSaida;
-            document.getElementById('kpiNulo').innerText = totalNulo;
+            document.getElementById('kpiPiso').innerText = piso;
+            document.getElementById('kpiSaida').innerText = saida;
+            document.getElementById('kpiNulo').innerText = nulo;
         }
 
-        /* 6. RENDERIZAÇÃO DOS GRÁFICOS (CHART.JS) */
+        /* 6. CHARTS METRICS */
         function renderizarGraficos() {
-            if (typeof Chart === 'undefined') return;
-
-            const amSaida = dadosOperacao.filter(d => d.ciclo === 'AM' && d.status === 'SAIU_PARA_ENTREGA').length;
             const amPiso = dadosOperacao.filter(d => d.ciclo === 'AM' && d.status === 'FICOU_NO_PISO').length;
+            const amSaida = dadosOperacao.filter(d => d.ciclo === 'AM' && d.status === 'SAIU_PARA_ENTREGA').length;
             const amNulo = dadosOperacao.filter(d => d.ciclo === 'AM' && d.status === 'NULO').length;
 
-            const pmSaida = dadosOperacao.filter(d => d.ciclo === 'PM' && d.status === 'SAIU_PARA_ENTREGA').length;
             const pmPiso = dadosOperacao.filter(d => d.ciclo === 'PM' && d.status === 'FICOU_NO_PISO').length;
+            const pmSaida = dadosOperacao.filter(d => d.ciclo === 'PM' && d.status === 'SAIU_PARA_ENTREGA').length;
             const pmNulo = dadosOperacao.filter(d => d.ciclo === 'PM' && d.status === 'NULO').length;
 
-            // Gráfico Geral
+            if (chartGeral) chartGeral.destroy();
+            if (chartAM) chartAM.destroy();
+            if (chartPM) chartPM.destroy();
+
             const ctxGeral = document.getElementById('graficoGeral')?.getContext('2d');
             if (ctxGeral) {
-                if (chartGeral) chartGeral.destroy();
                 chartGeral = new Chart(ctxGeral, {
                     type: 'bar',
                     data: {
                         labels: ['Saiu para Entrega', 'Ficou no Piso', 'Status Nulo'],
                         datasets: [
-                            { label: 'Ciclo AM', data: [amSaida, amPiso, amNulo], backgroundColor: '#f59e0b' },
-                            { label: 'Ciclo PM', data: [pmSaida, pmPiso, pmNulo], backgroundColor: '#6366f1' }
+                            { label: 'Ciclo AM', data: [amSaida, amPiso, amNulo], backgroundColor: '#004B93' },
+                            { label: 'Ciclo PM', data: [pmSaida, pmPiso, pmNulo], backgroundColor: '#0284c7' }
                         ]
                     },
                     options: { responsive: true, maintainAspectRatio: false }
                 });
             }
 
-            // Gráfico AM
             const ctxAM = document.getElementById('graficoAM')?.getContext('2d');
             if (ctxAM) {
-                if (chartAM) chartAM.destroy();
                 chartAM = new Chart(ctxAM, {
                     type: 'doughnut',
                     data: {
                         labels: ['Saiu para Entrega', 'Ficou no Piso', 'Status Nulo'],
-                        datasets: [{ data: [amSaida, amPiso, amNulo], backgroundColor: ['#10b981', '#f59e0b', '#94a3b8'] }]
+                        datasets: [{
+                            data: [amSaida, amPiso, amNulo],
+                            backgroundColor: ['#10b981', '#f59e0b', '#94a3b8']
+                        }]
                     },
                     options: { responsive: true, maintainAspectRatio: false }
                 });
             }
 
-            // Gráfico PM
             const ctxPM = document.getElementById('graficoPM')?.getContext('2d');
             if (ctxPM) {
-                if (chartPM) chartPM.destroy();
                 chartPM = new Chart(ctxPM, {
                     type: 'doughnut',
                     data: {
                         labels: ['Saiu para Entrega', 'Ficou no Piso', 'Status Nulo'],
-                        datasets: [{ data: [pmSaida, pmPiso, pmNulo], backgroundColor: ['#10b981', '#f59e0b', '#94a3b8'] }]
+                        datasets: [{
+                            data: [pmSaida, pmPiso, pmNulo],
+                            backgroundColor: ['#10b981', '#f59e0b', '#94a3b8']
+                        }]
                     },
                     options: { responsive: true, maintainAspectRatio: false }
                 });
             }
         }
 
-        /* 7. EXPORTAÇÃO CSV E LIMPEZA DE DADOS */
-        function exportarCSV(filtroCiclo) {
-            let dados = dadosOperacao;
-            if (filtroCiclo !== 'TODOS') {
-                dados = dadosOperacao.filter(d => d.ciclo === filtroCiclo);
+        /* 7. EXPORTAÇÃO E RESET */
+        function exportarCSV(tipo) {
+            let dadosFiltrados = dadosOperacao;
+            if (tipo === 'AM' || tipo === 'PM') {
+                dadosFiltrados = dadosOperacao.filter(d => d.ciclo === tipo);
             }
 
-            if (dados.length === 0) {
-                mostrarAlerta('⚠️ Nenhum dado disponível para exportar.', 'warning');
+            if (dadosFiltrados.length === 0) {
+                alert('Nenhum dado disponível para exportar.');
                 return;
             }
 
-            let csvContent = "data:text/csv;charset=utf-8,ID,Ciclo,Atribuicao,Status,Data,Hora\n";
-            dados.forEach(d => {
-                csvContent += `"${d.barcode}","${d.ciclo}","${d.atribuicao}","${d.status}","${d.data}","${d.hora}"\n`;
+            let csvContent = "data:text/csv;charset=utf-8,Codigo;Ciclo;Atribuicao;Status;Hora;Data\n";
+            dadosFiltrados.forEach(d => {
+                csvContent += `${d.barcode};${d.ciclo};${d.atribuicao};${d.status};${d.hora};${d.data}\n`;
             });
 
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `reconciliacao_${filtroCiclo.toLowerCase()}_${new Date().toISOString().slice(0,10)}.csv`);
+            link.setAttribute("download", `reconciliacao_pos_sorting_${tipo}_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         }
 
         function limparBase() {
-            if (confirm("Tem certeza que deseja zerar todos os dados salvos? Esta ação não pode ser desfeita.")) {
+            if (confirm("Tem certeza que deseja apagar TODOS os dados salvos? Esta ação não pode ser desfeita.")) {
                 dadosOperacao = [];
                 localStorage.removeItem(STORAGE_KEY);
                 aplicarFiltros();
                 atualizarKPIs();
                 renderizarGraficos();
-                mostrarAlerta("🗑️ Base de dados zerada com sucesso.", "info");
+                mostrarAlerta("🗑️ Base de dados zerada com sucesso.", "warning");
             }
         }
     </script>
