@@ -49,9 +49,6 @@
                         <span class="text-[9px] text-slate-300 tracking-widest uppercase font-semibold">Control Tower</span>
                     </div>
                 </div>
-                <button onclick="toggleMenuLateral()" class="p-1.5 hover:bg-white/10 rounded transition text-slate-300 hover:text-white">
-                    <i data-lucide="menu" class="w-5 h-5"></i>
-                </button>
             </div>
 
             <!-- Navegação Enterprise -->
@@ -164,7 +161,6 @@
             <!-- ================= ABA 1: BIPAGEM INTELIGENTE ================= -->
             <section id="aba-operacao" class="grid grid-cols-1 lg:grid-cols-3 gap-6 fade-in">
                 
-                <!-- Coluna Esquerda: Leitor Óptico + Reconciliação ML + Verificação em Massa -->
                 <div class="space-y-6">
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border space-y-5">
                         <div class="flex justify-between items-center border-b border-slate-100 pb-3">
@@ -184,10 +180,6 @@
                             <div>
                                 <div class="flex justify-between items-center">
                                     <label class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Código de Barras</label>
-                                    <button onclick="copiarTodosIDs()" class="text-[11px] text-kn-blue hover:underline font-semibold flex items-center space-x-1">
-                                        <i data-lucide="copy" class="w-3 h-3"></i>
-                                        <span>Copiar Todos</span>
-                                    </button>
                                 </div>
                                 <div class="mt-1">
                                     <input type="text" id="barcodeInput" autofocus placeholder="Aguardando leitura..." class="w-full p-3 border border-slate-300 rounded-lg font-mono text-sm focus:ring-2 focus:ring-kn-navy focus:border-kn-navy focus:outline-none bg-slate-50/50">
@@ -222,7 +214,7 @@
                         </div>
                         <div>
                             <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Cole o texto/print copiado do ML</label>
-                            <textarea id="mlTextInput" rows="4" placeholder="Cole aqui as linhas/tabela do Mercado Livre...&#10;Ex:&#10;MLB12345 - Despachar&#10;MLB98765 - Em rota de entrega&#10;MLB11223 - Falha na entrega" class="w-full p-3 border border-amber-300 rounded-lg font-mono text-xs mt-1 focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white resize-none"></textarea>
+                            <textarea id="mlTextInput" rows="4" placeholder="Cole aqui as linhas/tabela do Mercado Livre...&#10;Ex:&#10;MLB12345 - Despachar&#10;MLB98765 - Em rota de entrega" class="w-full p-3 border border-amber-300 rounded-lg font-mono text-xs mt-1 focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white resize-none"></textarea>
                         </div>
                         <button onclick="processarPrintMercadoLivre()" class="w-full bg-amber-600 hover:bg-amber-700 text-white p-2.5 rounded-lg text-xs font-bold transition shadow-sm flex items-center justify-center space-x-2">
                             <i data-lucide="refresh-cw" class="w-4 h-4"></i>
@@ -230,7 +222,7 @@
                         </button>
                     </div>
 
-                    <!-- Verificação em Massa (Apenas Piso) -->
+                    <!-- Verificação em Massa (Piso) -->
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border space-y-4">
                         <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                             <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider">Marcador em Massa (No Piso)</h2>
@@ -247,7 +239,7 @@
                     </div>
                 </div>
 
-                <!-- Tabela de Histórico e Filtros -->
+                <!-- Tabela de Histórico -->
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border lg:col-span-2 space-y-4">
                     <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                         <div class="flex items-center space-x-3">
@@ -260,7 +252,7 @@
                         <span id="contadorBips" class="text-xs font-semibold bg-slate-100 text-kn-navy px-3 py-1 rounded-full border border-slate-200">0 Pacotes</span>
                     </div>
 
-                    <!-- Barra de Filtros Avançados -->
+                    <!-- Filtros -->
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-50 p-3 rounded-lg border border-slate-200">
                         <div>
                             <label class="text-[10px] font-bold text-slate-500 uppercase">Filtrar por ID / Rota</label>
@@ -309,8 +301,6 @@
             <!-- ================= ABA 2: RESUMO POR ROTA ================= -->
             <section id="aba-rotas" class="hidden space-y-6 fade-in">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    
-                    <!-- Painel Esquerdo: Lista das Rotas / Gaiolas -->
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border space-y-4">
                         <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                             <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider">Rotas Mapeadas</h2>
@@ -318,12 +308,9 @@
                         </div>
                         <p class="text-[11px] text-slate-500">Clique em uma rota para visualizar os pacotes e seus status individuais.</p>
                         
-                        <div id="listaCardsRotas" class="space-y-2 max-h-[500px] overflow-y-auto pr-1">
-                            <!-- Gerado via JavaScript -->
-                        </div>
+                        <div id="listaCardsRotas" class="space-y-2 max-h-[500px] overflow-y-auto pr-1"></div>
                     </div>
 
-                    <!-- Painel Direito: Detalhes da Rota Selecionada -->
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border lg:col-span-2 space-y-4">
                         <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                             <div class="flex items-center space-x-2">
@@ -349,11 +336,10 @@
                             </table>
                         </div>
                     </div>
-
                 </div>
             </section>
 
-            <!-- ABA 3: GRÁFICOS GERAL -->
+            <!-- ================= ABA 3: VISÃO COMPARATIVA GERAL ================= -->
             <section id="aba-graficos-geral" class="hidden space-y-6 fade-in">
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border">
                     <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider border-b border-slate-100 pb-3 mb-4">
@@ -365,11 +351,11 @@
                 </div>
             </section>
 
-            <!-- ABA 4: GRÁFICOS AM -->
+            <!-- ================= ABA 4: PAINEL CICLO AM ================= -->
             <section id="aba-graficos-am" class="hidden space-y-6 fade-in">
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border">
                     <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider border-b border-slate-100 pb-3 mb-4">
-                        Analytics Operacional - Ciclo AM
+                        Analytics Operacional - Distribuicão de Status do Ciclo AM
                     </h2>
                     <div class="relative h-96 w-full">
                         <canvas id="graficoAM"></canvas>
@@ -377,11 +363,11 @@
                 </div>
             </section>
 
-            <!-- ABA 5: GRÁFICOS PM -->
+            <!-- ================= ABA 5: PAINEL CICLO PM ================= -->
             <section id="aba-graficos-pm" class="hidden space-y-6 fade-in">
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border">
                     <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider border-b border-slate-100 pb-3 mb-4">
-                        Analytics Operacional - Ciclo PM
+                        Analytics Operacional - Distribuição de Status do Ciclo PM
                     </h2>
                     <div class="relative h-96 w-full">
                         <canvas id="graficoPM"></canvas>
@@ -397,7 +383,7 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 
-    <!-- ================= SCRIPTS ================= -->
+    <!-- ================= SCRIPTS DE LÓGICA E CHART.JS ================= -->
     <script>
         lucide.createIcons();
         
@@ -405,6 +391,7 @@
         let dadosOperacao = carregardados();
         let rotaAtivaSelecionada = null;
         
+        // Instâncias globais dos gráficos para permitir .destroy() limpo
         let chartAM = null;
         let chartPM = null;
         let chartGeral = null;
@@ -423,10 +410,6 @@
             atualizarKPIs();
             document.getElementById('barcodeInput').focus();
         };
-
-        function toggleMenuLateral() {
-            document.getElementById('nav-menu').classList.toggle('hidden');
-        }
 
         function mudarAba(abaSelecionada) {
             const abas = ['operacao', 'rotas', 'graficos-geral', 'graficos-am', 'graficos-pm'];
@@ -449,8 +432,9 @@
 
             if (abaSelecionada === 'rotas') {
                 renderizarAbaRotas();
-            } else if (abaSelecionada.includes('graficos')) {
-                setTimeout(renderizarGraficos, 50); 
+            } else if (abaSelecionada.startsWith('graficos')) {
+                // Pequeno delay para garantir que a aba esteja visível no DOM e a canvas tenha dimensões
+                setTimeout(renderizarGraficos, 60); 
             } else {
                 document.getElementById('barcodeInput').focus();
             }
@@ -480,15 +464,11 @@
             const alerta = document.getElementById('feedbackAlerta');
             alerta.classList.remove('hidden', 'bg-emerald-50', 'border-emerald-200', 'text-emerald-800', 'bg-amber-50', 'border-amber-200', 'text-amber-800', 'bg-blue-50', 'border-blue-200', 'text-blue-800');
             
-            if (tipo === 'success') {
-                alerta.classList.add('bg-emerald-50', 'border-emerald-200', 'text-emerald-800');
-            } else if (tipo === 'info') {
-                alerta.classList.add('bg-blue-50', 'border-blue-200', 'text-blue-800');
-            } else {
-                alerta.classList.add('bg-amber-50', 'border-amber-200', 'text-amber-800');
-            }
+            if (tipo === 'success') alerta.classList.add('bg-emerald-50', 'border-emerald-200', 'text-emerald-800');
+            else if (tipo === 'info') alerta.classList.add('bg-blue-50', 'border-blue-200', 'text-blue-800');
+            else alerta.classList.add('bg-amber-50', 'border-amber-200', 'text-amber-800');
+            
             alerta.innerText = mensagem;
-
             setTimeout(() => { alerta.classList.add('hidden'); }, 3500);
         }
 
@@ -548,15 +528,10 @@
         function processarMassaPiso() {
             const textarea = document.getElementById('bulkInput');
             const linhas = textarea.value.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-            
-            if (linhas.length === 0) {
-                alert("Cole pelo menos um ID para processar.");
-                return;
-            }
+            if (linhas.length === 0) return alert("Cole pelo menos um ID.");
 
             const ciclo = document.getElementById('selectCiclo').value;
             const atribuicao = document.getElementById('atribuicaoInput').value.trim() || 'Sem Rota';
-
             let alterados = 0, inseridos = 0;
 
             linhas.forEach(barcode => {
@@ -589,10 +564,7 @@
 
         function processarPrintMercadoLivre() {
             const texto = document.getElementById('mlTextInput').value.trim();
-            if (!texto) {
-                alert("Cole o texto extraído da tela do Mercado Livre.");
-                return;
-            }
+            if (!texto) return alert("Cole o texto extraído do Mercado Livre.");
 
             const ciclo = document.getElementById('selectCiclo').value;
             const linhas = texto.split('\n');
@@ -635,7 +607,7 @@
             salvardados();
             aplicarFiltros();
             document.getElementById('mlTextInput').value = '';
-            mostrarAlerta(`🔄 ${atualizados} pacotes reconciliados com o Mercado Livre!`, 'info');
+            mostrarAlerta(`🔄 ${atualizados} pacotes reconciliados!`, 'info');
         }
 
         function alterarStatusManual(id, novoStatus) {
@@ -674,13 +646,11 @@
         function renderizarTabela(lista) {
             const tbody = document.getElementById('tabelaBips');
             tbody.innerHTML = '';
-
             document.getElementById('contadorBips').innerText = `${lista.length} Pacotes`;
 
             lista.forEach(item => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
-
                 const configStatus = STATUS_MAP[item.status] || STATUS_MAP['NULO'];
 
                 tr.innerHTML = `
@@ -705,7 +675,7 @@
             });
         }
 
-        /* ================= LÓGICA DA NOVA ABA DE RESUMO POR ROTA ================= */
+        /* ================= ABA 2: RESUMO POR ROTA ================= */
         function renderizarAbaRotas() {
             const containerRotas = document.getElementById('listaCardsRotas');
             containerRotas.innerHTML = '';
@@ -713,9 +683,7 @@
             const rotasMap = {};
             dadosOperacao.forEach(item => {
                 const nomeRota = item.atribuicao || 'Sem Rota';
-                if (!rotasMap[nomeRota]) {
-                    rotasMap[nomeRota] = [];
-                }
+                if (!rotasMap[nomeRota]) rotasMap[nomeRota] = [];
                 rotasMap[nomeRota].push(item);
             });
 
@@ -744,9 +712,7 @@
                     renderizarAbaRotas();
                 };
                 card.className = `p-3 rounded-lg border cursor-pointer transition flex items-center justify-between ${
-                    isSelected 
-                        ? 'bg-kn-navy text-white border-kn-navy shadow-sm' 
-                        : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
+                    isSelected ? 'bg-kn-navy text-white border-kn-navy shadow-sm' : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
                 }`;
 
                 card.innerHTML = `
@@ -754,9 +720,7 @@
                         <i data-lucide="truck" class="w-4 h-4 ${isSelected ? 'text-sky-300' : 'text-slate-500'}"></i>
                         <span class="font-bold text-xs">${nomeRota}</span>
                     </div>
-                    <span class="text-xs px-2.5 py-1 rounded-full font-extrabold ${
-                        isSelected ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-800'
-                    }">${count} pacotes</span>
+                    <span class="text-xs px-2.5 py-1 rounded-full font-extrabold ${isSelected ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-800'}">${count} pacotes</span>
                 `;
                 containerRotas.appendChild(card);
             });
@@ -808,11 +772,7 @@
         function exportarCSV(tipoCiclo) {
             let dados = dadosOperacao;
             if (tipoCiclo !== 'TODOS') dados = dados.filter(d => d.ciclo === tipoCiclo);
-
-            if (dados.length === 0) {
-                alert("Nenhum dado para exportar.");
-                return;
-            }
+            if (dados.length === 0) return alert("Nenhum dado para exportar.");
 
             let csv = "ID;Ciclo;Atribuicao;Status;Hora;Data\n";
             dados.forEach(d => {
@@ -834,38 +794,67 @@
             }
         }
 
+        /* ================= RENDERIZAÇÃO CORRIGIDA DOS 3 GRÁFICOS ================= */
         function renderizarGraficos() {
+            const statusLabels = ['Despachar', 'Em Rota', 'No Piso', 'Falha Entrega', 'Solução Prob.'];
+            
+            // Helper para contar status por ciclo
+            const contarStatus = (ciclo) => [
+                dadosOperacao.filter(d => d.ciclo === ciclo && d.status === 'DESPACHAR').length,
+                dadosOperacao.filter(d => d.ciclo === ciclo && d.status === 'EM_ROTA_DE_ENTREGA').length,
+                dadosOperacao.filter(d => d.ciclo === ciclo && d.status === 'FICOU_NO_PISO').length,
+                dadosOperacao.filter(d => d.ciclo === ciclo && d.status === 'FALHA_NA_ENTREGA').length,
+                dadosOperacao.filter(d => d.ciclo === ciclo && d.status === 'SOLUCAO_DE_PROBLEMA').length
+            ];
+
+            // 1. GRÁFICO GERAL (AM vs PM)
             const ctxGeral = document.getElementById('graficoGeral')?.getContext('2d');
             if (ctxGeral) {
                 if (chartGeral) chartGeral.destroy();
                 chartGeral = new Chart(ctxGeral, {
                     type: 'bar',
                     data: {
-                        labels: ['Despachar', 'Em Rota', 'No Piso', 'Falha Entrega', 'Solução Prob.'],
+                        labels: statusLabels,
                         datasets: [
-                            {
-                                label: 'Ciclo AM',
-                                data: [
-                                    dadosOperacao.filter(d => d.ciclo === 'AM' && d.status === 'DESPACHAR').length,
-                                    dadosOperacao.filter(d => d.ciclo === 'AM' && d.status === 'EM_ROTA_DE_ENTREGA').length,
-                                    dadosOperacao.filter(d => d.ciclo === 'AM' && d.status === 'FICOU_NO_PISO').length,
-                                    dadosOperacao.filter(d => d.ciclo === 'AM' && d.status === 'FALHA_NA_ENTREGA').length,
-                                    dadosOperacao.filter(d => d.ciclo === 'AM' && d.status === 'SOLUCAO_DE_PROBLEMA').length
-                                ],
-                                backgroundColor: '#004B93'
-                            },
-                            {
-                                label: 'Ciclo PM',
-                                data: [
-                                    dadosOperacao.filter(d => d.ciclo === 'PM' && d.status === 'DESPACHAR').length,
-                                    dadosOperacao.filter(d => d.ciclo === 'PM' && d.status === 'EM_ROTA_DE_ENTREGA').length,
-                                    dadosOperacao.filter(d => d.ciclo === 'PM' && d.status === 'FICOU_NO_PISO').length,
-                                    dadosOperacao.filter(d => d.ciclo === 'PM' && d.status === 'FALHA_NA_ENTREGA').length,
-                                    dadosOperacao.filter(d => d.ciclo === 'PM' && d.status === 'SOLUCAO_DE_PROBLEMA').length
-                                ],
-                                backgroundColor: '#f59e0b'
-                            }
+                            { label: 'Ciclo AM', data: contarStatus('AM'), backgroundColor: '#004B93' },
+                            { label: 'Ciclo PM', data: contarStatus('PM'), backgroundColor: '#f59e0b' }
                         ]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }
+
+            // 2. GRÁFICO CICLO AM
+            const ctxAM = document.getElementById('graficoAM')?.getContext('2d');
+            if (ctxAM) {
+                if (chartAM) chartAM.destroy();
+                chartAM = new Chart(ctxAM, {
+                    type: 'bar',
+                    data: {
+                        labels: statusLabels,
+                        datasets: [{
+                            label: 'Pacotes Ciclo AM',
+                            data: contarStatus('AM'),
+                            backgroundColor: ['#38bdf8', '#10b981', '#f59e0b', '#f43f5e', '#a855f7']
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }
+
+            // 3. GRÁFICO CICLO PM
+            const ctxPM = document.getElementById('graficoPM')?.getContext('2d');
+            if (ctxPM) {
+                if (chartPM) chartPM.destroy();
+                chartPM = new Chart(ctxPM, {
+                    type: 'bar',
+                    data: {
+                        labels: statusLabels,
+                        datasets: [{
+                            label: 'Pacotes Ciclo PM',
+                            data: contarStatus('PM'),
+                            backgroundColor: ['#0284c7', '#059669', '#d97706', '#e11d48', '#7e22ce']
+                        }]
                     },
                     options: { responsive: true, maintainAspectRatio: false }
                 });
