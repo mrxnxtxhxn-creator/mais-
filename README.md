@@ -355,7 +355,7 @@
             <section id="aba-graficos-am" class="hidden space-y-6 fade-in">
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border">
                     <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider border-b border-slate-100 pb-3 mb-4">
-                        Analytics Operacional - Distribuicão de Status do Ciclo AM
+                        Analytics Operacional - Distribuição de Status do Ciclo AM
                     </h2>
                     <div class="relative h-96 w-full">
                         <canvas id="graficoAM"></canvas>
@@ -391,7 +391,6 @@
         let dadosOperacao = carregardados();
         let rotaAtivaSelecionada = null;
         
-        // Instâncias globais dos gráficos para permitir .destroy() limpo
         let chartAM = null;
         let chartPM = null;
         let chartGeral = null;
@@ -433,14 +432,13 @@
             if (abaSelecionada === 'rotas') {
                 renderizarAbaRotas();
             } else if (abaSelecionada.startsWith('graficos')) {
-                // Pequeno delay para garantir que a aba esteja visível no DOM e a canvas tenha dimensões
                 setTimeout(renderizarGraficos, 60); 
             } else {
                 document.getElementById('barcodeInput').focus();
             }
         }
 
-        function salvardados() {
+        function salvarDados() {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(dadosOperacao));
             atualizarKPIs();
             renderizarGraficos();
@@ -511,253 +509,143 @@
                     data: new Date().toLocaleDateString('pt-BR')
                 };
                 dadosOperacao.unshift(novoItem);
-                mostrarAlerta(`✅ [${ciclo}] ${barcode} -> EM ROTA DE ENTREGA`, 'success');
+                mostrarAlerta(`✅ Pacote ${barcode} cadastrado como Em Rota (1º Bipe).`, 'success');
             } else {
-                itemExistente.status = 'FICOU_NO_PISO';
+                if (itemExistente.status === 'EM_ROTA_DE_ENTREGA') {
+                    itemExistente.status = 'FICOU_NO_PISO';
+                    mostrarAlerta(`⚠️ Pacote ${barcode} alterado para Ficou no Piso (2º Bipe).`, 'warning');
+                } else {
+                    itemExistente.status = 'EM_ROTA_DE_ENTREGA';
+                    mostrarAlerta(`✅ Pacote ${barcode} retornado para Em Rota.`, 'success');
+                }
                 itemExistente.hora = new Date().toLocaleTimeString('pt-BR');
-                if (atribuicao !== 'Sem Rota') itemExistente.atribuicao = atribuicao;
-                mostrarAlerta(`⚠️ [${ciclo}] Repetido! Atualizado para -> FICOU NO PISO`, 'warning');
+                itemExistente.atribuicao = atribuicao;
             }
 
-            salvardados();
-            aplicarFiltros();
             input.value = '';
+            salvarDados();
+            aplicarFiltros();
             input.focus();
         }
 
         function processarMassaPiso() {
-            const textarea = document.getElementById('bulkInput');
-            const linhas = textarea.value.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-            if (linhas.length === 0) return alert("Cole pelo menos um ID.");
+            const texto = document.getElementById('bulkInput').value.trim();
+            if (!texto) return;
 
+            const linhas = texto.split('\n');
+            let count = 0;
             const ciclo = document.getElementById('selectCiclo').value;
-            const atribuicao = document.getElementById('atribuicaoInput').value.trim() || 'Sem Rota';
-            let alterados = 0, inseridos = 0;
 
-            linhas.forEach(barcode => {
-                let itensEncontrados = dadosOperacao.filter(d => d.barcode === barcode && d.ciclo === ciclo);
-                if (itensEncontrados.length > 0) {
-                    itensEncontrados.forEach(item => {
+            linhas.forEach(linha => {
+                const barcode = linha.trim();
+                if (barcode) {
+                    let item = dadosOperacao.find(d => d.barcode === barcode && d.ciclo === ciclo);
+                    if (item) {
                         item.status = 'FICOU_NO_PISO';
-                        item.hora = new Date().toLocaleTimeString('pt-BR');
-                        alterados++;
-                    });
-                } else {
-                    dadosOperacao.unshift({
-                        id: Date.now() + Math.random(),
-                        barcode: barcode,
-                        ciclo: ciclo,
-                        atribuicao: atribuicao,
-                        status: 'FICOU_NO_PISO',
-                        hora: new Date().toLocaleTimeString('pt-BR'),
-                        data: new Date().toLocaleDateString('pt-BR')
-                    });
-                    inseridos++;
+                        count++;
+                    } else {
+                        dadosOperacao.unshift({
+                            id: Date.now() + Math.random(),
+                            barcode: barcode,
+                            ciclo: ciclo,
+                            atribuicao: 'Massa / Piso',
+                            status: 'FICOU_NO_PISO',
+                            hora: new Date().toLocaleTimeString('pt-BR'),
+                            data: new Date().toLocaleDateString('pt-BR')
+                        });
+                        count++;
+                    }
                 }
             });
 
-            salvardados();
+            document.getElementById('bulkInput').value = '';
+            salvarDados();
             aplicarFiltros();
-            textarea.value = '';
-            mostrarAlerta(`⚙️ ${inseridos + alterados} registro(s) processado(s) no Piso.`, 'warning');
+            mostrarAlerta(`📦 ${count} pacote(s) marcado(s) como 'Ficou no Piso' em massa.`, 'success');
         }
 
         function processarPrintMercadoLivre() {
             const texto = document.getElementById('mlTextInput').value.trim();
-            if (!texto) return alert("Cole o texto extraído do Mercado Livre.");
+            if (!texto) {
+                mostrarAlerta('⚠️ Cole o conteúdo do Mercado Livre primeiro.', 'warning');
+                return;
+            }
 
-            const ciclo = document.getElementById('selectCiclo').value;
             const linhas = texto.split('\n');
             let atualizados = 0;
+            const ciclo = document.getElementById('selectCiclo').value;
 
             linhas.forEach(linha => {
-                const l = linha.toLowerCase();
-                let statusDetectado = null;
+                // Tenta extrair ID (ex: MLB...) e status textual
+                const matchId = linha.match(/(MLB\d+|\b\d{8,}\b)/i);
+                if (matchId) {
+                    const barcode = matchId[0];
+                    let novoStatus = 'EM_ROTA_DE_ENTREGA';
 
-                if (l.includes('despachar')) statusDetectado = 'DESPACHAR';
-                else if (l.includes('em rota')) statusDetectado = 'EM_ROTA_DE_ENTREGA';
-                else if (l.includes('falha')) statusDetectado = 'FALHA_NA_ENTREGA';
-                else if (l.includes('solução') || l.includes('solucao')) statusDetectado = 'SOLUCAO_DE_PROBLEMA';
-                else if (l.includes('piso')) statusDetectado = 'FICOU_NO_PISO';
+                    const lower = linha.toLowerCase();
+                    if (lower.includes('despachar') || lower.includes('pendente')) novoStatus = 'DESPACHAR';
+                    else if (lower.includes('piso') || lower.includes('ficou')) novoStatus = 'FICOU_NO_PISO';
+                    else if (lower.includes('falha') || lower.includes('não entregue')) novoStatus = 'FALHA_NA_ENTREGA';
+                    else if (lower.includes('problema') || lower.includes('solução')) novoStatus = 'SOLUCAO_DE_PROBLEMA';
 
-                if (statusDetectado) {
-                    const match = linha.match(/[A-Z0-9]{8,}/i);
-                    if (match) {
-                        const barcode = match[0].toUpperCase();
-                        let item = dadosOperacao.find(d => d.barcode === barcode && d.ciclo === ciclo);
-                        if (item) {
-                            item.status = statusDetectado;
-                            item.hora = new Date().toLocaleTimeString('pt-BR');
-                        } else {
-                            dadosOperacao.unshift({
-                                id: Date.now() + Math.random(),
-                                barcode: barcode,
-                                ciclo: ciclo,
-                                atribuicao: 'Mercado Livre',
-                                status: statusDetectado,
-                                hora: new Date().toLocaleTimeString('pt-BR'),
-                                data: new Date().toLocaleDateString('pt-BR')
-                            });
-                        }
+                    let item = dadosOperacao.find(d => d.barcode === barcode && d.ciclo === ciclo);
+                    if (item) {
+                        item.status = novoStatus;
+                        atualizados++;
+                    } else {
+                        dadosOperacao.unshift({
+                            id: Date.now() + Math.random(),
+                            barcode: barcode,
+                            ciclo: ciclo,
+                            atribuicao: 'Reconciliação ML',
+                            status: novoStatus,
+                            hora: new Date().toLocaleTimeString('pt-BR'),
+                            data: new Date().toLocaleDateString('pt-BR')
+                        });
                         atualizados++;
                     }
                 }
             });
 
-            salvardados();
-            aplicarFiltros();
             document.getElementById('mlTextInput').value = '';
-            mostrarAlerta(`🔄 ${atualizados} pacotes reconciliados!`, 'info');
-        }
-
-        function alterarStatusManual(id, novoStatus) {
-            let item = dadosOperacao.find(d => d.id === id);
-            if (item) {
-                item.status = novoStatus;
-                item.hora = new Date().toLocaleTimeString('pt-BR');
-                salvardados();
-                aplicarFiltros();
-            }
-        }
-
-        function alterarAtribuicaoManual(id, novaAtribuicao) {
-            let item = dadosOperacao.find(d => d.id === id);
-            if (item) {
-                item.atribuicao = novaAtribuicao.trim() || 'Sem Rota';
-                salvardados();
-            }
+            salvarDados();
+            aplicarFiltros();
+            mostrarAlerta(`🔄 Reconciliação concluída! ${atualizados} pacote(s) atualizados com dados do Mercado Livre.`, 'success');
         }
 
         function aplicarFiltros() {
             const texto = document.getElementById('filtroTexto').value.toLowerCase();
-            const status = document.getElementById('filtroStatus').value;
-            const ciclo = document.getElementById('filtroCiclo').value;
+            const statusFiltro = document.getElementById('filtroStatus').value;
+            const cicloFiltro = document.getElementById('filtroCiclo').value;
 
             const filtrados = dadosOperacao.filter(item => {
-                const bateTexto = item.barcode.toLowerCase().includes(texto) || item.atribuicao.toLowerCase().includes(texto);
-                const bateStatus = status === '' || item.status === status;
-                const bateCiclo = ciclo === '' || item.ciclo === ciclo;
-                return bateTexto && bateStatus && bateCiclo;
+                const matchTexto = item.barcode.toLowerCase().includes(texto) || item.atribuicao.toLowerCase().includes(texto);
+                const matchStatus = !statusFiltro || item.status === statusFiltro;
+                const matchCiclo = !cicloFiltro || item.ciclo === cicloFiltro;
+                return matchTexto && matchStatus && matchCiclo;
             });
 
-            renderizarTabela(filtrados);
-        }
-
-        function renderizarTabela(lista) {
             const tbody = document.getElementById('tabelaBips');
             tbody.innerHTML = '';
-            document.getElementById('contadorBips').innerText = `${lista.length} Pacotes`;
 
-            lista.forEach(item => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
-                const configStatus = STATUS_MAP[item.status] || STATUS_MAP['NULO'];
-
-                tr.innerHTML = `
-                    <td class="px-4 py-3 font-mono font-bold text-slate-800">${item.barcode}</td>
-                    <td class="px-4 py-3"><span class="px-2 py-0.5 text-[10px] rounded font-bold ${item.ciclo === 'AM' ? 'bg-amber-100 text-amber-800' : 'bg-indigo-100 text-indigo-800'}">${item.ciclo}</span></td>
-                    <td class="px-4 py-3">
-                        <input type="text" value="${item.atribuicao}" onchange="alterarAtribuicaoManual(${item.id}, this.value)" placeholder="Sem Rota" class="w-full max-w-[140px] px-2 py-1 border border-slate-200 rounded text-xs focus:outline-none focus:border-kn-navy focus:bg-white bg-transparent hover:border-slate-300 font-medium text-slate-700 transition">
-                    </td>
-                    <td class="px-4 py-3">
-                        <select onchange="alterarStatusManual(${item.id}, this.value)" class="text-[11px] font-bold px-2 py-1 rounded border shadow-xs ${configStatus.class} focus:outline-none cursor-pointer">
-                            <option value="DESPACHAR" ${item.status === 'DESPACHAR' ? 'selected' : ''}>Despachar</option>
-                            <option value="EM_ROTA_DE_ENTREGA" ${item.status === 'EM_ROTA_DE_ENTREGA' ? 'selected' : ''}>Em Rota de Entrega</option>
-                            <option value="FICOU_NO_PISO" ${item.status === 'FICOU_NO_PISO' ? 'selected' : ''}>Ficou no Piso</option>
-                            <option value="FALHA_NA_ENTREGA" ${item.status === 'FALHA_NA_ENTREGA' ? 'selected' : ''}>Falha na Entrega</option>
-                            <option value="SOLUCAO_DE_PROBLEMA" ${item.status === 'SOLUCAO_DE_PROBLEMA' ? 'selected' : ''}>Solução de Problema</option>
-                            <option value="NULO" ${item.status === 'NULO' ? 'selected' : ''}>Status Nulo</option>
-                        </select>
-                    </td>
-                    <td class="px-4 py-3 text-slate-400 font-mono text-[11px]">${item.hora}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        /* ================= ABA 2: RESUMO POR ROTA ================= */
-        function renderizarAbaRotas() {
-            const containerRotas = document.getElementById('listaCardsRotas');
-            containerRotas.innerHTML = '';
-
-            const rotasMap = {};
-            dadosOperacao.forEach(item => {
-                const nomeRota = item.atribuicao || 'Sem Rota';
-                if (!rotasMap[nomeRota]) rotasMap[nomeRota] = [];
-                rotasMap[nomeRota].push(item);
-            });
-
-            const nomesRotas = Object.keys(rotasMap);
-
-            if (nomesRotas.length === 0) {
-                containerRotas.innerHTML = '<p class="text-xs text-slate-400 py-4 text-center">Nenhum pacote bipado ainda.</p>';
-                document.getElementById('tabelaDetalhesRota').innerHTML = '<tr><td colspan="4" class="px-4 py-8 text-center text-slate-400">Nenhum pacote cadastrado.</td></tr>';
-                document.getElementById('tituloRotaSelecionada').innerText = 'Nenhuma Rota';
-                document.getElementById('contadorRotaSelecionada').innerText = '0 Pacotes';
-                return;
+            if (filtrados.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-8 text-center text-slate-400">Nenhum registro encontrado.</td></tr>`;
+            } else {
+                filtrados.forEach(item => {
+                    const statusObj = STATUS_MAP[item.status] || STATUS_MAP['NULO'];
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-slate-50/80 transition';
+                    tr.innerHTML = `
+                        <td class="px-4 py-3 font-mono font-bold text-slate-700">${item.barcode}</td>
+                        <td class="px-4 py-3"><span class="px-2 py-0.5 rounded font-mono font-bold text-[10px] ${item.ciclo === 'AM' ? 'bg-sky-100 text-sky-800' : 'bg-indigo-100 text-indigo-800'}">${item.ciclo}</span></td>
+                        <td class="px-4 py-3 font-medium text-slate-700">${item.atribuicao}</td>
+                        <td class="px-4 py-3"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold border ${statusObj.class}">${statusObj.label}</span></td>
+                        <td class="px-4 py-3 text-slate-400">${item.hora}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
             }
-
-            if (!rotaAtivaSelecionada || !rotasMap[rotaAtivaSelecionada]) {
-                rotaAtivaSelecionada = nomesRotas[0];
-            }
-
-            nomesRotas.forEach(nomeRota => {
-                const pacotes = rotasMap[nomeRota];
-                const count = pacotes.length;
-                const isSelected = nomeRota === rotaAtivaSelecionada;
-
-                const card = document.createElement('div');
-                card.onclick = () => {
-                    rotaAtivaSelecionada = nomeRota;
-                    renderizarAbaRotas();
-                };
-                card.className = `p-3 rounded-lg border cursor-pointer transition flex items-center justify-between ${
-                    isSelected ? 'bg-kn-navy text-white border-kn-navy shadow-sm' : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
-                }`;
-
-                card.innerHTML = `
-                    <div class="flex items-center space-x-3">
-                        <i data-lucide="truck" class="w-4 h-4 ${isSelected ? 'text-sky-300' : 'text-slate-500'}"></i>
-                        <span class="font-bold text-xs">${nomeRota}</span>
-                    </div>
-                    <span class="text-xs px-2.5 py-1 rounded-full font-extrabold ${isSelected ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-800'}">${count} pacotes</span>
-                `;
-                containerRotas.appendChild(card);
-            });
-
-            renderizarDetalhesRota(rotasMap[rotaAtivaSelecionada] || []);
-            lucide.createIcons();
-        }
-
-        function renderizarDetalhesRota(pacotes) {
-            document.getElementById('tituloRotaSelecionada').innerText = rotaAtivaSelecionada || 'Selecione';
-            document.getElementById('contadorRotaSelecionada').innerText = `${pacotes.length} Pacotes`;
-
-            const tbody = document.getElementById('tabelaDetalhesRota');
-            tbody.innerHTML = '';
-
-            if (pacotes.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="px-4 py-8 text-center text-slate-400">Nenhum pacote nesta rota.</td></tr>';
-                return;
-            }
-
-            pacotes.forEach(item => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
-                const configStatus = STATUS_MAP[item.status] || STATUS_MAP['NULO'];
-
-                tr.innerHTML = `
-                    <td class="px-4 py-3 font-mono font-bold text-slate-800">${item.barcode}</td>
-                    <td class="px-4 py-3"><span class="px-2 py-0.5 text-[10px] rounded font-bold ${item.ciclo === 'AM' ? 'bg-amber-100 text-amber-800' : 'bg-indigo-100 text-indigo-800'}">${item.ciclo}</span></td>
-                    <td class="px-4 py-3">
-                        <span class="text-[11px] font-bold px-2 py-1 rounded border ${configStatus.class}">
-                            ${configStatus.label}
-                        </span>
-                    </td>
-                    <td class="px-4 py-3 text-slate-400 font-mono text-[11px]">${item.hora}</td>
-                `;
-                tbody.appendChild(tr);
-            });
+            document.getElementById('contadorBips').innerText = `${filtrados.length} Pacote(s)`;
         }
 
         function atualizarKPIs() {
@@ -769,95 +657,189 @@
             document.getElementById('kpiSolucao').innerText = dadosOperacao.filter(d => d.status === 'SOLUCAO_DE_PROBLEMA').length;
         }
 
-        function exportarCSV(tipoCiclo) {
-            let dados = dadosOperacao;
-            if (tipoCiclo !== 'TODOS') dados = dados.filter(d => d.ciclo === tipoCiclo);
-            if (dados.length === 0) return alert("Nenhum dado para exportar.");
-
-            let csv = "ID;Ciclo;Atribuicao;Status;Hora;Data\n";
-            dados.forEach(d => {
-                csv += `${d.barcode};${d.ciclo};${d.atribuicao};${STATUS_MAP[d.status]?.label || d.status};${d.hora};${d.data}\n`;
+        function renderizarAbaRotas() {
+            const rotasMap = {};
+            dadosOperacao.forEach(item => {
+                const rot = item.atribuicao || 'Sem Rota';
+                if (!rotasMap[rot]) rotasMap[rot] = [];
+                rotasMap[rot].push(item);
             });
 
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = `Relatorio_PosSorting_${tipoCiclo}_${new Date().toISOString().slice(0,10)}.csv`;
-            link.click();
-        }
+            const container = document.getElementById('listaCardsRotas');
+            container.innerHTML = '';
 
-        function limparBase() {
-            if (confirm("Tem certeza que deseja apagar todos os registros da sessão atual?")) {
-                dadosOperacao = [];
-                salvardados();
-                aplicarFiltros();
+            const rotasKeys = Object.keys(rotasMap);
+            if (rotasKeys.length === 0) {
+                container.innerHTML = `<div class="p-4 text-center text-xs text-slate-400">Nenhuma rota mapeada.</div>`;
+                return;
             }
+
+            rotasKeys.forEach(rota => {
+                const qtd = rotasMap[rota].length;
+                const div = document.createElement('div');
+                div.className = `p-3 rounded-lg border cursor-pointer transition flex justify-between items-center ${rotaAtivaSelecionada === rota ? 'bg-sky-50 border-sky-300 shadow-sm' : 'bg-white border-slate-200 hover:bg-slate-50'}`;
+                div.onclick = () => selecionarRota(rota, rotasMap[rota]);
+                div.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <i data-lucide="map-pin" class="w-4 h-4 text-kn-navy"></i>
+                        <span class="text-xs font-bold text-slate-700">${rota}</span>
+                    </div>
+                    <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-kn-navy">${qtd} pacotes</span>
+                `;
+                container.appendChild(div);
+            });
+            lucide.createIcons();
         }
 
-        /* ================= RENDERIZAÇÃO CORRIGIDA DOS 3 GRÁFICOS ================= */
-        function renderizarGraficos() {
-            const statusLabels = ['Despachar', 'Em Rota', 'No Piso', 'Falha Entrega', 'Solução Prob.'];
-            
-            // Helper para contar status por ciclo
-            const contarStatus = (ciclo) => [
-                dadosOperacao.filter(d => d.ciclo === ciclo && d.status === 'DESPACHAR').length,
-                dadosOperacao.filter(d => d.ciclo === ciclo && d.status === 'EM_ROTA_DE_ENTREGA').length,
-                dadosOperacao.filter(d => d.ciclo === ciclo && d.status === 'FICOU_NO_PISO').length,
-                dadosOperacao.filter(d => d.ciclo === ciclo && d.status === 'FALHA_NA_ENTREGA').length,
-                dadosOperacao.filter(d => d.ciclo === ciclo && d.status === 'SOLUCAO_DE_PROBLEMA').length
-            ];
+        function selecionarRota(rotaName, listaItens) {
+            rotaAtivaSelecionada = rotaName;
+            document.getElementById('tituloRotaSelecionada').innerText = rotaName;
+            document.getElementById('contadorRotaSelecionada').innerText = `${listaItens.length} Pacotes`;
 
-            // 1. GRÁFICO GERAL (AM vs PM)
-            const ctxGeral = document.getElementById('graficoGeral')?.getContext('2d');
+            const tbody = document.getElementById('tabelaDetalhesRota');
+            tbody.innerHTML = '';
+
+            listaItens.forEach(item => {
+                const statusObj = STATUS_MAP[item.status] || STATUS_MAP['NULO'];
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition';
+                tr.innerHTML = `
+                    <td class="px-4 py-3 font-mono font-bold text-slate-700">${item.barcode}</td>
+                    <td class="px-4 py-3"><span class="px-2 py-0.5 rounded font-mono font-bold text-[10px] ${item.ciclo === 'AM' ? 'bg-sky-100 text-sky-800' : 'bg-indigo-100 text-indigo-800'}">${item.ciclo}</span></td>
+                    <td class="px-4 py-3"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold border ${statusObj.class}">${statusObj.label}</span></td>
+                    <td class="px-4 py-3 text-slate-400">${item.hora}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            renderizarAbaRotas();
+        }
+
+        function renderizarGraficos() {
+            // Ciclo AM
+            const ctxAM = document.getElementById('graficoAM');
+            if (ctxAM) {
+                if (chartAM) chartAM.destroy();
+                const amDados = dadosOperacao.filter(d => d.ciclo === 'AM');
+                chartAM = new Chart(ctxAM, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Despachar', 'Em Rota', 'No Piso', 'Falha', 'Solução'],
+                        datasets: [{
+                            data: [
+                                amDados.filter(d => d.status === 'DESPACHAR').length,
+                                amDados.filter(d => d.status === 'EM_ROTA_DE_ENTREGA').length,
+                                amDados.filter(d => d.status === 'FICOU_NO_PISO').length,
+                                amDados.filter(d => d.status === 'FALHA_NA_ENTREGA').length,
+                                amDados.filter(d => d.status === 'SOLUCAO_DE_PROBLEMA').length
+                            ],
+                            backgroundColor: ['#0ea5e9', '#10b981', '#f59e0b', '#f43f5e', '#a855f7']
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }
+
+            // Ciclo PM
+            const ctxPM = document.getElementById('graficoPM');
+            if (ctxPM) {
+                if (chartPM) chartPM.destroy();
+                const pmDados = dadosOperacao.filter(d => d.ciclo === 'PM');
+                chartPM = new Chart(ctxPM, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Despachar', 'Em Rota', 'No Piso', 'Falha', 'Solução'],
+                        datasets: [{
+                            data: [
+                                pmDados.filter(d => d.status === 'DESPACHAR').length,
+                                pmDados.filter(d => d.status === 'EM_ROTA_DE_ENTREGA').length,
+                                pmDados.filter(d => d.status === 'FICOU_NO_PISO').length,
+                                pmDados.filter(d => d.status === 'FALHA_NA_ENTREGA').length,
+                                pmDados.filter(d => d.status === 'SOLUCAO_DE_PROBLEMA').length
+                            ],
+                            backgroundColor: ['#0ea5e9', '#10b981', '#f59e0b', '#f43f5e', '#a855f7']
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }
+
+            // Gráfico Geral Comparativo
+            const ctxGeral = document.getElementById('graficoGeral');
             if (ctxGeral) {
                 if (chartGeral) chartGeral.destroy();
                 chartGeral = new Chart(ctxGeral, {
                     type: 'bar',
                     data: {
-                        labels: statusLabels,
+                        labels: ['Despachar', 'Em Rota', 'No Piso', 'Falha Entrega', 'Solução Problema'],
                         datasets: [
-                            { label: 'Ciclo AM', data: contarStatus('AM'), backgroundColor: '#004B93' },
-                            { label: 'Ciclo PM', data: contarStatus('PM'), backgroundColor: '#f59e0b' }
+                            {
+                                label: 'Ciclo AM',
+                                data: [
+                                    dadosOperacao.filter(d => d.ciclo === 'AM' && d.status === 'DESPACHAR').length,
+                                    dadosOperacao.filter(d => d.ciclo === 'AM' && d.status === 'EM_ROTA_DE_ENTREGA').length,
+                                    dadosOperacao.filter(d => d.ciclo === 'AM' && d.status === 'FICOU_NO_PISO').length,
+                                    dadosOperacao.filter(d => d.ciclo === 'AM' && d.status === 'FALHA_NA_ENTREGA').length,
+                                    dadosOperacao.filter(d => d.ciclo === 'AM' && d.status === 'SOLUCAO_DE_PROBLEMA').length
+                                ],
+                                backgroundColor: '#0284c7'
+                            },
+                            {
+                                label: 'Ciclo PM',
+                                data: [
+                                    dadosOperacao.filter(d => d.ciclo === 'PM' && d.status === 'DESPACHAR').length,
+                                    dadosOperacao.filter(d => d.ciclo === 'PM' && d.status === 'EM_ROTA_DE_ENTREGA').length,
+                                    dadosOperacao.filter(d => d.ciclo === 'PM' && d.status === 'FICOU_NO_PISO').length,
+                                    dadosOperacao.filter(d => d.ciclo === 'PM' && d.status === 'FALHA_NA_ENTREGA').length,
+                                    dadosOperacao.filter(d => d.ciclo === 'PM' && d.status === 'SOLUCAO_DE_PROBLEMA').length
+                                ],
+                                backgroundColor: '#6366f1'
+                            }
                         ]
                     },
                     options: { responsive: true, maintainAspectRatio: false }
                 });
             }
+        }
 
-            // 2. GRÁFICO CICLO AM
-            const ctxAM = document.getElementById('graficoAM')?.getContext('2d');
-            if (ctxAM) {
-                if (chartAM) chartAM.destroy();
-                chartAM = new Chart(ctxAM, {
-                    type: 'bar',
-                    data: {
-                        labels: statusLabels,
-                        datasets: [{
-                            label: 'Pacotes Ciclo AM',
-                            data: contarStatus('AM'),
-                            backgroundColor: ['#38bdf8', '#10b981', '#f59e0b', '#f43f5e', '#a855f7']
-                        }]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false }
-                });
+        function exportarCSV(tipoCiclo) {
+            if (dadosOperacao.length === 0) {
+                mostrarAlerta('⚠️ Não há dados para exportar.', 'warning');
+                return;
             }
 
-            // 3. GRÁFICO CICLO PM
-            const ctxPM = document.getElementById('graficoPM')?.getContext('2d');
-            if (ctxPM) {
-                if (chartPM) chartPM.destroy();
-                chartPM = new Chart(ctxPM, {
-                    type: 'bar',
-                    data: {
-                        labels: statusLabels,
-                        datasets: [{
-                            label: 'Pacotes Ciclo PM',
-                            data: contarStatus('PM'),
-                            backgroundColor: ['#0284c7', '#059669', '#d97706', '#e11d48', '#7e22ce']
-                        }]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false }
-                });
+            let dadosFiltrados = dadosOperacao;
+            if (tipoCiclo === 'AM' || tipoCiclo === 'PM') {
+                dadosFiltrados = dadosOperacao.filter(d => d.ciclo === tipoCiclo);
+            }
+
+            if (dadosFiltrados.length === 0) {
+                mostrarAlerta(`⚠️ Nenhum dado encontrado para o ciclo ${tipoCiclo}.`, 'warning');
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,Codigo de Barras;Ciclo;Atribuicao/Rota;Status;Horario;Data\n";
+            dadosFiltrados.forEach(row => {
+                csvContent += `${row.barcode};${row.ciclo};${row.atribuicao};${row.status};${row.hora};${row.data}\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `KN_PosSorting_${tipoCiclo}_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            mostrarAlerta(`📥 CSV do ${tipoCiclo} exportado com sucesso!`, 'success');
+        }
+
+        function limparBase() {
+            if (confirm("Tem certeza que deseja apagar todos os registros da operação?")) {
+                dadosOperacao = [];
+                localStorage.removeItem(STORAGE_KEY);
+                aplicarFiltros();
+                atualizarKPIs();
+                renderizarGraficos();
+                mostrarAlerta('🗑️ Base de dados limpa com sucesso.', 'info');
             }
         }
     </script>
