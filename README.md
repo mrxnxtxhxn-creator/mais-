@@ -94,7 +94,7 @@
     <main class="flex-1 flex flex-col overflow-y-auto bg-slate-50">
         
         <!-- Header Superior -->
-        <header class="bg-white border-b border-kn-border px-8 py-4 flex items-center justify-between sticky top-0 z-10 shadow-sm">
+        <header class="bg-white border-b border-kn-border px-8 py-4 flex flex-wrap items-center justify-between sticky top-0 z-10 shadow-sm gap-4">
             <div>
                 <h1 class="text-base font-bold text-kn-navy tracking-tight flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -103,12 +103,23 @@
                 <p class="text-xs text-slate-500">Módulo de controle integrado Last Mile</p>
             </div>
             
-            <div class="flex items-center space-x-3">
-                <button onclick="exportarCSV()" class="border border-kn-border hover:border-kn-navy text-kn-navy bg-white hover:bg-slate-50 px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center space-x-2 transition shadow-sm">
-                    <i data-lucide="download" class="w-3.5 h-3.5"></i>
-                    <span>Exportar Relatório CSV</span>
-                </button>
-                <button onclick="limparBase()" class="bg-white border border-rose-200 text-rose-600 hover:bg-rose-50 px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center space-x-2 transition shadow-sm">
+            <!-- Botões de Exportação Separados (AM / PM / Geral) e Zerar -->
+            <div class="flex items-center space-x-2 flex-wrap gap-y-2">
+                <div class="flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200 space-x-1">
+                    <button onclick="exportarCSV('AM')" class="hover:bg-sky-500 hover:text-white text-slate-700 bg-white px-2.5 py-1.5 rounded text-xs font-semibold flex items-center space-x-1 transition shadow-xs">
+                        <i data-lucide="sun" class="w-3.5 h-3.5 text-amber-500"></i>
+                        <span>CSV AM</span>
+                    </button>
+                    <button onclick="exportarCSV('PM')" class="hover:bg-indigo-600 hover:text-white text-slate-700 bg-white px-2.5 py-1.5 rounded text-xs font-semibold flex items-center space-x-1 transition shadow-xs">
+                        <i data-lucide="moon" class="w-3.5 h-3.5 text-indigo-500"></i>
+                        <span>CSV PM</span>
+                    </button>
+                    <button onclick="exportarCSV('TODOS')" class="hover:bg-kn-navy hover:text-white text-slate-700 bg-white px-2.5 py-1.5 rounded text-xs font-semibold flex items-center space-x-1 transition shadow-xs">
+                        <i data-lucide="download" class="w-3.5 h-3.5 text-slate-600"></i>
+                        <span>CSV Geral</span>
+                    </button>
+                </div>
+                <button onclick="limparBase()" class="bg-white border border-rose-200 text-rose-600 hover:bg-rose-50 px-3 py-2 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition shadow-sm">
                     <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                     <span>Zerar Dados</span>
                 </button>
@@ -118,7 +129,7 @@
         <div class="p-8 space-y-6 max-w-7xl mx-auto w-full">
 
             <!-- CARDS DE KPIS EXECUTIVOS -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <div class="bg-white p-5 rounded-xl shadow-sm border border-kn-border border-l-4 border-l-kn-navy">
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Processado</span>
                     <div id="kpiTotal" class="text-2xl font-black text-slate-800 mt-1">0</div>
@@ -135,17 +146,27 @@
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Saiu para Entrega</span>
                     <div id="kpiSaida" class="text-2xl font-black text-emerald-600 mt-1">0</div>
                 </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-kn-border border-l-4 border-l-slate-400">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Status Nulo</span>
+                    <div id="kpiNulo" class="text-2xl font-black text-slate-600 mt-1">0</div>
+                </div>
             </div>
 
             <!-- ================= ABA 1: BIPAGEM INTELIGENTE ================= -->
             <section id="aba-operacao" class="grid grid-cols-1 lg:grid-cols-3 gap-6 fade-in">
                 
-                <!-- Coluna Esquerda: Leitor + Massa + Resumo por Rota -->
+                <!-- Coluna Esquerda: Leitor Óptico + Reconciliação ML + Verificação em Massa -->
                 <div class="space-y-6">
                     <!-- Caixa de Leitura / Input Individual -->
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border space-y-5">
                         <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                            <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider">Leitor Óptico</h2>
+                            <div class="flex items-center space-x-2">
+                                <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider">Leitor Óptico</h2>
+                                <button onclick="copiarTodosIDs()" title="Copiar todos os IDs escaneados" class="px-2 py-0.5 bg-sky-50 hover:bg-sky-100 text-sky-700 rounded border border-sky-200 text-[10px] font-bold flex items-center space-x-1 transition">
+                                    <i data-lucide="copy" class="w-3 h-3"></i>
+                                    <span>Copiar IDs</span>
+                                </button>
+                            </div>
                             <span id="badge-ciclo" class="text-[10px] bg-kn-navy text-white px-2.5 py-1 rounded font-mono font-bold shadow-sm">CICLO AM</span>
                         </div>
 
@@ -154,7 +175,13 @@
 
                         <div class="space-y-4">
                             <div>
-                                <label class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Código de Barras</label>
+                                <div class="flex justify-between items-center">
+                                    <label class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Código de Barras</label>
+                                    <button onclick="copiarTodosIDs()" class="text-[11px] text-kn-blue hover:underline font-semibold flex items-center space-x-1">
+                                        <i data-lucide="copy" class="w-3 h-3"></i>
+                                        <span>Copiar Todos</span>
+                                    </button>
+                                </div>
                                 <div class="mt-1">
                                     <input type="text" id="barcodeInput" autofocus placeholder="Aguardando leitura..." class="w-full p-3 border border-slate-300 rounded-lg font-mono text-sm focus:ring-2 focus:ring-kn-navy focus:border-kn-navy focus:outline-none bg-slate-50/50">
                                 </div>
@@ -177,29 +204,40 @@
                         </div>
                     </div>
 
-                    <!-- NOVO CARD: Resumo de Pacotes por Rota -->
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border space-y-4">
-                        <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                            <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider">Volume por Rota / Gaiola</h2>
-                            <i data-lucide="truck" class="w-4 h-4 text-kn-navy"></i>
+                    <!-- Reconciliação em Massa via Texto/Print da Tela Mercado Livre -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-amber-200 space-y-4 bg-amber-50/20">
+                        <div class="flex justify-between items-center border-b border-amber-100 pb-3">
+                            <div class="flex items-center space-x-2">
+                                <h2 class="text-xs font-bold text-amber-900 uppercase tracking-wider">Comparar Print/Texto Mercado Livre</h2>
+                                <span class="bg-amber-500 text-white text-[9px] px-1.5 py-0.5 rounded font-bold uppercase">Auto Status</span>
+                            </div>
+                            <i data-lucide="shopping-bag" class="w-4 h-4 text-amber-600"></i>
                         </div>
-                        <div id="resumoRotasContainer" class="space-y-2 max-h-56 overflow-y-auto pr-1">
-                            <!-- Inserido dinamicamente pelo JavaScript -->
+                        <div>
+                            <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Cole o texto/print copiado da tela do Mercado Livre</label>
+                            <textarea id="mlTextInput" rows="4" placeholder="Cole aqui as linhas/tabela copiadas da tela do Mercado Livre...&#10;Ex:&#10;MLB123456789 - Despachar pacote&#10;MLB987654321 - Em rota de entrega" class="w-full p-3 border border-amber-300 rounded-lg font-mono text-xs mt-1 focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white resize-none"></textarea>
+                            <span class="text-[10px] text-slate-500 mt-1 block leading-tight">
+                                💡 <b>Regra Automática:</b> 'Despachar' ➔ <b>Piso</b> | 'Em rota de entrega' ➔ <b>Saiu</b> | Qualquer outro ➔ <b>Nulo</b>.
+                            </span>
                         </div>
+                        <button onclick="processarPrintMercadoLivre()" class="w-full bg-amber-600 hover:bg-amber-700 text-white p-2.5 rounded-lg text-xs font-bold transition shadow-sm flex items-center justify-center space-x-2">
+                            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                            <span>Reconciliar Status com Mercado Livre</span>
+                        </button>
                     </div>
 
-                    <!-- Verificação em Massa (Piso) -->
+                    <!-- Verificação em Massa (Apenas Piso) -->
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border space-y-4">
                         <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                            <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider">Verificação em Massa (Piso)</h2>
+                            <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider">Verificação em Massa (Apenas Piso)</h2>
                             <i data-lucide="layers" class="w-4 h-4 text-kn-navy"></i>
                         </div>
                         <div>
                             <label class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Cole os IDs (um por linha)</label>
                             <textarea id="bulkInput" rows="3" placeholder="Cole vários IDs aqui...&#10;Ex: ID001&#10;ID002" class="w-full p-3 border border-slate-300 rounded-lg font-mono text-xs mt-1 focus:ring-2 focus:ring-kn-navy focus:outline-none bg-slate-50/50 resize-none"></textarea>
-                            <span class="text-[10px] text-slate-400 mt-1 block">Insere novos IDs ou atualiza existentes para "Ficou no Piso" no histórico.</span>
+                            <span class="text-[10px] text-slate-400 mt-1 block">Insere novos IDs ou atualiza existentes para "Ficou no Piso".</span>
                         </div>
-                        <button onclick="processarMassaPiso()" class="w-full bg-amber-600 hover:bg-amber-700 text-white p-2.5 rounded-lg text-xs font-bold transition shadow-sm flex items-center justify-center space-x-2">
+                        <button onclick="processarMassaPiso()" class="w-full bg-slate-700 hover:bg-slate-800 text-white p-2.5 rounded-lg text-xs font-bold transition shadow-sm flex items-center justify-center space-x-2">
                             <i data-lucide="check-check" class="w-4 h-4"></i>
                             <span>Marcar IDs no Piso em Massa</span>
                         </button>
@@ -209,7 +247,13 @@
                 <!-- Tabela de Histórico e Filtros -->
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border lg:col-span-2 space-y-4">
                     <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                        <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider">Histórico de Movimentações</h2>
+                        <div class="flex items-center space-x-3">
+                            <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider">Histórico de Movimentações</h2>
+                            <button onclick="copiarTodosIDs()" class="px-2.5 py-1 bg-kn-navy/10 hover:bg-kn-navy hover:text-white text-kn-navy rounded text-xs font-semibold flex items-center space-x-1.5 transition">
+                                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                                <span>Copiar Todos os IDs</span>
+                            </button>
+                        </div>
                         <span id="contadorBips" class="text-xs font-semibold bg-slate-100 text-kn-navy px-3 py-1 rounded-full border border-slate-200">0 Pacotes</span>
                     </div>
 
@@ -225,6 +269,7 @@
                                 <option value="">Todos os Status</option>
                                 <option value="SAIU_PARA_ENTREGA">Saída para Entrega</option>
                                 <option value="FICOU_NO_PISO">Ficou no Piso</option>
+                                <option value="NULO">Status Nulo</option>
                             </select>
                         </div>
                         <div>
@@ -237,13 +282,19 @@
                         </div>
                     </div>
 
-                    <div class="overflow-x-auto max-h-[500px]">
+                    <div class="overflow-x-auto max-h-[480px]">
                         <table class="w-full text-xs text-left text-slate-600">
                             <thead class="text-[10px] text-kn-navy uppercase bg-slate-50 border-b border-slate-200 sticky top-0 font-bold">
                                 <tr>
-                                    <th class="px-4 py-3">Código de Barras</th>
+                                    <th class="px-4 py-3 flex items-center justify-between">
+                                        <span>Código de Barras</span>
+                                        <button onclick="copiarTodosIDs()" class="text-[9px] bg-white border border-slate-300 px-1.5 py-0.5 rounded text-kn-navy hover:bg-slate-100 flex items-center space-x-1" title="Copiar lista de IDs">
+                                            <i data-lucide="copy" class="w-2.5 h-2.5"></i>
+                                            <span>Copiar</span>
+                                        </button>
+                                    </th>
                                     <th class="px-4 py-3">Ciclo</th>
-                                    <th class="px-4 py-3">Atribuição / Rota</th>
+                                    <th class="px-4 py-3">Atribuição</th>
                                     <th class="px-4 py-3">Status</th>
                                     <th class="px-4 py-3">Horário</th>
                                 </tr>
@@ -273,7 +324,7 @@
                     <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider border-b border-slate-100 pb-3 mb-4">
                         Analytics Operacional - Ciclo AM
                     </h2>
-                    <div class="relative h-96 w-full flex justify-center">
+                    <div class="relative h-96 w-full">
                         <canvas id="graficoAM"></canvas>
                     </div>
                 </div>
@@ -285,7 +336,7 @@
                     <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider border-b border-slate-100 pb-3 mb-4">
                         Analytics Operacional - Ciclo PM
                     </h2>
-                    <div class="relative h-96 w-full flex justify-center">
+                    <div class="relative h-96 w-full">
                         <canvas id="graficoPM"></canvas>
                     </div>
                 </div>
@@ -313,7 +364,6 @@
         window.onload = function() {
             aplicarFiltros();
             atualizarKPIs();
-            atualizarResumoRotas();
             document.getElementById('barcodeInput').focus();
         };
 
@@ -347,7 +397,6 @@
         function salvardados() {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(dadosOperacao));
             atualizarKPIs();
-            atualizarResumoRotas();
             renderizarGraficos(); 
         }
 
@@ -364,10 +413,12 @@
 
         function mostrarAlerta(mensagem, tipo) {
             const alerta = document.getElementById('feedbackAlerta');
-            alerta.classList.remove('hidden', 'bg-emerald-50', 'border-emerald-200', 'text-emerald-800', 'bg-amber-50', 'border-amber-200', 'text-amber-800');
+            alerta.classList.remove('hidden', 'bg-emerald-50', 'border-emerald-200', 'text-emerald-800', 'bg-amber-50', 'border-amber-200', 'text-amber-800', 'bg-blue-50', 'border-blue-200', 'text-blue-800');
             
             if (tipo === 'success') {
                 alerta.classList.add('bg-emerald-50', 'border-emerald-200', 'text-emerald-800');
+            } else if (tipo === 'info') {
+                alerta.classList.add('bg-blue-50', 'border-blue-200', 'text-blue-800');
             } else {
                 alerta.classList.add('bg-amber-50', 'border-amber-200', 'text-amber-800');
             }
@@ -376,6 +427,23 @@
             setTimeout(() => {
                 alerta.classList.add('hidden');
             }, 3500);
+        }
+
+        /* 1. FUNÇÃO PARA COPIAR TODOS OS IDS */
+        function copiarTodosIDs() {
+            if (dadosOperacao.length === 0) {
+                mostrarAlerta('⚠️ Nenhum ID disponível para copiar.', 'warning');
+                return;
+            }
+            
+            // Pega todos os códigos de barras sem repetição
+            const listaIDs = [...new Set(dadosOperacao.map(item => item.barcode))].join('\n');
+            
+            navigator.clipboard.writeText(listaIDs).then(() => {
+                mostrarAlerta(`📋 ${dadosOperacao.length} ID(s) copiado(s) para a área de transferência com sucesso!`, 'info');
+            }).catch(err => {
+                alert("Falha ao copiar os IDs: " + err);
+            });
         }
 
         document.getElementById('barcodeInput').addEventListener('keypress', function (e) {
@@ -465,7 +533,83 @@
             salvardados();
             aplicarFiltros();
             textarea.value = '';
-            mostrarAlerta(`⚙️ ${inseridos + alterados} registro(s) processado(s) (${inseridos} inseridos como novo no Piso, ${alterados} atualizados).`, 'warning');
+            mostrarAlerta(`⚙️ ${inseridos + alterados} registro(s) processado(s) (${inseridos} novos no Piso, ${alterados} atualizados).`, 'warning');
+        }
+
+        /* 3. FUNÇÃO DE RECONCILIAÇÃO VIA TEXTO/PRINT DO MERCADO LIVRE */
+        function processarPrintMercadoLivre() {
+            const textarea = document.getElementById('mlTextInput');
+            const conteudo = textarea.value;
+            
+            if (!conteudo.trim()) {
+                alert("Cole o conteúdo do Mercado Livre no campo correspondente.");
+                return;
+            }
+
+            const ciclo = document.getElementById('selectCiclo').value;
+            const atribuicao = document.getElementById('atribuicaoInput').value.trim() || 'Mercado Livre';
+            
+            // Divide o texto em linhas para analisar cada ID e seu contexto
+            const linhas = conteudo.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+            
+            let countPiso = 0;
+            let countSaiu = 0;
+            let countNulo = 0;
+            let novosIDs = 0;
+
+            linhas.forEach(linha => {
+                const linhaLC = linha.toLowerCase();
+                
+                // Determina o status com base na linha copiada do site ML
+                let statusDeterminado = 'NULO';
+                if (linhaLC.includes('despachar')) {
+                    statusDeterminado = 'FICOU_NO_PISO';
+                    countPiso++;
+                } else if (linhaLC.includes('em rota de entrega')) {
+                    statusDeterminado = 'SAIU_PARA_ENTREGA';
+                    countSaiu++;
+                } else {
+                    statusDeterminado = 'NULO';
+                    countNulo++;
+                }
+
+                // Tenta identificar o ID/Código de Barras na linha
+                let itemExistente = dadosOperacao.find(d => linha.includes(d.barcode));
+                
+                if (itemExistente) {
+                    itemExistente.status = statusDeterminado;
+                    itemExistente.hora = new Date().toLocaleTimeString('pt-BR');
+                } else {
+                    // Extrai sequências alfanuméricas com 8 ou mais caracteres como candidato a ID
+                    const matches = linha.match(/[A-Za-z0-9_-]{8,}/g);
+                    if (matches && matches.length > 0) {
+                        const idExtraido = matches[0];
+                        
+                        let itemExistenteCiclo = dadosOperacao.find(d => d.barcode === idExtraido && d.ciclo === ciclo);
+                        if (itemExistenteCiclo) {
+                            itemExistenteCiclo.status = statusDeterminado;
+                            itemExistenteCiclo.hora = new Date().toLocaleTimeString('pt-BR');
+                        } else {
+                            const novoItem = {
+                                id: Date.now() + Math.random(),
+                                barcode: idExtraido,
+                                ciclo: ciclo,
+                                atribuicao: atribuicao,
+                                status: statusDeterminado,
+                                hora: new Date().toLocaleTimeString('pt-BR'),
+                                data: new Date().toLocaleDateString('pt-BR')
+                            };
+                            dadosOperacao.unshift(novoItem);
+                            novosIDs++;
+                        }
+                    }
+                }
+            });
+
+            salvardados();
+            aplicarFiltros();
+            textarea.value = '';
+            mostrarAlerta(`📦 Reconciliação ML concluída: ${countPiso} Retido Piso, ${countSaiu} Em Rota, ${countNulo} Nulos (${novosIDs} novos criados).`, 'info');
         }
 
         function alterarStatusManual(id, novoStatus) {
@@ -476,46 +620,6 @@
                 salvardados();
                 aplicarFiltros();
             }
-        }
-
-        function alterarAtribuicaoManual(id, novaAtribuicao) {
-            const item = dadosOperacao.find(d => d.id === id);
-            if (item) {
-                item.atribuicao = novaAtribuicao.trim() || 'Sem Rota';
-                salvardados();
-            }
-        }
-
-        // Função que gera a listagem dinâmica de pacotes por Rota
-        function atualizarResumoRotas() {
-            const container = document.getElementById('resumoRotasContainer');
-            if (!container) return;
-
-            const contagemRotas = {};
-
-            dadosOperacao.forEach(item => {
-                const rota = item.atribuicao.trim() || 'Sem Rota';
-                contagemRotas[rota] = (contagemRotas[rota] || 0) + 1;
-            });
-
-            const rotasOrdenadas = Object.entries(contagemRotas).sort((a, b) => b[1] - a[1]);
-
-            if (rotasOrdenadas.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-400 italic text-center py-4">Nenhuma rota registrada.</p>`;
-                return;
-            }
-
-            container.innerHTML = rotasOrdenadas.map(([rota, total]) => `
-                <div class="flex items-center justify-between p-2.5 bg-slate-50 border border-slate-200 rounded-lg hover:border-kn-navy/30 transition">
-                    <div class="flex items-center space-x-2.5 truncate pr-2">
-                        <i data-lucide="truck" class="w-3.5 h-3.5 text-kn-navy flex-shrink-0"></i>
-                        <span class="text-xs font-bold text-slate-700 truncate">${rota}</span>
-                    </div>
-                    <span class="px-2.5 py-0.5 text-[11px] font-black bg-kn-navy text-white rounded-full flex-shrink-0">${total} ${total === 1 ? 'ID' : 'IDs'}</span>
-                </div>
-            `).join('');
-
-            lucide.createIcons();
         }
 
         function aplicarFiltros() {
@@ -542,22 +646,36 @@
                 return;
             }
 
-            tbody.innerHTML = lista.map(item => `
+            tbody.innerHTML = lista.map(item => {
+                let statusBadgeClass = '';
+                let statusLabel = '';
+
+                if (item.status === 'SAIU_PARA_ENTREGA') {
+                    statusBadgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+                    statusLabel = 'SAÍDA';
+                } else if (item.status === 'FICOU_NO_PISO') {
+                    statusBadgeClass = 'bg-amber-100 text-amber-800 border-amber-300';
+                    statusLabel = 'PISO';
+                } else {
+                    statusBadgeClass = 'bg-slate-200 text-slate-700 border-slate-300';
+                    statusLabel = 'NULO';
+                }
+
+                return `
                 <tr class="hover:bg-slate-50/80 font-mono border-b border-slate-100 transition">
                     <td class="px-4 py-3 font-bold text-slate-800">${item.barcode}</td>
                     <td class="px-4 py-3"><span class="px-2 py-0.5 text-[10px] rounded font-semibold ${item.ciclo === 'AM' ? 'bg-sky-100 text-sky-900' : 'bg-indigo-100 text-indigo-900'}">${item.ciclo}</span></td>
+                    <td class="px-4 py-3 text-slate-600 font-sans">${item.atribuicao}</td>
                     <td class="px-4 py-3 font-sans">
-                        <input type="text" value="${item.atribuicao}" onchange="alterarAtribuicaoManual(${item.id}, this.value)" class="w-full p-1.5 border border-slate-300 rounded text-xs focus:outline-none focus:border-kn-navy bg-white hover:bg-slate-50 font-medium text-slate-700 transition" placeholder="Digitar rota...">
-                    </td>
-                    <td class="px-4 py-3 font-sans">
-                        <select onchange="alterarStatusManual(${item.id}, this.value)" class="p-1.5 rounded text-[10px] font-bold border cursor-pointer focus:outline-none ${item.status === 'SAIU_PARA_ENTREGA' ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-amber-100 text-amber-800 border-amber-300'}">
+                        <select onchange="alterarStatusManual(${item.id}, this.value)" class="p-1 rounded text-[10px] font-bold border cursor-pointer focus:outline-none ${statusBadgeClass}">
                             <option value="SAIU_PARA_ENTREGA" ${item.status === 'SAIU_PARA_ENTREGA' ? 'selected' : ''}>SAÍDA</option>
                             <option value="FICOU_NO_PISO" ${item.status === 'FICOU_NO_PISO' ? 'selected' : ''}>PISO</option>
+                            <option value="NULO" ${item.status === 'NULO' ? 'selected' : ''}>NULO</option>
                         </select>
                     </td>
                     <td class="px-4 py-3 text-slate-400 font-sans">${item.hora}</td>
                 </tr>
-            `).join('');
+            `}).join('');
         }
 
         function atualizarKPIs() {
@@ -566,11 +684,13 @@
             const pm = dadosOperacao.filter(d => d.ciclo === 'PM').length;
             const piso = dadosOperacao.filter(d => d.status === 'FICOU_NO_PISO').length;
             const saida = dadosOperacao.filter(d => d.status === 'SAIU_PARA_ENTREGA').length;
+            const nulo = dadosOperacao.filter(d => d.status === 'NULO').length;
 
             document.getElementById('kpiTotal').innerText = total;
             document.getElementById('kpiCiclos').innerText = `${am} / ${pm}`;
             document.getElementById('kpiPiso').innerText = piso;
             document.getElementById('kpiSaida').innerText = saida;
+            document.getElementById('kpiNulo').innerText = nulo;
         }
 
         function limparBase() {
@@ -579,43 +699,60 @@
                 dadosOperacao = [];
                 aplicarFiltros();
                 atualizarKPIs();
-                atualizarResumoRotas();
                 renderizarGraficos();
                 document.getElementById('barcodeInput').focus();
             }
         }
 
-        function exportarCSV() {
+        /* 2. FUNÇÃO DE EXPORTAÇÃO CSV SEPARADA (AM / PM / GERAL) */
+        function exportarCSV(filtroCiclo = 'TODOS') {
             if (dadosOperacao.length === 0) {
                 alert("Não há dados para exportar.");
                 return;
             }
 
+            let dadosExportar = dadosOperacao;
+
+            if (filtroCiclo === 'AM') {
+                dadosExportar = dadosOperacao.filter(d => d.ciclo === 'AM');
+            } else if (filtroCiclo === 'PM') {
+                dadosExportar = dadosOperacao.filter(d => d.ciclo === 'PM');
+            }
+
+            if (dadosExportar.length === 0) {
+                alert(`Não há registros salvos para o Ciclo ${filtroCiclo}.`);
+                return;
+            }
+
             let csv = 'CodigoDeBarras;Ciclo;Atribuicao;Status;Hora;Data\n';
-            dadosOperacao.forEach(item => {
+            dadosExportar.forEach(item => {
                 csv += `${item.barcode};${item.ciclo};${item.atribuicao};${item.status};${item.hora};${item.data}\n`;
             });
 
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.setAttribute('download', `Relatorio_Logistica_KN_${new Date().toISOString().slice(0,10)}.csv`);
+            
+            const sufixo = filtroCiclo === 'TODOS' ? 'Geral' : `Ciclo_${filtroCiclo}`;
+            link.setAttribute('download', `Relatorio_Logistica_KN_${sufixo}_${new Date().toISOString().slice(0,10)}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         }
 
+        /* GRÁFICOS COMPLETOS */
         function renderizarGraficos() {
             const amTotal = dadosOperacao.filter(d => d.ciclo === 'AM').length;
             const amSaida = dadosOperacao.filter(d => d.ciclo === 'AM' && d.status === 'SAIU_PARA_ENTREGA').length;
             const amPiso = dadosOperacao.filter(d => d.ciclo === 'AM' && d.status === 'FICOU_NO_PISO').length;
+            const amNulo = dadosOperacao.filter(d => d.ciclo === 'AM' && d.status === 'NULO').length;
 
             const pmTotal = dadosOperacao.filter(d => d.ciclo === 'PM').length;
             const pmSaida = dadosOperacao.filter(d => d.ciclo === 'PM' && d.status === 'SAIU_PARA_ENTREGA').length;
             const pmPiso = dadosOperacao.filter(d => d.ciclo === 'PM' && d.status === 'FICOU_NO_PISO').length;
+            const pmNulo = dadosOperacao.filter(d => d.ciclo === 'PM' && d.status === 'NULO').length;
 
-            const cores = { total: '#003366', saida: '#10B981', piso: '#F59E0B' };
-
+            // 1. Gráfico Geral Comparativo
             const canvasGeral = document.getElementById('graficoGeral');
             if (canvasGeral) {
                 const ctxGeral = canvasGeral.getContext('2d');
@@ -623,16 +760,18 @@
                 chartGeral = new Chart(ctxGeral, {
                     type: 'bar',
                     data: {
-                        labels: ['Total Lidos', 'Saíram pra Entrega', 'Ficaram no Piso'],
+                        labels: ['Ciclo AM', 'Ciclo PM'],
                         datasets: [
-                            { label: 'Ciclo AM', data: [amTotal, amSaida, amPiso], backgroundColor: '#0ea5e9', borderRadius: 6 },
-                            { label: 'Ciclo PM', data: [pmTotal, pmSaida, pmPiso], backgroundColor: '#003366', borderRadius: 6 }
+                            { label: 'Saíram pra Entrega', data: [amSaida, pmSaida], backgroundColor: '#10B981' },
+                            { label: 'Ficaram no Piso', data: [amPiso, pmPiso], backgroundColor: '#F59E0B' },
+                            { label: 'Status Nulo', data: [amNulo, pmNulo], backgroundColor: '#94A3B8' }
                         ]
                     },
-                    options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+                    options: { responsive: true, maintainAspectRatio: false }
                 });
             }
 
+            // 2. Gráfico AM
             const canvasAM = document.getElementById('graficoAM');
             if (canvasAM) {
                 const ctxAM = canvasAM.getContext('2d');
@@ -640,13 +779,17 @@
                 chartAM = new Chart(ctxAM, {
                     type: 'doughnut',
                     data: {
-                        labels: ['Saíram pra Entrega', 'Ficaram no Piso'],
-                        datasets: [{ data: [amSaida, amPiso], backgroundColor: [cores.saida, cores.piso] }]
+                        labels: ['Saída para Entrega', 'Ficou no Piso', 'Status Nulo'],
+                        datasets: [{
+                            data: [amSaida, amPiso, amNulo],
+                            backgroundColor: ['#10B981', '#F59E0B', '#94A3B8']
+                        }]
                     },
                     options: { responsive: true, maintainAspectRatio: false }
                 });
             }
 
+            // 3. Gráfico PM
             const canvasPM = document.getElementById('graficoPM');
             if (canvasPM) {
                 const ctxPM = canvasPM.getContext('2d');
@@ -654,8 +797,11 @@
                 chartPM = new Chart(ctxPM, {
                     type: 'doughnut',
                     data: {
-                        labels: ['Saíram pra Entrega', 'Ficaram no Piso'],
-                        datasets: [{ data: [pmSaida, pmPiso], backgroundColor: [cores.saida, cores.piso] }]
+                        labels: ['Saída para Entrega', 'Ficou no Piso', 'Status Nulo'],
+                        datasets: [{
+                            data: [pmSaida, pmPiso, pmNulo],
+                            backgroundColor: ['#10B981', '#F59E0B', '#94A3B8']
+                        }]
                     },
                     options: { responsive: true, maintainAspectRatio: false }
                 });
