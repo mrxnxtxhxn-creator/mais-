@@ -429,7 +429,7 @@
             }, 3500);
         }
 
-        /* 1. FUNÇÃO PARA COPIAR TODOS OS IDS */
+        /* 1. COPIAR TODOS OS IDS */
         function copiarTodosIDs() {
             if (dadosOperacao.length === 0) {
                 mostrarAlerta('⚠️ Nenhum ID disponível para copiar.', 'warning');
@@ -535,220 +535,216 @@
             mostrarAlerta(`⚙️ ${inseridos + alterados} registro(s) processado(s) (${inseridos} novos no Piso, ${alterados} atualizados).`, 'warning');
         }
 
-        /* 3. FUNÇÃO DE RECONCILIAÇÃO VIA TEXTO/PRINT DO MERCADO LIVRE */
+        /* 3. RECONCILIAÇÃO VIA TEXTO/PRINT DO MERCADO LIVRE */
         function processarPrintMercadoLivre() {
             const textarea = document.getElementById('mlTextInput');
             const texto = textarea.value.trim();
 
             if (!texto) {
-                alert("Cole o texto da tela do Mercado Livre para processar.");
+                alert("Cole o texto copiado da tela do Mercado Livre para processar.");
                 return;
             }
 
             const ciclo = document.getElementById('selectCiclo').value;
-            const atribuicao = document.getElementById('atribuicaoInput').value.trim() || 'Sem Rota';
-            const linhas = texto.split('\n');
-
-            let totalProcessados = 0;
+            const linhas = texto.split('\n').filter(l => l.trim().length > 0);
+            let processados = 0;
 
             linhas.forEach(linha => {
-                const l = linha.trim();
-                if (!l) return;
-
-                const matchID = l.match(/([A-Za-z0-9]{8,25})/);
+                const matchID = linha.match(/([A-Z0-9]{8,22})/i);
                 if (!matchID) return;
 
-                const barcode = matchID[0];
-                let status = 'NULO';
+                const barcode = matchID[0].toUpperCase();
+                let statusCalculado = 'NULO';
 
-                const lUpper = l.toUpperCase();
-                if (lUpper.includes('DESPACHAR')) {
-                    status = 'FICOU_NO_PISO';
-                } else if (lUpper.includes('EM ROTA') || lUpper.includes('SAIU') || lUpper.includes('ROTA DE ENTREGA')) {
-                    status = 'SAIU_PARA_ENTREGA';
+                const linhaLC = linha.toLowerCase();
+                if (linhaLC.includes('despachar')) {
+                    statusCalculado = 'FICOU_NO_PISO';
+                } else if (linhaLC.includes('em rota') || linhaLC.includes('saiu')) {
+                    statusCalculado = 'SAIU_PARA_ENTREGA';
                 }
 
                 let itemExistente = dadosOperacao.find(d => d.barcode === barcode && d.ciclo === ciclo);
-
                 if (itemExistente) {
-                    itemExistente.status = status;
+                    itemExistente.status = statusCalculado;
                     itemExistente.hora = new Date().toLocaleTimeString('pt-BR');
-                    if (atribuicao !== 'Sem Rota') itemExistente.atribuicao = atribuicao;
                 } else {
-                    const novoItem = {
+                    dadosOperacao.unshift({
                         id: Date.now() + Math.random(),
                         barcode: barcode,
                         ciclo: ciclo,
-                        atribuicao: atribuicao,
-                        status: status,
+                        atribuicao: 'Mercado Livre',
+                        status: statusCalculado,
                         hora: new Date().toLocaleTimeString('pt-BR'),
                         data: new Date().toLocaleDateString('pt-BR')
-                    };
-                    dadosOperacao.unshift(novoItem);
+                    });
                 }
-                totalProcessados++;
+                processados++;
             });
 
             salvardados();
             aplicarFiltros();
             textarea.value = '';
-            mostrarAlerta(`🔄 Reconciliação concluída: ${totalProcessados} pacotes atualizados/inseridos via ML!`, 'info');
+            mostrarAlerta(`📦 ${processados} item(ns) reconciliado(s) com sucesso via Mercado Livre.`, 'info');
         }
 
-        /* FILTROS E TABELA */
+        /* 4. FILTROS E RENDERIZAÇÃO DA TABELA */
         function aplicarFiltros() {
             const texto = document.getElementById('filtroTexto').value.toLowerCase();
             const status = document.getElementById('filtroStatus').value;
             const ciclo = document.getElementById('filtroCiclo').value;
 
             const filtrados = dadosOperacao.filter(item => {
-                const matchTexto = item.barcode.toLowerCase().includes(texto) || item.atribuicao.toLowerCase().includes(texto);
-                const matchStatus = !status || item.status === status;
-                const matchCiclo = !ciclo || item.ciclo === ciclo;
-                return matchTexto && matchStatus && matchCiclo;
+                const bateTexto = item.barcode.toLowerCase().includes(texto) || item.atribuicao.toLowerCase().includes(texto);
+                const bateStatus = !status || item.status === status;
+                const bateCiclo = !ciclo || item.ciclo === ciclo;
+                return bateTexto && bateStatus && bateCiclo;
             });
 
             renderizarTabela(filtrados);
+            document.getElementById('contadorBips').innerText = `${filtrados.length} Pacotes`;
         }
 
         function renderizarTabela(lista) {
             const tbody = document.getElementById('tabelaBips');
             tbody.innerHTML = '';
 
-            document.getElementById('contadorBips').innerText = `${lista.length} Pacotes`;
+            if (lista.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-6 text-center text-slate-400">Nenhum registro encontrado.</td></tr>`;
+                return;
+            }
 
             lista.forEach(item => {
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-50 transition border-b border-slate-100';
-
                 let badgeStatus = '';
                 if (item.status === 'SAIU_PARA_ENTREGA') {
-                    badgeStatus = '<span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded">Saiu para Entrega</span>';
+                    badgeStatus = '<span class="px-2 py-0.5 text-[10px] bg-emerald-100 text-emerald-800 rounded font-bold">SAIU PARA ENTREGA</span>';
                 } else if (item.status === 'FICOU_NO_PISO') {
-                    badgeStatus = '<span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded">Ficou no Piso</span>';
+                    badgeStatus = '<span class="px-2 py-0.5 text-[10px] bg-amber-100 text-amber-800 rounded font-bold">FICOU NO PISO</span>';
                 } else {
-                    badgeStatus = '<span class="bg-slate-100 text-slate-700 text-[10px] font-bold px-2 py-0.5 rounded">Nulo</span>';
+                    badgeStatus = '<span class="px-2 py-0.5 text-[10px] bg-slate-100 text-slate-700 rounded font-bold">NULO</span>';
                 }
 
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 border-b border-slate-100';
                 tr.innerHTML = `
-                    <td class="px-4 py-2.5 font-mono font-semibold text-slate-700">${item.barcode}</td>
-                    <td class="px-4 py-2.5 font-bold ${item.ciclo === 'AM' ? 'text-amber-600' : 'text-indigo-600'}">${item.ciclo}</td>
-                    <td class="px-4 py-2.5 text-slate-500">${item.atribuicao}</td>
-                    <td class="px-4 py-2.5">${badgeStatus}</td>
-                    <td class="px-4 py-2.5 text-slate-400 font-mono text-[11px]">${item.hora}</td>
+                    <td class="px-4 py-3 font-mono font-bold text-slate-800">${item.barcode}</td>
+                    <td class="px-4 py-3"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${item.ciclo === 'AM' ? 'bg-amber-100 text-amber-800' : 'bg-indigo-100 text-indigo-800'}">${item.ciclo}</span></td>
+                    <td class="px-4 py-3 text-slate-600">${item.atribuicao}</td>
+                    <td class="px-4 py-3">${badgeStatus}</td>
+                    <td class="px-4 py-3 text-slate-400 text-[11px] font-mono">${item.hora}</td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        /* KPIS */
+        /* 5. ATUALIZAÇÃO DOS KPIS DA TELA */
         function atualizarKPIs() {
             const total = dadosOperacao.length;
-            const am = dadosOperacao.filter(d => d.ciclo === 'AM').length;
-            const pm = dadosOperacao.filter(d => d.ciclo === 'PM').length;
-            const piso = dadosOperacao.filter(d => d.status === 'FICOU_NO_PISO').length;
-            const saida = dadosOperacao.filter(d => d.status === 'SAIU_PARA_ENTREGA').length;
-            const nulo = dadosOperacao.filter(d => d.status === 'NULO').length;
+            const totalAM = dadosOperacao.filter(d => d.ciclo === 'AM').length;
+            const totalPM = dadosOperacao.filter(d => d.ciclo === 'PM').length;
+            const totalPiso = dadosOperacao.filter(d => d.status === 'FICOU_NO_PISO').length;
+            const totalSaida = dadosOperacao.filter(d => d.status === 'SAIU_PARA_ENTREGA').length;
+            const totalNulo = dadosOperacao.filter(d => d.status === 'NULO').length;
 
             document.getElementById('kpiTotal').innerText = total;
-            document.getElementById('kpiCiclos').innerText = `${am} / ${pm}`;
-            document.getElementById('kpiPiso').innerText = piso;
-            document.getElementById('kpiSaida').innerText = saida;
-            document.getElementById('kpiNulo').innerText = nulo;
+            document.getElementById('kpiCiclos').innerText = `${totalAM} / ${totalPM}`;
+            document.getElementById('kpiPiso').innerText = totalPiso;
+            document.getElementById('kpiSaida').innerText = totalSaida;
+            document.getElementById('kpiNulo').innerText = totalNulo;
         }
 
-        /* EXPORTAÇÃO CSV */
-        function exportarCSV(tipo) {
-            let dadosFiltrados = dadosOperacao;
-            if (tipo === 'AM' || tipo === 'PM') {
-                dadosFiltrados = dadosOperacao.filter(d => d.ciclo === tipo);
+        /* 6. RENDERIZAÇÃO DOS GRÁFICOS (CHART.JS) */
+        function renderizarGraficos() {
+            if (typeof Chart === 'undefined') return;
+
+            const amSaida = dadosOperacao.filter(d => d.ciclo === 'AM' && d.status === 'SAIU_PARA_ENTREGA').length;
+            const amPiso = dadosOperacao.filter(d => d.ciclo === 'AM' && d.status === 'FICOU_NO_PISO').length;
+            const amNulo = dadosOperacao.filter(d => d.ciclo === 'AM' && d.status === 'NULO').length;
+
+            const pmSaida = dadosOperacao.filter(d => d.ciclo === 'PM' && d.status === 'SAIU_PARA_ENTREGA').length;
+            const pmPiso = dadosOperacao.filter(d => d.ciclo === 'PM' && d.status === 'FICOU_NO_PISO').length;
+            const pmNulo = dadosOperacao.filter(d => d.ciclo === 'PM' && d.status === 'NULO').length;
+
+            // Gráfico Geral
+            const ctxGeral = document.getElementById('graficoGeral')?.getContext('2d');
+            if (ctxGeral) {
+                if (chartGeral) chartGeral.destroy();
+                chartGeral = new Chart(ctxGeral, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Saiu para Entrega', 'Ficou no Piso', 'Status Nulo'],
+                        datasets: [
+                            { label: 'Ciclo AM', data: [amSaida, amPiso, amNulo], backgroundColor: '#f59e0b' },
+                            { label: 'Ciclo PM', data: [pmSaida, pmPiso, pmNulo], backgroundColor: '#6366f1' }
+                        ]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
             }
 
-            if (dadosFiltrados.length === 0) {
-                alert("Nenhum dado disponível para exportação.");
+            // Gráfico AM
+            const ctxAM = document.getElementById('graficoAM')?.getContext('2d');
+            if (ctxAM) {
+                if (chartAM) chartAM.destroy();
+                chartAM = new Chart(ctxAM, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Saiu para Entrega', 'Ficou no Piso', 'Status Nulo'],
+                        datasets: [{ data: [amSaida, amPiso, amNulo], backgroundColor: ['#10b981', '#f59e0b', '#94a3b8'] }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }
+
+            // Gráfico PM
+            const ctxPM = document.getElementById('graficoPM')?.getContext('2d');
+            if (ctxPM) {
+                if (chartPM) chartPM.destroy();
+                chartPM = new Chart(ctxPM, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Saiu para Entrega', 'Ficou no Piso', 'Status Nulo'],
+                        datasets: [{ data: [pmSaida, pmPiso, pmNulo], backgroundColor: ['#10b981', '#f59e0b', '#94a3b8'] }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }
+        }
+
+        /* 7. EXPORTAÇÃO CSV E LIMPEZA DE DADOS */
+        function exportarCSV(filtroCiclo) {
+            let dados = dadosOperacao;
+            if (filtroCiclo !== 'TODOS') {
+                dados = dadosOperacao.filter(d => d.ciclo === filtroCiclo);
+            }
+
+            if (dados.length === 0) {
+                mostrarAlerta('⚠️ Nenhum dado disponível para exportar.', 'warning');
                 return;
             }
 
             let csvContent = "data:text/csv;charset=utf-8,ID,Ciclo,Atribuicao,Status,Data,Hora\n";
-            dadosFiltrados.forEach(d => {
-                csvContent += `${d.barcode},${d.ciclo},"${d.atribuicao}",${d.status},${d.data},${d.hora}\n`;
+            dados.forEach(d => {
+                csvContent += `"${d.barcode}","${d.ciclo}","${d.atribuicao}","${d.status}","${d.data}","${d.hora}"\n`;
             });
 
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `reconciliacao_pos_sorting_${tipo}_${new Date().toISOString().slice(0,10)}.csv`);
+            link.setAttribute("download", `reconciliacao_${filtroCiclo.toLowerCase()}_${new Date().toISOString().slice(0,10)}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         }
 
-        /* ZERAR DATA */
         function limparBase() {
             if (confirm("Tem certeza que deseja zerar todos os dados salvos? Esta ação não pode ser desfeita.")) {
                 dadosOperacao = [];
-                salvardados();
+                localStorage.removeItem(STORAGE_KEY);
                 aplicarFiltros();
-                mostrarAlerta("🗑️ Base de dados limpa com sucesso.", "warning");
+                atualizarKPIs();
+                renderizarGraficos();
+                mostrarAlerta("🗑️ Base de dados zerada com sucesso.", "info");
             }
-        }
-
-        /* RENDERIZAÇÃO DE GRÁFICOS (CHART.JS) */
-        function renderizarGraficos() {
-            const ctxGeral = document.getElementById('graficoGeral')?.getContext('2d');
-            const ctxAM = document.getElementById('graficoAM')?.getContext('2d');
-            const ctxPM = document.getElementById('graficoPM')?.getContext('2d');
-
-            if (!ctxGeral || !ctxAM || !ctxPM) return;
-
-            if (chartGeral) chartGeral.destroy();
-            if (chartAM) chartAM.destroy();
-            if (chartPM) chartPM.destroy();
-
-            const getStats = (ciclo) => {
-                const list = ciclo ? dadosOperacao.filter(d => d.ciclo === ciclo) : dadosOperacao;
-                return [
-                    list.filter(d => d.status === 'SAIU_PARA_ENTREGA').length,
-                    list.filter(d => d.status === 'FICOU_NO_PISO').length,
-                    list.filter(d => d.status === 'NULO').length
-                ];
-            };
-
-            chartGeral = new Chart(ctxGeral, {
-                type: 'bar',
-                data: {
-                    labels: ['Saiu para Entrega', 'Retido no Piso', 'Status Nulo'],
-                    datasets: [
-                        { label: 'Ciclo AM', data: getStats('AM'), backgroundColor: '#f59e0b' },
-                        { label: 'Ciclo PM', data: getStats('PM'), backgroundColor: '#6366f1' }
-                    ]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-
-            chartAM = new Chart(ctxAM, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Saiu para Entrega', 'Retido no Piso', 'Status Nulo'],
-                    datasets: [{
-                        data: getStats('AM'),
-                        backgroundColor: ['#10b981', '#f59e0b', '#64748b']
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-
-            chartPM = new Chart(ctxPM, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Saiu para Entrega', 'Retido no Piso', 'Status Nulo'],
-                    datasets: [{
-                        data: getStats('PM'),
-                        backgroundColor: ['#10b981', '#f59e0b', '#64748b']
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
         }
     </script>
 </body>
