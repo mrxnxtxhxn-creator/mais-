@@ -63,6 +63,11 @@
                     <span>Bipagem Inteligente</span>
                 </button>
 
+                <button onclick="mudarAba('rotas')" id="btn-aba-rotas" class="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-white/5 text-slate-300 hover:text-white transition font-medium">
+                    <i data-lucide="truck" class="w-4 h-4"></i>
+                    <span>Resumo por Rota</span>
+                </button>
+
                 <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider px-3 pb-1 pt-5">Business Intelligence</div>
                 
                 <button onclick="mudarAba('graficos-geral')" id="btn-aba-graficos-geral" class="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-white/5 text-slate-300 hover:text-white transition font-medium">
@@ -86,7 +91,7 @@
         <div class="p-4 border-t border-white/10 text-[11px] text-slate-300 text-center flex flex-col items-center justify-center space-y-1 bg-[#002850]">
             <i data-lucide="code-2" class="w-4 h-4 text-sky-400 mb-0.5"></i>
             <span class="font-semibold tracking-wide text-white">Desenvolvido por Nathan</span>
-            <span class="text-[9px] text-slate-400">Logistics Systems v2.5</span>
+            <span class="text-[9px] text-slate-400">Logistics Systems v2.6</span>
         </div>
     </aside>
 
@@ -161,7 +166,6 @@
                 
                 <!-- Coluna Esquerda: Leitor Óptico + Reconciliação ML + Verificação em Massa -->
                 <div class="space-y-6">
-                    <!-- Caixa de Leitura / Input Individual -->
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border space-y-5">
                         <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                             <div class="flex items-center space-x-2">
@@ -174,7 +178,6 @@
                             <span id="badge-ciclo" class="text-[10px] bg-kn-navy text-white px-2.5 py-1 rounded font-mono font-bold shadow-sm">CICLO AM</span>
                         </div>
 
-                        <!-- Alerta de Feedback Dinâmico -->
                         <div id="feedbackAlerta" class="hidden p-3 rounded-lg text-xs font-medium border transition-all shadow-sm"></div>
 
                         <div class="space-y-4">
@@ -208,7 +211,7 @@
                         </div>
                     </div>
 
-                    <!-- Reconciliação em Massa via Texto/Print Mercado Livre -->
+                    <!-- Reconciliação Mercado Livre -->
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-amber-200 space-y-4 bg-amber-50/20">
                         <div class="flex justify-between items-center border-b border-amber-100 pb-3">
                             <div class="flex items-center space-x-2">
@@ -220,9 +223,6 @@
                         <div>
                             <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Cole o texto/print copiado do ML</label>
                             <textarea id="mlTextInput" rows="4" placeholder="Cole aqui as linhas/tabela do Mercado Livre...&#10;Ex:&#10;MLB12345 - Despachar&#10;MLB98765 - Em rota de entrega&#10;MLB11223 - Falha na entrega" class="w-full p-3 border border-amber-300 rounded-lg font-mono text-xs mt-1 focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white resize-none"></textarea>
-                            <span class="text-[10px] text-slate-500 mt-1 block leading-tight">
-                                💡 Reconhece: <b>Despachar</b>, <b>Em rota de entrega</b>, <b>Falha na entrega</b>, <b>Solução de problema</b> e <b>Ficou no piso</b>.
-                            </span>
                         </div>
                         <button onclick="processarPrintMercadoLivre()" class="w-full bg-amber-600 hover:bg-amber-700 text-white p-2.5 rounded-lg text-xs font-bold transition shadow-sm flex items-center justify-center space-x-2">
                             <i data-lucide="refresh-cw" class="w-4 h-4"></i>
@@ -238,7 +238,7 @@
                         </div>
                         <div>
                             <label class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Cole os IDs (um por linha)</label>
-                            <textarea id="bulkInput" rows="3" placeholder="Cole vários IDs aqui...&#10;Ex: ID001&#10;ID002" class="w-full p-3 border border-slate-300 rounded-lg font-mono text-xs mt-1 focus:ring-2 focus:ring-kn-navy focus:outline-none bg-slate-50/50 resize-none"></textarea>
+                            <textarea id="bulkInput" rows="3" placeholder="Cole vários IDs aqui..." class="w-full p-3 border border-slate-300 rounded-lg font-mono text-xs mt-1 focus:ring-2 focus:ring-kn-navy focus:outline-none bg-slate-50/50 resize-none"></textarea>
                         </div>
                         <button onclick="processarMassaPiso()" class="w-full bg-slate-700 hover:bg-slate-800 text-white p-2.5 rounded-lg text-xs font-bold transition shadow-sm flex items-center justify-center space-x-2">
                             <i data-lucide="check-check" class="w-4 h-4"></i>
@@ -294,7 +294,7 @@
                                 <tr>
                                     <th class="px-4 py-3">Código de Barras</th>
                                     <th class="px-4 py-3">Ciclo</th>
-                                    <th class="px-4 py-3">Atribuição</th>
+                                    <th class="px-4 py-3">Atribuição / Rota</th>
                                     <th class="px-4 py-3">Status</th>
                                     <th class="px-4 py-3">Horário</th>
                                 </tr>
@@ -306,7 +306,54 @@
                 </div>
             </section>
 
-            <!-- ABA 2: GRÁFICOS GERAL -->
+            <!-- ================= ABA 2: RESUMO POR ROTA ================= -->
+            <section id="aba-rotas" class="hidden space-y-6 fade-in">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    <!-- Painel Esquerdo: Lista das Rotas / Gaiolas -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border space-y-4">
+                        <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                            <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider">Rotas Mapeadas</h2>
+                            <i data-lucide="truck" class="w-4 h-4 text-kn-navy"></i>
+                        </div>
+                        <p class="text-[11px] text-slate-500">Clique em uma rota para visualizar os pacotes e seus status individuais.</p>
+                        
+                        <div id="listaCardsRotas" class="space-y-2 max-h-[500px] overflow-y-auto pr-1">
+                            <!-- Gerado via JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Painel Direito: Detalhes da Rota Selecionada -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border lg:col-span-2 space-y-4">
+                        <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                            <div class="flex items-center space-x-2">
+                                <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider">Pacotes da Rota:</h2>
+                                <span id="tituloRotaSelecionada" class="text-xs font-black text-kn-blue bg-sky-50 px-2.5 py-1 rounded border border-sky-200">Selecione uma rota</span>
+                            </div>
+                            <span id="contadorRotaSelecionada" class="text-xs font-semibold bg-slate-100 text-kn-navy px-3 py-1 rounded-full border border-slate-200">0 Pacotes</span>
+                        </div>
+
+                        <div class="overflow-x-auto max-h-[480px]">
+                            <table class="w-full text-xs text-left text-slate-600">
+                                <thead class="text-[10px] text-kn-navy uppercase bg-slate-50 border-b border-slate-200 sticky top-0 font-bold">
+                                    <tr>
+                                        <th class="px-4 py-3">Código de Barras</th>
+                                        <th class="px-4 py-3">Ciclo</th>
+                                        <th class="px-4 py-3">Status Atual</th>
+                                        <th class="px-4 py-3">Horário</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabelaDetalhesRota" class="divide-y divide-slate-100">
+                                    <tr><td colspan="4" class="px-4 py-8 text-center text-slate-400">Clique em uma rota no painel ao lado para visualizar os IDs.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- ABA 3: GRÁFICOS GERAL -->
             <section id="aba-graficos-geral" class="hidden space-y-6 fade-in">
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border">
                     <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider border-b border-slate-100 pb-3 mb-4">
@@ -318,7 +365,7 @@
                 </div>
             </section>
 
-            <!-- ABA 3: GRÁFICOS AM -->
+            <!-- ABA 4: GRÁFICOS AM -->
             <section id="aba-graficos-am" class="hidden space-y-6 fade-in">
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border">
                     <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider border-b border-slate-100 pb-3 mb-4">
@@ -330,7 +377,7 @@
                 </div>
             </section>
 
-            <!-- ABA 4: GRÁFICOS PM -->
+            <!-- ABA 5: GRÁFICOS PM -->
             <section id="aba-graficos-pm" class="hidden space-y-6 fade-in">
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border">
                     <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider border-b border-slate-100 pb-3 mb-4">
@@ -356,6 +403,7 @@
         
         const STORAGE_KEY = 'kn_logistica_dados';
         let dadosOperacao = carregardados();
+        let rotaAtivaSelecionada = null;
         
         let chartAM = null;
         let chartPM = null;
@@ -381,21 +429,27 @@
         }
 
         function mudarAba(abaSelecionada) {
-            const abas = ['operacao', 'graficos-geral', 'graficos-am', 'graficos-pm'];
+            const abas = ['operacao', 'rotas', 'graficos-geral', 'graficos-am', 'graficos-pm'];
             
             abas.forEach(aba => {
                 document.getElementById('aba-' + aba).classList.add('hidden');
                 const btn = document.getElementById('btn-aba-' + aba);
-                btn.classList.remove('bg-kn-blue', 'text-white', 'shadow-sm');
-                btn.classList.add('hover:bg-white/5', 'text-slate-300');
+                if (btn) {
+                    btn.classList.remove('bg-kn-blue', 'text-white', 'shadow-sm');
+                    btn.classList.add('hover:bg-white/5', 'text-slate-300');
+                }
             });
 
             document.getElementById('aba-' + abaSelecionada).classList.remove('hidden');
             const btnAtivo = document.getElementById('btn-aba-' + abaSelecionada);
-            btnAtivo.classList.add('bg-kn-blue', 'text-white', 'shadow-sm');
-            btnAtivo.classList.remove('hover:bg-white/5', 'text-slate-300');
+            if (btnAtivo) {
+                btnAtivo.classList.add('bg-kn-blue', 'text-white', 'shadow-sm');
+                btnAtivo.classList.remove('hover:bg-white/5', 'text-slate-300');
+            }
 
-            if (abaSelecionada.includes('graficos')) {
+            if (abaSelecionada === 'rotas') {
+                renderizarAbaRotas();
+            } else if (abaSelecionada.includes('graficos')) {
                 setTimeout(renderizarGraficos, 50); 
             } else {
                 document.getElementById('barcodeInput').focus();
@@ -405,7 +459,10 @@
         function salvardados() {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(dadosOperacao));
             atualizarKPIs();
-            renderizarGraficos(); 
+            renderizarGraficos();
+            if (!document.getElementById('aba-rotas').classList.contains('hidden')) {
+                renderizarAbaRotas();
+            }
         }
 
         function carregardados() {
@@ -591,6 +648,14 @@
             }
         }
 
+        function alterarAtribuicaoManual(id, novaAtribuicao) {
+            let item = dadosOperacao.find(d => d.id === id);
+            if (item) {
+                item.atribuicao = novaAtribuicao.trim() || 'Sem Rota';
+                salvardados();
+            }
+        }
+
         function aplicarFiltros() {
             const texto = document.getElementById('filtroTexto').value.toLowerCase();
             const status = document.getElementById('filtroStatus').value;
@@ -621,7 +686,9 @@
                 tr.innerHTML = `
                     <td class="px-4 py-3 font-mono font-bold text-slate-800">${item.barcode}</td>
                     <td class="px-4 py-3"><span class="px-2 py-0.5 text-[10px] rounded font-bold ${item.ciclo === 'AM' ? 'bg-amber-100 text-amber-800' : 'bg-indigo-100 text-indigo-800'}">${item.ciclo}</span></td>
-                    <td class="px-4 py-3 text-slate-600">${item.atribuicao}</td>
+                    <td class="px-4 py-3">
+                        <input type="text" value="${item.atribuicao}" onchange="alterarAtribuicaoManual(${item.id}, this.value)" placeholder="Sem Rota" class="w-full max-w-[140px] px-2 py-1 border border-slate-200 rounded text-xs focus:outline-none focus:border-kn-navy focus:bg-white bg-transparent hover:border-slate-300 font-medium text-slate-700 transition">
+                    </td>
                     <td class="px-4 py-3">
                         <select onchange="alterarStatusManual(${item.id}, this.value)" class="text-[11px] font-bold px-2 py-1 rounded border shadow-xs ${configStatus.class} focus:outline-none cursor-pointer">
                             <option value="DESPACHAR" ${item.status === 'DESPACHAR' ? 'selected' : ''}>Despachar</option>
@@ -631,6 +698,97 @@
                             <option value="SOLUCAO_DE_PROBLEMA" ${item.status === 'SOLUCAO_DE_PROBLEMA' ? 'selected' : ''}>Solução de Problema</option>
                             <option value="NULO" ${item.status === 'NULO' ? 'selected' : ''}>Status Nulo</option>
                         </select>
+                    </td>
+                    <td class="px-4 py-3 text-slate-400 font-mono text-[11px]">${item.hora}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        /* ================= LÓGICA DA NOVA ABA DE RESUMO POR ROTA ================= */
+        function renderizarAbaRotas() {
+            const containerRotas = document.getElementById('listaCardsRotas');
+            containerRotas.innerHTML = '';
+
+            const rotasMap = {};
+            dadosOperacao.forEach(item => {
+                const nomeRota = item.atribuicao || 'Sem Rota';
+                if (!rotasMap[nomeRota]) {
+                    rotasMap[nomeRota] = [];
+                }
+                rotasMap[nomeRota].push(item);
+            });
+
+            const nomesRotas = Object.keys(rotasMap);
+
+            if (nomesRotas.length === 0) {
+                containerRotas.innerHTML = '<p class="text-xs text-slate-400 py-4 text-center">Nenhum pacote bipado ainda.</p>';
+                document.getElementById('tabelaDetalhesRota').innerHTML = '<tr><td colspan="4" class="px-4 py-8 text-center text-slate-400">Nenhum pacote cadastrado.</td></tr>';
+                document.getElementById('tituloRotaSelecionada').innerText = 'Nenhuma Rota';
+                document.getElementById('contadorRotaSelecionada').innerText = '0 Pacotes';
+                return;
+            }
+
+            if (!rotaAtivaSelecionada || !rotasMap[rotaAtivaSelecionada]) {
+                rotaAtivaSelecionada = nomesRotas[0];
+            }
+
+            nomesRotas.forEach(nomeRota => {
+                const pacotes = rotasMap[nomeRota];
+                const count = pacotes.length;
+                const isSelected = nomeRota === rotaAtivaSelecionada;
+
+                const card = document.createElement('div');
+                card.onclick = () => {
+                    rotaAtivaSelecionada = nomeRota;
+                    renderizarAbaRotas();
+                };
+                card.className = `p-3 rounded-lg border cursor-pointer transition flex items-center justify-between ${
+                    isSelected 
+                        ? 'bg-kn-navy text-white border-kn-navy shadow-sm' 
+                        : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
+                }`;
+
+                card.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <i data-lucide="truck" class="w-4 h-4 ${isSelected ? 'text-sky-300' : 'text-slate-500'}"></i>
+                        <span class="font-bold text-xs">${nomeRota}</span>
+                    </div>
+                    <span class="text-xs px-2.5 py-1 rounded-full font-extrabold ${
+                        isSelected ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-800'
+                    }">${count} pacotes</span>
+                `;
+                containerRotas.appendChild(card);
+            });
+
+            renderizarDetalhesRota(rotasMap[rotaAtivaSelecionada] || []);
+            lucide.createIcons();
+        }
+
+        function renderizarDetalhesRota(pacotes) {
+            document.getElementById('tituloRotaSelecionada').innerText = rotaAtivaSelecionada || 'Selecione';
+            document.getElementById('contadorRotaSelecionada').innerText = `${pacotes.length} Pacotes`;
+
+            const tbody = document.getElementById('tabelaDetalhesRota');
+            tbody.innerHTML = '';
+
+            if (pacotes.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="px-4 py-8 text-center text-slate-400">Nenhum pacote nesta rota.</td></tr>';
+                return;
+            }
+
+            pacotes.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                const configStatus = STATUS_MAP[item.status] || STATUS_MAP['NULO'];
+
+                tr.innerHTML = `
+                    <td class="px-4 py-3 font-mono font-bold text-slate-800">${item.barcode}</td>
+                    <td class="px-4 py-3"><span class="px-2 py-0.5 text-[10px] rounded font-bold ${item.ciclo === 'AM' ? 'bg-amber-100 text-amber-800' : 'bg-indigo-100 text-indigo-800'}">${item.ciclo}</span></td>
+                    <td class="px-4 py-3">
+                        <span class="text-[11px] font-bold px-2 py-1 rounded border ${configStatus.class}">
+                            ${configStatus.label}
+                        </span>
                     </td>
                     <td class="px-4 py-3 text-slate-400 font-mono text-[11px]">${item.hora}</td>
                 `;
@@ -677,7 +835,6 @@
         }
 
         function renderizarGraficos() {
-            // Lógica simples de renderização dos gráficos com Chart.js
             const ctxGeral = document.getElementById('graficoGeral')?.getContext('2d');
             if (ctxGeral) {
                 if (chartGeral) chartGeral.destroy();
