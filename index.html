@@ -436,7 +436,6 @@
                 return;
             }
             
-            // Pega todos os códigos de barras sem repetição
             const listaIDs = [...new Set(dadosOperacao.map(item => item.barcode))].join('\n');
             
             navigator.clipboard.writeText(listaIDs).then(() => {
@@ -539,98 +538,73 @@
         /* 3. FUNÇÃO DE RECONCILIAÇÃO VIA TEXTO/PRINT DO MERCADO LIVRE */
         function processarPrintMercadoLivre() {
             const textarea = document.getElementById('mlTextInput');
-            const conteudo = textarea.value;
-            
-            if (!conteudo.trim()) {
-                alert("Cole o conteúdo do Mercado Livre no campo correspondente.");
+            const texto = textarea.value.trim();
+
+            if (!texto) {
+                alert("Cole o texto da tela do Mercado Livre para processar.");
                 return;
             }
 
             const ciclo = document.getElementById('selectCiclo').value;
-            const atribuicao = document.getElementById('atribuicaoInput').value.trim() || 'Mercado Livre';
-            
-            // Divide o texto em linhas para analisar cada ID e seu contexto
-            const linhas = conteudo.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-            
-            let countPiso = 0;
-            let countSaiu = 0;
-            let countNulo = 0;
-            let novosIDs = 0;
+            const atribuicao = document.getElementById('atribuicaoInput').value.trim() || 'Sem Rota';
+            const linhas = texto.split('\n');
+
+            let totalProcessados = 0;
 
             linhas.forEach(linha => {
-                const linhaLC = linha.toLowerCase();
-                
-                // Determina o status com base na linha copiada do site ML
-                let statusDeterminado = 'NULO';
-                if (linhaLC.includes('despachar')) {
-                    statusDeterminado = 'FICOU_NO_PISO';
-                    countPiso++;
-                } else if (linhaLC.includes('em rota de entrega')) {
-                    statusDeterminado = 'SAIU_PARA_ENTREGA';
-                    countSaiu++;
-                } else {
-                    statusDeterminado = 'NULO';
-                    countNulo++;
+                const l = linha.trim();
+                if (!l) return;
+
+                const matchID = l.match(/([A-Za-z0-9]{8,25})/);
+                if (!matchID) return;
+
+                const barcode = matchID[0];
+                let status = 'NULO';
+
+                const lUpper = l.toUpperCase();
+                if (lUpper.includes('DESPACHAR')) {
+                    status = 'FICOU_NO_PISO';
+                } else if (lUpper.includes('EM ROTA') || lUpper.includes('SAIU') || lUpper.includes('ROTA DE ENTREGA')) {
+                    status = 'SAIU_PARA_ENTREGA';
                 }
 
-                // Tenta identificar o ID/Código de Barras na linha
-                let itemExistente = dadosOperacao.find(d => linha.includes(d.barcode));
-                
+                let itemExistente = dadosOperacao.find(d => d.barcode === barcode && d.ciclo === ciclo);
+
                 if (itemExistente) {
-                    itemExistente.status = statusDeterminado;
+                    itemExistente.status = status;
                     itemExistente.hora = new Date().toLocaleTimeString('pt-BR');
+                    if (atribuicao !== 'Sem Rota') itemExistente.atribuicao = atribuicao;
                 } else {
-                    // Extrai sequências alfanuméricas com 8 ou mais caracteres como candidato a ID
-                    const matches = linha.match(/[A-Za-z0-9_-]{8,}/g);
-                    if (matches && matches.length > 0) {
-                        const idExtraido = matches[0];
-                        
-                        let itemExistenteCiclo = dadosOperacao.find(d => d.barcode === idExtraido && d.ciclo === ciclo);
-                        if (itemExistenteCiclo) {
-                            itemExistenteCiclo.status = statusDeterminado;
-                            itemExistenteCiclo.hora = new Date().toLocaleTimeString('pt-BR');
-                        } else {
-                            const novoItem = {
-                                id: Date.now() + Math.random(),
-                                barcode: idExtraido,
-                                ciclo: ciclo,
-                                atribuicao: atribuicao,
-                                status: statusDeterminado,
-                                hora: new Date().toLocaleTimeString('pt-BR'),
-                                data: new Date().toLocaleDateString('pt-BR')
-                            };
-                            dadosOperacao.unshift(novoItem);
-                            novosIDs++;
-                        }
-                    }
+                    const novoItem = {
+                        id: Date.now() + Math.random(),
+                        barcode: barcode,
+                        ciclo: ciclo,
+                        atribuicao: atribuicao,
+                        status: status,
+                        hora: new Date().toLocaleTimeString('pt-BR'),
+                        data: new Date().toLocaleDateString('pt-BR')
+                    };
+                    dadosOperacao.unshift(novoItem);
                 }
+                totalProcessados++;
             });
 
             salvardados();
             aplicarFiltros();
             textarea.value = '';
-            mostrarAlerta(`📦 Reconciliação ML concluída: ${countPiso} Retido Piso, ${countSaiu} Em Rota, ${countNulo} Nulos (${novosIDs} novos criados).`, 'info');
+            mostrarAlerta(`🔄 Reconciliação concluída: ${totalProcessados} pacotes atualizados/inseridos via ML!`, 'info');
         }
 
-        function alterarStatusManual(id, novoStatus) {
-            const item = dadosOperacao.find(d => d.id === id);
-            if (item) {
-                item.status = novoStatus;
-                item.hora = new Date().toLocaleTimeString('pt-BR');
-                salvardados();
-                aplicarFiltros();
-            }
-        }
-
+        /* FILTROS E TABELA */
         function aplicarFiltros() {
             const texto = document.getElementById('filtroTexto').value.toLowerCase();
-            const statusFiltro = document.getElementById('filtroStatus').value;
-            const cicloFiltro = document.getElementById('filtroCiclo').value;
+            const status = document.getElementById('filtroStatus').value;
+            const ciclo = document.getElementById('filtroCiclo').value;
 
-            let filtrados = dadosOperacao.filter(item => {
+            const filtrados = dadosOperacao.filter(item => {
                 const matchTexto = item.barcode.toLowerCase().includes(texto) || item.atribuicao.toLowerCase().includes(texto);
-                const matchStatus = !statusFiltro || item.status === statusFiltro;
-                const matchCiclo = !cicloFiltro || item.ciclo === cicloFiltro;
+                const matchStatus = !status || item.status === status;
+                const matchCiclo = !ciclo || item.ciclo === ciclo;
                 return matchTexto && matchStatus && matchCiclo;
             });
 
@@ -639,45 +613,35 @@
 
         function renderizarTabela(lista) {
             const tbody = document.getElementById('tabelaBips');
-            document.getElementById('contadorBips').innerText = `${lista.length} Registros Exibidos`;
+            tbody.innerHTML = '';
 
-            if (lista.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-slate-400 font-medium">Nenhum registro encontrado com esses filtros.</td></tr>`;
-                return;
-            }
+            document.getElementById('contadorBips').innerText = `${lista.length} Pacotes`;
 
-            tbody.innerHTML = lista.map(item => {
-                let statusBadgeClass = '';
-                let statusLabel = '';
+            lista.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition border-b border-slate-100';
 
+                let badgeStatus = '';
                 if (item.status === 'SAIU_PARA_ENTREGA') {
-                    statusBadgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-300';
-                    statusLabel = 'SAÍDA';
+                    badgeStatus = '<span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded">Saiu para Entrega</span>';
                 } else if (item.status === 'FICOU_NO_PISO') {
-                    statusBadgeClass = 'bg-amber-100 text-amber-800 border-amber-300';
-                    statusLabel = 'PISO';
+                    badgeStatus = '<span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded">Ficou no Piso</span>';
                 } else {
-                    statusBadgeClass = 'bg-slate-200 text-slate-700 border-slate-300';
-                    statusLabel = 'NULO';
+                    badgeStatus = '<span class="bg-slate-100 text-slate-700 text-[10px] font-bold px-2 py-0.5 rounded">Nulo</span>';
                 }
 
-                return `
-                <tr class="hover:bg-slate-50/80 font-mono border-b border-slate-100 transition">
-                    <td class="px-4 py-3 font-bold text-slate-800">${item.barcode}</td>
-                    <td class="px-4 py-3"><span class="px-2 py-0.5 text-[10px] rounded font-semibold ${item.ciclo === 'AM' ? 'bg-sky-100 text-sky-900' : 'bg-indigo-100 text-indigo-900'}">${item.ciclo}</span></td>
-                    <td class="px-4 py-3 text-slate-600 font-sans">${item.atribuicao}</td>
-                    <td class="px-4 py-3 font-sans">
-                        <select onchange="alterarStatusManual(${item.id}, this.value)" class="p-1 rounded text-[10px] font-bold border cursor-pointer focus:outline-none ${statusBadgeClass}">
-                            <option value="SAIU_PARA_ENTREGA" ${item.status === 'SAIU_PARA_ENTREGA' ? 'selected' : ''}>SAÍDA</option>
-                            <option value="FICOU_NO_PISO" ${item.status === 'FICOU_NO_PISO' ? 'selected' : ''}>PISO</option>
-                            <option value="NULO" ${item.status === 'NULO' ? 'selected' : ''}>NULO</option>
-                        </select>
-                    </td>
-                    <td class="px-4 py-3 text-slate-400 font-sans">${item.hora}</td>
-                </tr>
-            `}).join('');
+                tr.innerHTML = `
+                    <td class="px-4 py-2.5 font-mono font-semibold text-slate-700">${item.barcode}</td>
+                    <td class="px-4 py-2.5 font-bold ${item.ciclo === 'AM' ? 'text-amber-600' : 'text-indigo-600'}">${item.ciclo}</td>
+                    <td class="px-4 py-2.5 text-slate-500">${item.atribuicao}</td>
+                    <td class="px-4 py-2.5">${badgeStatus}</td>
+                    <td class="px-4 py-2.5 text-slate-400 font-mono text-[11px]">${item.hora}</td>
+                `;
+                tbody.appendChild(tr);
+            });
         }
 
+        /* KPIS */
         function atualizarKPIs() {
             const total = dadosOperacao.length;
             const am = dadosOperacao.filter(d => d.ciclo === 'AM').length;
@@ -693,119 +657,98 @@
             document.getElementById('kpiNulo').innerText = nulo;
         }
 
-        function limparBase() {
-            if (confirm("Tem certeza que deseja apagar todos os registros da memória local?")) {
-                localStorage.removeItem(STORAGE_KEY);
-                dadosOperacao = [];
-                aplicarFiltros();
-                atualizarKPIs();
-                renderizarGraficos();
-                document.getElementById('barcodeInput').focus();
+        /* EXPORTAÇÃO CSV */
+        function exportarCSV(tipo) {
+            let dadosFiltrados = dadosOperacao;
+            if (tipo === 'AM' || tipo === 'PM') {
+                dadosFiltrados = dadosOperacao.filter(d => d.ciclo === tipo);
             }
-        }
 
-        /* 2. FUNÇÃO DE EXPORTAÇÃO CSV SEPARADA (AM / PM / GERAL) */
-        function exportarCSV(filtroCiclo = 'TODOS') {
-            if (dadosOperacao.length === 0) {
-                alert("Não há dados para exportar.");
+            if (dadosFiltrados.length === 0) {
+                alert("Nenhum dado disponível para exportação.");
                 return;
             }
 
-            let dadosExportar = dadosOperacao;
-
-            if (filtroCiclo === 'AM') {
-                dadosExportar = dadosOperacao.filter(d => d.ciclo === 'AM');
-            } else if (filtroCiclo === 'PM') {
-                dadosExportar = dadosOperacao.filter(d => d.ciclo === 'PM');
-            }
-
-            if (dadosExportar.length === 0) {
-                alert(`Não há registros salvos para o Ciclo ${filtroCiclo}.`);
-                return;
-            }
-
-            let csv = 'CodigoDeBarras;Ciclo;Atribuicao;Status;Hora;Data\n';
-            dadosExportar.forEach(item => {
-                csv += `${item.barcode};${item.ciclo};${item.atribuicao};${item.status};${item.hora};${item.data}\n`;
+            let csvContent = "data:text/csv;charset=utf-8,ID,Ciclo,Atribuicao,Status,Data,Hora\n";
+            dadosFiltrados.forEach(d => {
+                csvContent += `${d.barcode},${d.ciclo},"${d.atribuicao}",${d.status},${d.data},${d.hora}\n`;
             });
 
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            
-            const sufixo = filtroCiclo === 'TODOS' ? 'Geral' : `Ciclo_${filtroCiclo}`;
-            link.setAttribute('download', `Relatorio_Logistica_KN_${sufixo}_${new Date().toISOString().slice(0,10)}.csv`);
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `reconciliacao_pos_sorting_${tipo}_${new Date().toISOString().slice(0,10)}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         }
 
-        /* GRÁFICOS COMPLETOS */
+        /* ZERAR DATA */
+        function limparBase() {
+            if (confirm("Tem certeza que deseja zerar todos os dados salvos? Esta ação não pode ser desfeita.")) {
+                dadosOperacao = [];
+                salvardados();
+                aplicarFiltros();
+                mostrarAlerta("🗑️ Base de dados limpa com sucesso.", "warning");
+            }
+        }
+
+        /* RENDERIZAÇÃO DE GRÁFICOS (CHART.JS) */
         function renderizarGraficos() {
-            const amTotal = dadosOperacao.filter(d => d.ciclo === 'AM').length;
-            const amSaida = dadosOperacao.filter(d => d.ciclo === 'AM' && d.status === 'SAIU_PARA_ENTREGA').length;
-            const amPiso = dadosOperacao.filter(d => d.ciclo === 'AM' && d.status === 'FICOU_NO_PISO').length;
-            const amNulo = dadosOperacao.filter(d => d.ciclo === 'AM' && d.status === 'NULO').length;
+            const ctxGeral = document.getElementById('graficoGeral')?.getContext('2d');
+            const ctxAM = document.getElementById('graficoAM')?.getContext('2d');
+            const ctxPM = document.getElementById('graficoPM')?.getContext('2d');
 
-            const pmTotal = dadosOperacao.filter(d => d.ciclo === 'PM').length;
-            const pmSaida = dadosOperacao.filter(d => d.ciclo === 'PM' && d.status === 'SAIU_PARA_ENTREGA').length;
-            const pmPiso = dadosOperacao.filter(d => d.ciclo === 'PM' && d.status === 'FICOU_NO_PISO').length;
-            const pmNulo = dadosOperacao.filter(d => d.ciclo === 'PM' && d.status === 'NULO').length;
+            if (!ctxGeral || !ctxAM || !ctxPM) return;
 
-            // 1. Gráfico Geral Comparativo
-            const canvasGeral = document.getElementById('graficoGeral');
-            if (canvasGeral) {
-                const ctxGeral = canvasGeral.getContext('2d');
-                if (chartGeral) chartGeral.destroy();
-                chartGeral = new Chart(ctxGeral, {
-                    type: 'bar',
-                    data: {
-                        labels: ['Ciclo AM', 'Ciclo PM'],
-                        datasets: [
-                            { label: 'Saíram pra Entrega', data: [amSaida, pmSaida], backgroundColor: '#10B981' },
-                            { label: 'Ficaram no Piso', data: [amPiso, pmPiso], backgroundColor: '#F59E0B' },
-                            { label: 'Status Nulo', data: [amNulo, pmNulo], backgroundColor: '#94A3B8' }
-                        ]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false }
-                });
-            }
+            if (chartGeral) chartGeral.destroy();
+            if (chartAM) chartAM.destroy();
+            if (chartPM) chartPM.destroy();
 
-            // 2. Gráfico AM
-            const canvasAM = document.getElementById('graficoAM');
-            if (canvasAM) {
-                const ctxAM = canvasAM.getContext('2d');
-                if (chartAM) chartAM.destroy();
-                chartAM = new Chart(ctxAM, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Saída para Entrega', 'Ficou no Piso', 'Status Nulo'],
-                        datasets: [{
-                            data: [amSaida, amPiso, amNulo],
-                            backgroundColor: ['#10B981', '#F59E0B', '#94A3B8']
-                        }]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false }
-                });
-            }
+            const getStats = (ciclo) => {
+                const list = ciclo ? dadosOperacao.filter(d => d.ciclo === ciclo) : dadosOperacao;
+                return [
+                    list.filter(d => d.status === 'SAIU_PARA_ENTREGA').length,
+                    list.filter(d => d.status === 'FICOU_NO_PISO').length,
+                    list.filter(d => d.status === 'NULO').length
+                ];
+            };
 
-            // 3. Gráfico PM
-            const canvasPM = document.getElementById('graficoPM');
-            if (canvasPM) {
-                const ctxPM = canvasPM.getContext('2d');
-                if (chartPM) chartPM.destroy();
-                chartPM = new Chart(ctxPM, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Saída para Entrega', 'Ficou no Piso', 'Status Nulo'],
-                        datasets: [{
-                            data: [pmSaida, pmPiso, pmNulo],
-                            backgroundColor: ['#10B981', '#F59E0B', '#94A3B8']
-                        }]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false }
-                });
-            }
+            chartGeral = new Chart(ctxGeral, {
+                type: 'bar',
+                data: {
+                    labels: ['Saiu para Entrega', 'Retido no Piso', 'Status Nulo'],
+                    datasets: [
+                        { label: 'Ciclo AM', data: getStats('AM'), backgroundColor: '#f59e0b' },
+                        { label: 'Ciclo PM', data: getStats('PM'), backgroundColor: '#6366f1' }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            chartAM = new Chart(ctxAM, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Saiu para Entrega', 'Retido no Piso', 'Status Nulo'],
+                    datasets: [{
+                        data: getStats('AM'),
+                        backgroundColor: ['#10b981', '#f59e0b', '#64748b']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            chartPM = new Chart(ctxPM, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Saiu para Entrega', 'Retido no Piso', 'Status Nulo'],
+                    datasets: [{
+                        data: getStats('PM'),
+                        backgroundColor: ['#10b981', '#f59e0b', '#64748b']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
         }
     </script>
 </body>
