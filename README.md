@@ -82,11 +82,11 @@
             </nav>
         </div>
 
-        <!-- Rodapé Assinatura -->
+        <!-- Rodapé Assinatura Nathan -->
         <div class="p-4 border-t border-white/10 text-[11px] text-slate-300 text-center flex flex-col items-center justify-center space-y-1 bg-[#002850]">
             <i data-lucide="code-2" class="w-4 h-4 text-sky-400 mb-0.5"></i>
             <span class="font-semibold tracking-wide text-white">Desenvolvido por Nathan</span>
-            <span class="text-[9px] text-slate-400">Logistics Systems v2.6</span>
+            <span class="text-[9px] text-slate-400">Logistics Systems v2.5</span>
         </div>
     </aside>
 
@@ -103,6 +103,7 @@
                 <p class="text-xs text-slate-500">Módulo de controle integrado Last Mile</p>
             </div>
             
+            <!-- Botões de Exportação Separados (AM / PM / Geral) e Zerar -->
             <div class="flex items-center space-x-2 flex-wrap gap-y-2">
                 <div class="flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200 space-x-1">
                     <button onclick="exportarCSV('AM')" class="hover:bg-sky-500 hover:text-white text-slate-700 bg-white px-2.5 py-1.5 rounded text-xs font-semibold flex items-center space-x-1 transition shadow-xs">
@@ -156,7 +157,7 @@
                 
                 <!-- Coluna Esquerda: Leitor Óptico + Reconciliação ML + Verificação em Massa -->
                 <div class="space-y-6">
-                    <!-- Leitor Óptico -->
+                    <!-- Caixa de Leitura / Input Individual -->
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border space-y-5">
                         <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                             <div class="flex items-center space-x-2">
@@ -169,12 +170,18 @@
                             <span id="badge-ciclo" class="text-[10px] bg-kn-navy text-white px-2.5 py-1 rounded font-mono font-bold shadow-sm">CICLO AM</span>
                         </div>
 
-                        <!-- Feedback Dinâmico -->
+                        <!-- Alerta de Feedback Dinâmico -->
                         <div id="feedbackAlerta" class="hidden p-3 rounded-lg text-xs font-medium border transition-all shadow-sm"></div>
 
                         <div class="space-y-4">
                             <div>
-                                <label class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Código de Barras</label>
+                                <div class="flex justify-between items-center">
+                                    <label class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Código de Barras</label>
+                                    <button onclick="copiarTodosIDs()" class="text-[11px] text-kn-blue hover:underline font-semibold flex items-center space-x-1">
+                                        <i data-lucide="copy" class="w-3 h-3"></i>
+                                        <span>Copiar Todos</span>
+                                    </button>
+                                </div>
                                 <div class="mt-1">
                                     <input type="text" id="barcodeInput" autofocus placeholder="Aguardando leitura..." class="w-full p-3 border border-slate-300 rounded-lg font-mono text-sm focus:ring-2 focus:ring-kn-navy focus:border-kn-navy focus:outline-none bg-slate-50/50">
                                 </div>
@@ -184,7 +191,7 @@
                             <div class="grid grid-cols-2 gap-3 pt-3 border-t border-slate-100">
                                 <div>
                                     <label class="text-xs font-semibold text-slate-600">Rota / Gaiola:</label>
-                                    <input type="text" id="atribuicaoInput" placeholder="Ex: Rota 10" class="w-full p-2.5 border border-slate-300 rounded-lg text-xs mt-1 focus:outline-none focus:border-kn-navy bg-slate-50/50">
+                                    <input type="text" id="atribuicaoInput" placeholder="Ex: Gaiola 01" class="w-full p-2.5 border border-slate-300 rounded-lg text-xs mt-1 focus:outline-none focus:border-kn-navy bg-slate-50/50">
                                 </div>
                                 <div>
                                     <label class="text-xs font-semibold text-slate-600">Ciclo Ativo:</label>
@@ -197,7 +204,7 @@
                         </div>
                     </div>
 
-                    <!-- Reconciliação em Massa Mercado Livre -->
+                    <!-- Reconciliação em Massa via Texto/Print da Tela Mercado Livre -->
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-amber-200 space-y-4 bg-amber-50/20">
                         <div class="flex justify-between items-center border-b border-amber-100 pb-3">
                             <div class="flex items-center space-x-2">
@@ -207,8 +214,11 @@
                             <i data-lucide="shopping-bag" class="w-4 h-4 text-amber-600"></i>
                         </div>
                         <div>
-                            <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Cole o texto/print copiado do Mercado Livre</label>
-                            <textarea id="mlTextInput" rows="3" placeholder="Cole aqui as linhas/tabela copiadas...&#10;Ex: MLB123456789 - Despachar pacote" class="w-full p-3 border border-amber-300 rounded-lg font-mono text-xs mt-1 focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white resize-none"></textarea>
+                            <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Cole o texto/print copiado da tela do Mercado Livre</label>
+                            <textarea id="mlTextInput" rows="4" placeholder="Cole aqui as linhas/tabela copiadas da tela do Mercado Livre...&#10;Ex:&#10;MLB123456789 - Despachar pacote&#10;MLB987654321 - Em rota de entrega" class="w-full p-3 border border-amber-300 rounded-lg font-mono text-xs mt-1 focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white resize-none"></textarea>
+                            <span class="text-[10px] text-slate-500 mt-1 block leading-tight">
+                                💡 <b>Regra Automática:</b> 'Despachar' ➔ <b>Piso</b> | 'Em rota de entrega' ➔ <b>Saiu</b> | Qualquer outro ➔ <b>Nulo</b>.
+                            </span>
                         </div>
                         <button onclick="processarPrintMercadoLivre()" class="w-full bg-amber-600 hover:bg-amber-700 text-white p-2.5 rounded-lg text-xs font-bold transition shadow-sm flex items-center justify-center space-x-2">
                             <i data-lucide="refresh-cw" class="w-4 h-4"></i>
@@ -219,11 +229,13 @@
                     <!-- Verificação em Massa (Apenas Piso) -->
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border space-y-4">
                         <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                            <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider">Massa (Apenas Piso)</h2>
+                            <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider">Verificação em Massa (Apenas Piso)</h2>
                             <i data-lucide="layers" class="w-4 h-4 text-kn-navy"></i>
                         </div>
                         <div>
-                            <textarea id="bulkInput" rows="3" placeholder="Cole vários IDs aqui (um por linha)..." class="w-full p-3 border border-slate-300 rounded-lg font-mono text-xs mt-1 focus:ring-2 focus:ring-kn-navy focus:outline-none bg-slate-50/50 resize-none"></textarea>
+                            <label class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Cole os IDs (um por linha)</label>
+                            <textarea id="bulkInput" rows="3" placeholder="Cole vários IDs aqui...&#10;Ex: ID001&#10;ID002" class="w-full p-3 border border-slate-300 rounded-lg font-mono text-xs mt-1 focus:ring-2 focus:ring-kn-navy focus:outline-none bg-slate-50/50 resize-none"></textarea>
+                            <span class="text-[10px] text-slate-400 mt-1 block">Insere novos IDs ou atualiza existentes para "Ficou no Piso".</span>
                         </div>
                         <button onclick="processarMassaPiso()" class="w-full bg-slate-700 hover:bg-slate-800 text-white p-2.5 rounded-lg text-xs font-bold transition shadow-sm flex items-center justify-center space-x-2">
                             <i data-lucide="check-check" class="w-4 h-4"></i>
@@ -232,7 +244,7 @@
                     </div>
                 </div>
 
-                <!-- Tabela de Histórico e Edição Manual -->
+                <!-- Tabela de Histórico e Filtros -->
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border lg:col-span-2 space-y-4">
                     <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                         <div class="flex items-center space-x-3">
@@ -245,7 +257,7 @@
                         <span id="contadorBips" class="text-xs font-semibold bg-slate-100 text-kn-navy px-3 py-1 rounded-full border border-slate-200">0 Pacotes</span>
                     </div>
 
-                    <!-- Barra de Filtros -->
+                    <!-- Barra de Filtros Avançados -->
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-50 p-3 rounded-lg border border-slate-200">
                         <div>
                             <label class="text-[10px] font-bold text-slate-500 uppercase">Filtrar por ID / Rota</label>
@@ -270,17 +282,21 @@
                         </div>
                     </div>
 
-                    <!-- TABELA COM CAMPOS EDITÁVEIS (STATUS, ROTA, CICLO) -->
                     <div class="overflow-x-auto max-h-[480px]">
                         <table class="w-full text-xs text-left text-slate-600">
-                            <thead class="text-[10px] text-kn-navy uppercase bg-slate-50 border-b border-slate-200 sticky top-0 font-bold z-10">
+                            <thead class="text-[10px] text-kn-navy uppercase bg-slate-50 border-b border-slate-200 sticky top-0 font-bold">
                                 <tr>
-                                    <th class="px-3 py-3">Código de Barras</th>
-                                    <th class="px-3 py-3 w-24">Ciclo</th>
-                                    <th class="px-3 py-3 w-36">Rota / Atribuição (Manual)</th>
-                                    <th class="px-3 py-3 w-44">Status (Edição Manual)</th>
-                                    <th class="px-3 py-3 w-20">Horário</th>
-                                    <th class="px-2 py-3 w-10 text-center">Ações</th>
+                                    <th class="px-4 py-3 flex items-center justify-between">
+                                        <span>Código de Barras</span>
+                                        <button onclick="copiarTodosIDs()" class="text-[9px] bg-white border border-slate-300 px-1.5 py-0.5 rounded text-kn-navy hover:bg-slate-100 flex items-center space-x-1" title="Copiar lista de IDs">
+                                            <i data-lucide="copy" class="w-2.5 h-2.5"></i>
+                                            <span>Copiar</span>
+                                        </button>
+                                    </th>
+                                    <th class="px-4 py-3">Ciclo</th>
+                                    <th class="px-4 py-3">Atribuição</th>
+                                    <th class="px-4 py-3">Status</th>
+                                    <th class="px-4 py-3">Horário</th>
                                 </tr>
                             </thead>
                             <tbody id="tabelaBips" class="divide-y divide-slate-100">
@@ -290,7 +306,7 @@
                 </div>
             </section>
 
-            <!-- ================= ABA 2: GRÁFICOS GERAL ================= -->
+            <!-- ================= ABA 2: GRÁFICOS GERAL (Comparativo) ================= -->
             <section id="aba-graficos-geral" class="hidden space-y-6 fade-in">
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border">
                     <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider border-b border-slate-100 pb-3 mb-4">
@@ -413,18 +429,23 @@
             }, 3500);
         }
 
+        /* 1. FUNÇÃO PARA COPIAR TODOS OS IDS */
         function copiarTodosIDs() {
             if (dadosOperacao.length === 0) {
                 mostrarAlerta('⚠️ Nenhum ID disponível para copiar.', 'warning');
                 return;
             }
+            
+            // Pega todos os códigos de barras sem repetição
             const listaIDs = [...new Set(dadosOperacao.map(item => item.barcode))].join('\n');
+            
             navigator.clipboard.writeText(listaIDs).then(() => {
-                mostrarAlerta(`📋 ${dadosOperacao.length} ID(s) copiado(s) com sucesso!`, 'info');
+                mostrarAlerta(`📋 ${dadosOperacao.length} ID(s) copiado(s) para a área de transferência com sucesso!`, 'info');
+            }).catch(err => {
+                alert("Falha ao copiar os IDs: " + err);
             });
         }
 
-        /* 1. PROCESSAR BIP */
         document.getElementById('barcodeInput').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
@@ -444,7 +465,7 @@
 
             if (!itemExistente) {
                 const novoItem = {
-                    id: Date.now() + Math.random().toString(),
+                    id: Date.now() + Math.random(),
                     barcode: barcode,
                     ciclo: ciclo,
                     atribuicao: atribuicao,
@@ -457,7 +478,9 @@
             } else {
                 itemExistente.status = 'FICOU_NO_PISO';
                 itemExistente.hora = new Date().toLocaleTimeString('pt-BR');
-                if (atribuicao !== 'Sem Rota') itemExistente.atribuicao = atribuicao;
+                if (atribuicao !== 'Sem Rota') {
+                    itemExistente.atribuicao = atribuicao;
+                }
                 mostrarAlerta(`⚠️ [${ciclo}] ID repetido! Atualizado para -> FICOU NO PISO`, 'warning');
             }
 
@@ -468,56 +491,24 @@
             input.focus();
         }
 
-        /* 2. EDICÃO MANUAL DOS ITENS NA TABELA */
-        function alterarStatusManual(id, novoStatus) {
-            const index = dadosOperacao.findIndex(d => String(d.id) === String(id));
-            if (index !== -1) {
-                dadosOperacao[index].status = novoStatus;
-                salvardados();
-                aplicarFiltros();
-                mostrarAlerta(`✏️ Status de ${dadosOperacao[index].barcode} alterado manualmente.`, 'info');
-            }
-        }
-
-        function alterarAtribuicaoManual(id, novaAtribuicao) {
-            const index = dadosOperacao.findIndex(d => String(d.id) === String(id));
-            if (index !== -1) {
-                dadosOperacao[index].atribuicao = novaAtribuicao.trim() || 'Sem Rota';
-                salvardados();
-                atualizarKPIs();
-                mostrarAlerta(`✏️ Rota de ${dadosOperacao[index].barcode} atualizada.`, 'info');
-            }
-        }
-
-        function alterarCicloManual(id, novoCiclo) {
-            const index = dadosOperacao.findIndex(d => String(d.id) === String(id));
-            if (index !== -1) {
-                dadosOperacao[index].ciclo = novoCiclo;
-                salvardados();
-                aplicarFiltros();
-                mostrarAlerta(`✏️ Ciclo de ${dadosOperacao[index].barcode} alterado para ${novoCiclo}.`, 'info');
-            }
-        }
-
-        function excluirItem(id) {
-            dadosOperacao = dadosOperacao.filter(d => String(d.id) !== String(id));
-            salvardados();
-            aplicarFiltros();
-            mostrarAlerta(`🗑️ Item removido.`, 'warning');
-        }
-
-        /* 3. PROCESSAR MASSA PISO */
         function processarMassaPiso() {
             const textarea = document.getElementById('bulkInput');
             const linhas = textarea.value.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-            if (linhas.length === 0) { alert("Cole pelo menos um ID."); return; }
+            
+            if (linhas.length === 0) {
+                alert("Cole pelo menos um ID para processar.");
+                return;
+            }
 
             const ciclo = document.getElementById('selectCiclo').value;
             const atribuicao = document.getElementById('atribuicaoInput').value.trim() || 'Sem Rota';
-            let alterados = 0, inseridos = 0;
+
+            let alterados = 0;
+            let inseridos = 0;
 
             linhas.forEach(barcode => {
                 let itensEncontrados = dadosOperacao.filter(d => d.barcode === barcode && d.ciclo === ciclo);
+                
                 if (itensEncontrados.length > 0) {
                     itensEncontrados.forEach(item => {
                         item.status = 'FICOU_NO_PISO';
@@ -525,15 +516,16 @@
                         alterados++;
                     });
                 } else {
-                    dadosOperacao.unshift({
-                        id: Date.now() + Math.random().toString(),
+                    const novoItem = {
+                        id: Date.now() + Math.random(),
                         barcode: barcode,
                         ciclo: ciclo,
                         atribuicao: atribuicao,
                         status: 'FICOU_NO_PISO',
                         hora: new Date().toLocaleTimeString('pt-BR'),
                         data: new Date().toLocaleDateString('pt-BR')
-                    });
+                    };
+                    dadosOperacao.unshift(novoItem);
                     inseridos++;
                 }
             });
@@ -541,215 +533,278 @@
             salvardados();
             aplicarFiltros();
             textarea.value = '';
-            mostrarAlerta(`⚙️ ${inseridos + alterados} registro(s) processado(s) em massa.`, 'warning');
+            mostrarAlerta(`⚙️ ${inseridos + alterados} registro(s) processado(s) (${inseridos} novos no Piso, ${alterados} atualizados).`, 'warning');
         }
 
-        /* 4. MERCADO LIVRE PRINT */
+        /* 3. FUNÇÃO DE RECONCILIAÇÃO VIA TEXTO/PRINT DO MERCADO LIVRE */
         function processarPrintMercadoLivre() {
             const textarea = document.getElementById('mlTextInput');
-            const texto = textarea.value.trim();
-            if (!texto) { alert("Cole o texto do Mercado Livre."); return; }
+            const conteudo = textarea.value;
+            
+            if (!conteudo.trim()) {
+                alert("Cole o conteúdo do Mercado Livre no campo correspondente.");
+                return;
+            }
 
             const ciclo = document.getElementById('selectCiclo').value;
-            const linhas = texto.split('\n').filter(l => l.trim().length > 0);
-            let processados = 0;
+            const atribuicao = document.getElementById('atribuicaoInput').value.trim() || 'Mercado Livre';
+            
+            // Divide o texto em linhas para analisar cada ID e seu contexto
+            const linhas = conteudo.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+            
+            let countPiso = 0;
+            let countSaiu = 0;
+            let countNulo = 0;
+            let novosIDs = 0;
 
             linhas.forEach(linha => {
-                const matchID = linha.match(/(MLB\d+|\d{10,13}|[A-Za-z0-9_-]{6,})/i);
-                if (!matchID) return;
+                const linhaLC = linha.toLowerCase();
+                
+                // Determina o status com base na linha copiada do site ML
+                let statusDeterminado = 'NULO';
+                if (linhaLC.includes('despachar')) {
+                    statusDeterminado = 'FICOU_NO_PISO';
+                    countPiso++;
+                } else if (linhaLC.includes('em rota de entrega')) {
+                    statusDeterminado = 'SAIU_PARA_ENTREGA';
+                    countSaiu++;
+                } else {
+                    statusDeterminado = 'NULO';
+                    countNulo++;
+                }
 
-                const barcode = matchID[0].toUpperCase();
-                const linhaLower = linha.toLowerCase();
-
-                let status = 'NULO';
-                if (linhaLower.includes('despachar')) status = 'FICOU_NO_PISO';
-                else if (linhaLower.includes('em rota') || linhaLower.includes('rota de entrega')) status = 'SAIU_PARA_ENTREGA';
-
-                let itemExistente = dadosOperacao.find(d => d.barcode === barcode && d.ciclo === ciclo);
-
+                // Tenta identificar o ID/Código de Barras na linha
+                let itemExistente = dadosOperacao.find(d => linha.includes(d.barcode));
+                
                 if (itemExistente) {
-                    itemExistente.status = status;
+                    itemExistente.status = statusDeterminado;
                     itemExistente.hora = new Date().toLocaleTimeString('pt-BR');
                 } else {
-                    dadosOperacao.unshift({
-                        id: Date.now() + Math.random().toString(),
-                        barcode: barcode,
-                        ciclo: ciclo,
-                        atribuicao: 'Mercado Livre',
-                        status: status,
-                        hora: new Date().toLocaleTimeString('pt-BR'),
-                        data: new Date().toLocaleDateString('pt-BR')
-                    });
+                    // Extrai sequências alfanuméricas com 8 ou mais caracteres como candidato a ID
+                    const matches = linha.match(/[A-Za-z0-9_-]{8,}/g);
+                    if (matches && matches.length > 0) {
+                        const idExtraido = matches[0];
+                        
+                        let itemExistenteCiclo = dadosOperacao.find(d => d.barcode === idExtraido && d.ciclo === ciclo);
+                        if (itemExistenteCiclo) {
+                            itemExistenteCiclo.status = statusDeterminado;
+                            itemExistenteCiclo.hora = new Date().toLocaleTimeString('pt-BR');
+                        } else {
+                            const novoItem = {
+                                id: Date.now() + Math.random(),
+                                barcode: idExtraido,
+                                ciclo: ciclo,
+                                atribuicao: atribuicao,
+                                status: statusDeterminado,
+                                hora: new Date().toLocaleTimeString('pt-BR'),
+                                data: new Date().toLocaleDateString('pt-BR')
+                            };
+                            dadosOperacao.unshift(novoItem);
+                            novosIDs++;
+                        }
+                    }
                 }
-                processados++;
             });
 
             salvardados();
             aplicarFiltros();
             textarea.value = '';
-            mostrarAlerta(`🔄 Reconciliação concluída para ${processados} itens.`, 'info');
+            mostrarAlerta(`📦 Reconciliação ML concluída: ${countPiso} Retido Piso, ${countSaiu} Em Rota, ${countNulo} Nulos (${novosIDs} novos criados).`, 'info');
         }
 
-        /* 5. APLICAR FILTROS E RENDERIZAR TABELA EDITÁVEL */
+        function alterarStatusManual(id, novoStatus) {
+            const item = dadosOperacao.find(d => d.id === id);
+            if (item) {
+                item.status = novoStatus;
+                item.hora = new Date().toLocaleTimeString('pt-BR');
+                salvardados();
+                aplicarFiltros();
+            }
+        }
+
         function aplicarFiltros() {
             const texto = document.getElementById('filtroTexto').value.toLowerCase();
-            const status = document.getElementById('filtroStatus').value;
-            const ciclo = document.getElementById('filtroCiclo').value;
+            const statusFiltro = document.getElementById('filtroStatus').value;
+            const cicloFiltro = document.getElementById('filtroCiclo').value;
 
-            const filtrados = dadosOperacao.filter(item => {
+            let filtrados = dadosOperacao.filter(item => {
                 const matchTexto = item.barcode.toLowerCase().includes(texto) || item.atribuicao.toLowerCase().includes(texto);
-                const matchStatus = status ? item.status === status : true;
-                const matchCiclo = ciclo ? item.ciclo === ciclo : true;
+                const matchStatus = !statusFiltro || item.status === statusFiltro;
+                const matchCiclo = !cicloFiltro || item.ciclo === cicloFiltro;
                 return matchTexto && matchStatus && matchCiclo;
             });
 
-            const tbody = document.getElementById('tabelaBips');
-            tbody.innerHTML = '';
-
-            filtrados.forEach(item => {
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-50 transition border-b border-slate-100';
-
-                // Cores dinâmicas para o Select de Status
-                let statusBgClass = "bg-slate-100 text-slate-700 font-bold border-slate-300";
-                if (item.status === 'SAIU_PARA_ENTREGA') statusBgClass = "bg-emerald-50 text-emerald-800 font-bold border-emerald-300";
-                if (item.status === 'FICOU_NO_PISO') statusBgClass = "bg-amber-50 text-amber-800 font-bold border-amber-300";
-
-                tr.innerHTML = `
-                    <td class="px-3 py-2 font-mono font-bold text-slate-800">${item.barcode}</td>
-                    
-                    <!-- Edição Manual do Ciclo -->
-                    <td class="px-2 py-2">
-                        <select onchange="alterarCicloManual('${item.id}', this.value)" class="p-1 border border-slate-200 rounded text-xs font-bold text-slate-700 bg-white focus:outline-none focus:border-kn-navy">
-                            <option value="AM" ${item.ciclo === 'AM' ? 'selected' : ''}>AM</option>
-                            <option value="PM" ${item.ciclo === 'PM' ? 'selected' : ''}>PM</option>
-                        </select>
-                    </td>
-
-                    <!-- Edição Manual da Rota / Atribuição -->
-                    <td class="px-2 py-2">
-                        <input type="text" value="${item.atribuicao || ''}" onchange="alterarAtribuicaoManual('${item.id}', this.value)" placeholder="Digite a rota..." class="w-full p-1 border border-slate-200 rounded text-xs focus:outline-none focus:border-kn-navy bg-white">
-                    </td>
-
-                    <!-- Edição Manual do Status -->
-                    <td class="px-2 py-2">
-                        <select onchange="alterarStatusManual('${item.id}', this.value)" class="w-full p-1 border rounded text-xs ${statusBgClass} focus:outline-none">
-                            <option value="SAIU_PARA_ENTREGA" ${item.status === 'SAIU_PARA_ENTREGA' ? 'selected' : ''}>Saiu para Entrega</option>
-                            <option value="FICOU_NO_PISO" ${item.status === 'FICOU_NO_PISO' ? 'selected' : ''}>Ficou no Piso</option>
-                            <option value="NULO" ${item.status === 'NULO' ? 'selected' : ''}>Status Nulo</option>
-                        </select>
-                    </td>
-
-                    <td class="px-3 py-2 text-slate-500 text-[11px]">${item.hora}</td>
-
-                    <td class="px-2 py-2 text-center">
-                        <button onclick="excluirItem('${item.id}')" title="Excluir Item" class="p-1 hover:bg-rose-100 text-rose-600 rounded transition">
-                            <i data-lucide="x" class="w-3.5 h-3.5"></i>
-                        </button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-
-            lucide.createIcons();
-            document.getElementById('contadorBips').innerText = `${filtrados.length} Pacotes`;
+            renderizarTabela(filtrados);
         }
 
-        /* 6. KPIS E GRÁFICOS */
+        function renderizarTabela(lista) {
+            const tbody = document.getElementById('tabelaBips');
+            document.getElementById('contadorBips').innerText = `${lista.length} Registros Exibidos`;
+
+            if (lista.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-slate-400 font-medium">Nenhum registro encontrado com esses filtros.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = lista.map(item => {
+                let statusBadgeClass = '';
+                let statusLabel = '';
+
+                if (item.status === 'SAIU_PARA_ENTREGA') {
+                    statusBadgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+                    statusLabel = 'SAÍDA';
+                } else if (item.status === 'FICOU_NO_PISO') {
+                    statusBadgeClass = 'bg-amber-100 text-amber-800 border-amber-300';
+                    statusLabel = 'PISO';
+                } else {
+                    statusBadgeClass = 'bg-slate-200 text-slate-700 border-slate-300';
+                    statusLabel = 'NULO';
+                }
+
+                return `
+                <tr class="hover:bg-slate-50/80 font-mono border-b border-slate-100 transition">
+                    <td class="px-4 py-3 font-bold text-slate-800">${item.barcode}</td>
+                    <td class="px-4 py-3"><span class="px-2 py-0.5 text-[10px] rounded font-semibold ${item.ciclo === 'AM' ? 'bg-sky-100 text-sky-900' : 'bg-indigo-100 text-indigo-900'}">${item.ciclo}</span></td>
+                    <td class="px-4 py-3 text-slate-600 font-sans">${item.atribuicao}</td>
+                    <td class="px-4 py-3 font-sans">
+                        <select onchange="alterarStatusManual(${item.id}, this.value)" class="p-1 rounded text-[10px] font-bold border cursor-pointer focus:outline-none ${statusBadgeClass}">
+                            <option value="SAIU_PARA_ENTREGA" ${item.status === 'SAIU_PARA_ENTREGA' ? 'selected' : ''}>SAÍDA</option>
+                            <option value="FICOU_NO_PISO" ${item.status === 'FICOU_NO_PISO' ? 'selected' : ''}>PISO</option>
+                            <option value="NULO" ${item.status === 'NULO' ? 'selected' : ''}>NULO</option>
+                        </select>
+                    </td>
+                    <td class="px-4 py-3 text-slate-400 font-sans">${item.hora}</td>
+                </tr>
+            `}).join('');
+        }
+
         function atualizarKPIs() {
             const total = dadosOperacao.length;
-            const totalAM = dadosOperacao.filter(d => d.ciclo === 'AM').length;
-            const totalPM = dadosOperacao.filter(d => d.ciclo === 'PM').length;
+            const am = dadosOperacao.filter(d => d.ciclo === 'AM').length;
+            const pm = dadosOperacao.filter(d => d.ciclo === 'PM').length;
             const piso = dadosOperacao.filter(d => d.status === 'FICOU_NO_PISO').length;
             const saida = dadosOperacao.filter(d => d.status === 'SAIU_PARA_ENTREGA').length;
             const nulo = dadosOperacao.filter(d => d.status === 'NULO').length;
 
             document.getElementById('kpiTotal').innerText = total;
-            document.getElementById('kpiCiclos').innerText = `${totalAM} / ${totalPM}`;
+            document.getElementById('kpiCiclos').innerText = `${am} / ${pm}`;
             document.getElementById('kpiPiso').innerText = piso;
             document.getElementById('kpiSaida').innerText = saida;
             document.getElementById('kpiNulo').innerText = nulo;
         }
 
+        function limparBase() {
+            if (confirm("Tem certeza que deseja apagar todos os registros da memória local?")) {
+                localStorage.removeItem(STORAGE_KEY);
+                dadosOperacao = [];
+                aplicarFiltros();
+                atualizarKPIs();
+                renderizarGraficos();
+                document.getElementById('barcodeInput').focus();
+            }
+        }
+
+        /* 2. FUNÇÃO DE EXPORTAÇÃO CSV SEPARADA (AM / PM / GERAL) */
+        function exportarCSV(filtroCiclo = 'TODOS') {
+            if (dadosOperacao.length === 0) {
+                alert("Não há dados para exportar.");
+                return;
+            }
+
+            let dadosExportar = dadosOperacao;
+
+            if (filtroCiclo === 'AM') {
+                dadosExportar = dadosOperacao.filter(d => d.ciclo === 'AM');
+            } else if (filtroCiclo === 'PM') {
+                dadosExportar = dadosOperacao.filter(d => d.ciclo === 'PM');
+            }
+
+            if (dadosExportar.length === 0) {
+                alert(`Não há registros salvos para o Ciclo ${filtroCiclo}.`);
+                return;
+            }
+
+            let csv = 'CodigoDeBarras;Ciclo;Atribuicao;Status;Hora;Data\n';
+            dadosExportar.forEach(item => {
+                csv += `${item.barcode};${item.ciclo};${item.atribuicao};${item.status};${item.hora};${item.data}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            
+            const sufixo = filtroCiclo === 'TODOS' ? 'Geral' : `Ciclo_${filtroCiclo}`;
+            link.setAttribute('download', `Relatorio_Logistica_KN_${sufixo}_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        /* GRÁFICOS COMPLETOS */
         function renderizarGraficos() {
-            const amPiso = dadosOperacao.filter(d => d.ciclo === 'AM' && d.status === 'FICOU_NO_PISO').length;
+            const amTotal = dadosOperacao.filter(d => d.ciclo === 'AM').length;
             const amSaida = dadosOperacao.filter(d => d.ciclo === 'AM' && d.status === 'SAIU_PARA_ENTREGA').length;
+            const amPiso = dadosOperacao.filter(d => d.ciclo === 'AM' && d.status === 'FICOU_NO_PISO').length;
             const amNulo = dadosOperacao.filter(d => d.ciclo === 'AM' && d.status === 'NULO').length;
 
-            const pmPiso = dadosOperacao.filter(d => d.ciclo === 'PM' && d.status === 'FICOU_NO_PISO').length;
+            const pmTotal = dadosOperacao.filter(d => d.ciclo === 'PM').length;
             const pmSaida = dadosOperacao.filter(d => d.ciclo === 'PM' && d.status === 'SAIU_PARA_ENTREGA').length;
+            const pmPiso = dadosOperacao.filter(d => d.ciclo === 'PM' && d.status === 'FICOU_NO_PISO').length;
             const pmNulo = dadosOperacao.filter(d => d.ciclo === 'PM' && d.status === 'NULO').length;
 
-            if (chartGeral) chartGeral.destroy();
-            if (chartAM) chartAM.destroy();
-            if (chartPM) chartPM.destroy();
-
-            const ctxGeral = document.getElementById('graficoGeral')?.getContext('2d');
-            if (ctxGeral) {
+            // 1. Gráfico Geral Comparativo
+            const canvasGeral = document.getElementById('graficoGeral');
+            if (canvasGeral) {
+                const ctxGeral = canvasGeral.getContext('2d');
+                if (chartGeral) chartGeral.destroy();
                 chartGeral = new Chart(ctxGeral, {
                     type: 'bar',
                     data: {
-                        labels: ['Saiu para Entrega', 'Ficou no Piso', 'Status Nulo'],
+                        labels: ['Ciclo AM', 'Ciclo PM'],
                         datasets: [
-                            { label: 'Ciclo AM', data: [amSaida, amPiso, amNulo], backgroundColor: '#004B93' },
-                            { label: 'Ciclo PM', data: [pmSaida, pmPiso, pmNulo], backgroundColor: '#0284c7' }
+                            { label: 'Saíram pra Entrega', data: [amSaida, pmSaida], backgroundColor: '#10B981' },
+                            { label: 'Ficaram no Piso', data: [amPiso, pmPiso], backgroundColor: '#F59E0B' },
+                            { label: 'Status Nulo', data: [amNulo, pmNulo], backgroundColor: '#94A3B8' }
                         ]
                     },
                     options: { responsive: true, maintainAspectRatio: false }
                 });
             }
 
-            const ctxAM = document.getElementById('graficoAM')?.getContext('2d');
-            if (ctxAM) {
+            // 2. Gráfico AM
+            const canvasAM = document.getElementById('graficoAM');
+            if (canvasAM) {
+                const ctxAM = canvasAM.getContext('2d');
+                if (chartAM) chartAM.destroy();
                 chartAM = new Chart(ctxAM, {
                     type: 'doughnut',
                     data: {
-                        labels: ['Saiu para Entrega', 'Ficou no Piso', 'Status Nulo'],
-                        datasets: [{ data: [amSaida, amPiso, amNulo], backgroundColor: ['#10b981', '#f59e0b', '#94a3b8'] }]
+                        labels: ['Saída para Entrega', 'Ficou no Piso', 'Status Nulo'],
+                        datasets: [{
+                            data: [amSaida, amPiso, amNulo],
+                            backgroundColor: ['#10B981', '#F59E0B', '#94A3B8']
+                        }]
                     },
                     options: { responsive: true, maintainAspectRatio: false }
                 });
             }
 
-            const ctxPM = document.getElementById('graficoPM')?.getContext('2d');
-            if (ctxPM) {
+            // 3. Gráfico PM
+            const canvasPM = document.getElementById('graficoPM');
+            if (canvasPM) {
+                const ctxPM = canvasPM.getContext('2d');
+                if (chartPM) chartPM.destroy();
                 chartPM = new Chart(ctxPM, {
                     type: 'doughnut',
                     data: {
-                        labels: ['Saiu para Entrega', 'Ficou no Piso', 'Status Nulo'],
-                        datasets: [{ data: [pmSaida, pmPiso, pmNulo], backgroundColor: ['#10b981', '#f59e0b', '#94a3b8'] }]
+                        labels: ['Saída para Entrega', 'Ficou no Piso', 'Status Nulo'],
+                        datasets: [{
+                            data: [pmSaida, pmPiso, pmNulo],
+                            backgroundColor: ['#10B981', '#F59E0B', '#94A3B8']
+                        }]
                     },
                     options: { responsive: true, maintainAspectRatio: false }
                 });
-            }
-        }
-
-        /* 7. EXPORTAÇÃO E ZERAR */
-        function exportarCSV(tipo) {
-            let dadosFiltrados = dadosOperacao;
-            if (tipo === 'AM' || tipo === 'PM') dadosFiltrados = dadosOperacao.filter(d => d.ciclo === tipo);
-            if (dadosFiltrados.length === 0) { alert('Nenhum dado para exportar.'); return; }
-
-            let csvContent = "data:text/csv;charset=utf-8,Codigo;Ciclo;Atribuicao;Status;Hora;Data\n";
-            dadosFiltrados.forEach(d => { csvContent += `${d.barcode};${d.ciclo};${d.atribuicao};${d.status};${d.hora};${d.data}\n`; });
-
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `reconciliacao_pos_sorting_${tipo}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        function limparBase() {
-            if (confirm("Deseja apagar TODOS os dados salvos?")) {
-                dadosOperacao = [];
-                localStorage.removeItem(STORAGE_KEY);
-                aplicarFiltros();
-                atualizarKPIs();
-                renderizarGraficos();
-                mostrarAlerta("🗑️ Base de dados zerada.", "warning");
             }
         }
     </script>
