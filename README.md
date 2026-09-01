@@ -35,7 +35,6 @@
     <aside class="w-64 bg-kn-navy text-white flex flex-col justify-between z-20 shadow-xl flex-shrink-0">
         <div class="flex-1 flex flex-col overflow-hidden">
             
-            <!-- Logo Oficial K+N -->
             <div class="p-5 border-b border-white/10 flex items-center justify-between bg-[#002850]">
                 <div class="flex items-center space-x-3">
                     <svg class="w-8 h-8 text-white flex-shrink-0" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="8">
@@ -51,7 +50,6 @@
                 </div>
             </div>
 
-            <!-- Navegação Enterprise -->
             <nav id="nav-menu" class="p-3 space-y-1.5 text-xs overflow-y-auto flex-1">
                 <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider px-3 pb-1 pt-2">Operação Last Mile</div>
                 
@@ -84,7 +82,6 @@
             </nav>
         </div>
 
-        <!-- Rodapé Assinatura Nathan -->
         <div class="p-4 border-t border-white/10 text-[11px] text-slate-300 text-center flex flex-col items-center justify-center space-y-1 bg-[#002850]">
             <i data-lucide="code-2" class="w-4 h-4 text-sky-400 mb-0.5"></i>
             <span class="font-semibold tracking-wide text-white">Desenvolvido por Nathan</span>
@@ -95,7 +92,6 @@
     <!-- ================= ÁREA DE CONTEÚDO PRINCIPAL ================= -->
     <main class="flex-1 flex flex-col overflow-y-auto bg-slate-50">
         
-        <!-- Header Superior -->
         <header class="bg-white border-b border-kn-border px-8 py-4 flex flex-wrap items-center justify-between sticky top-0 z-10 shadow-sm gap-4">
             <div>
                 <h1 class="text-base font-bold text-kn-navy tracking-tight flex items-center gap-2">
@@ -105,7 +101,6 @@
                 <p class="text-xs text-slate-500">Módulo de controle integrado Last Mile</p>
             </div>
             
-            <!-- Botões de Exportação e Ações -->
             <div class="flex items-center space-x-2 flex-wrap gap-y-2">
                 <div class="flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200 space-x-1">
                     <button onclick="exportarCSV('AM')" class="hover:bg-sky-500 hover:text-white text-slate-700 bg-white px-2.5 py-1.5 rounded text-xs font-semibold flex items-center space-x-1 transition shadow-xs">
@@ -159,7 +154,7 @@
             </div>
 
             <!-- ================= ABA 1: BIPAGEM INTELIGENTE ================= -->
-            <section id="aba-operacao" class="grid grid-cols-1 lg:grid-cols-3 gap-6 fade-in">
+            <section id="aba-operacao" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
                 <div class="space-y-6">
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border space-y-5">
@@ -178,12 +173,8 @@
 
                         <div class="space-y-4">
                             <div>
-                                <div class="flex justify-between items-center">
-                                    <label class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Código de Barras</label>
-                                </div>
-                                <div class="mt-1">
-                                    <input type="text" id="barcodeInput" autofocus placeholder="Aguardando leitura..." class="w-full p-3 border border-slate-300 rounded-lg font-mono text-sm focus:ring-2 focus:ring-kn-navy focus:border-kn-navy focus:outline-none bg-slate-50/50">
-                                </div>
+                                <label class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Código de Barras</label>
+                                <input type="text" id="barcodeInput" autofocus placeholder="Aguardando leitura..." class="w-full p-3 border border-slate-300 rounded-lg font-mono text-sm focus:ring-2 focus:ring-kn-navy focus:border-kn-navy focus:outline-none bg-slate-50/50 mt-1">
                                 <span class="text-[11px] text-slate-400 mt-1.5 block leading-tight">⚡ 1º Bipe: Em Rota de Entrega | 2º Bipe: Ficou no Piso</span>
                             </div>
 
@@ -256,11 +247,11 @@
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-50 p-3 rounded-lg border border-slate-200">
                         <div>
                             <label class="text-[10px] font-bold text-slate-500 uppercase">Filtrar por ID / Rota</label>
-                            <input type="text" id="filtroTexto" onkeyup="aplicarFiltros()" placeholder="Pesquisar..." class="w-full mt-1 p-2 bg-white border border-slate-300 rounded-md text-xs focus:outline-none focus:border-kn-navy">
+                            <input type="text" id="filtroTexto" onkeyup="renderizarTabela()" placeholder="Pesquisar..." class="w-full mt-1 p-2 bg-white border border-slate-300 rounded-md text-xs focus:outline-none focus:border-kn-navy">
                         </div>
                         <div>
                             <label class="text-[10px] font-bold text-slate-500 uppercase">Status</label>
-                            <select id="filtroStatus" onchange="aplicarFiltros()" class="w-full mt-1 p-2 bg-white border border-slate-300 rounded-md text-xs focus:outline-none focus:border-kn-navy font-medium">
+                            <select id="filtroStatus" onchange="renderizarTabela()" class="w-full mt-1 p-2 bg-white border border-slate-300 rounded-md text-xs focus:outline-none focus:border-kn-navy font-medium">
                                 <option value="">Todos os Status</option>
                                 <option value="DESPACHAR">Despachar</option>
                                 <option value="EM_ROTA_DE_ENTREGA">Em Rota de Entrega</option>
@@ -272,7 +263,7 @@
                         </div>
                         <div>
                             <label class="text-[10px] font-bold text-slate-500 uppercase">Ciclo</label>
-                            <select id="filtroCiclo" onchange="aplicarFiltros()" class="w-full mt-1 p-2 bg-white border border-slate-300 rounded-md text-xs focus:outline-none focus:border-kn-navy font-medium">
+                            <select id="filtroCiclo" onchange="renderizarTabela()" class="w-full mt-1 p-2 bg-white border border-slate-300 rounded-md text-xs focus:outline-none focus:border-kn-navy font-medium">
                                 <option value="">Todos os Ciclos</option>
                                 <option value="AM">Ciclo AM</option>
                                 <option value="PM">Ciclo PM</option>
@@ -281,17 +272,19 @@
                     </div>
 
                     <div class="overflow-x-auto max-h-[480px]">
-                        <table class="w-full text-xs text-left text-slate-600">
-                            <thead class="text-[10px] text-kn-navy uppercase bg-slate-50 border-b border-slate-200 sticky top-0 font-bold">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-100 text-slate-600 font-bold uppercase border-b border-slate-200 sticky top-0">
                                 <tr>
-                                    <th class="px-4 py-3">Código de Barras</th>
-                                    <th class="px-4 py-3">Ciclo</th>
-                                    <th class="px-4 py-3">Atribuição / Rota</th>
-                                    <th class="px-4 py-3">Status</th>
-                                    <th class="px-4 py-3">Horário</th>
+                                    <th class="p-3">Pacote / ID</th>
+                                    <th class="p-3">Rota / Gaiola</th>
+                                    <th class="p-3">Ciclo</th>
+                                    <th class="p-3">Status</th>
+                                    <th class="p-3">Hora</th>
+                                    <th class="p-3 text-right">Ações</th>
                                 </tr>
                             </thead>
-                            <tbody id="tabelaBips" class="divide-y divide-slate-100">
+                            <tbody id="tabelaHistorico" class="divide-y divide-slate-100 font-mono">
+                                <!-- Linhas renderizadas via JS -->
                             </tbody>
                         </table>
                     </div>
@@ -299,548 +292,544 @@
             </section>
 
             <!-- ================= ABA 2: RESUMO POR ROTA ================= -->
-            <section id="aba-rotas" class="hidden space-y-6 fade-in">
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border space-y-4">
-                        <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                            <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider">Rotas Mapeadas</h2>
-                            <i data-lucide="truck" class="w-4 h-4 text-kn-navy"></i>
-                        </div>
-                        <p class="text-[11px] text-slate-500">Clique em uma rota para visualizar os pacotes e seus status individuais.</p>
-                        
-                        <div id="listaCardsRotas" class="space-y-2 max-h-[500px] overflow-y-auto pr-1"></div>
+            <section id="aba-rotas" class="hidden bg-white p-6 rounded-xl shadow-sm border border-kn-border space-y-4">
+                <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider border-b pb-3">Resumo Agrupado por Rota</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-100 text-slate-600 font-bold uppercase border-b border-slate-200">
+                            <tr>
+                                <th class="p-3">Rota</th>
+                                <th class="p-3">Total Pacotes</th>
+                                <th class="p-3">Em Rota</th>
+                                <th class="p-3">No Piso</th>
+                                <th class="p-3">Despachar</th>
+                                <th class="p-3">Falha</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaRotas" class="divide-y divide-slate-100 font-mono">
+                            <!-- Gerado dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ================= ABAS BI / GRÁFICOS ================= -->
+            <section id="aba-graficos-geral" class="hidden space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-5 rounded-xl border border-kn-border shadow-sm">
+                        <h3 class="text-xs font-bold text-kn-navy uppercase tracking-wider mb-4">Distribuição Geral de Status</h3>
+                        <canvas id="chartGeralStatus" class="max-h-64"></canvas>
                     </div>
-
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border lg:col-span-2 space-y-4">
-                        <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                            <div class="flex items-center space-x-2">
-                                <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider">Pacotes da Rota:</h2>
-                                <span id="tituloRotaSelecionada" class="text-xs font-black text-kn-blue bg-sky-50 px-2.5 py-1 rounded border border-sky-200">Selecione uma rota</span>
-                            </div>
-                            <span id="contadorRotaSelecionada" class="text-xs font-semibold bg-slate-100 text-kn-navy px-3 py-1 rounded-full border border-slate-200">0 Pacotes</span>
-                        </div>
-
-                        <div class="overflow-x-auto max-h-[480px]">
-                            <table class="w-full text-xs text-left text-slate-600">
-                                <thead class="text-[10px] text-kn-navy uppercase bg-slate-50 border-b border-slate-200 sticky top-0 font-bold">
-                                    <tr>
-                                        <th class="px-4 py-3">Código de Barras</th>
-                                        <th class="px-4 py-3">Ciclo</th>
-                                        <th class="px-4 py-3">Status Atual</th>
-                                        <th class="px-4 py-3">Horário</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tabelaDetalhesRota" class="divide-y divide-slate-100">
-                                    <tr><td colspan="4" class="px-4 py-8 text-center text-slate-400">Clique em uma rota no painel ao lado para visualizar os IDs.</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    <div class="bg-white p-5 rounded-xl border border-kn-border shadow-sm">
+                        <h3 class="text-xs font-bold text-kn-navy uppercase tracking-wider mb-4">Volume Ciclo AM vs PM</h3>
+                        <canvas id="chartGeralCiclos" class="max-h-64"></canvas>
                     </div>
                 </div>
             </section>
 
-            <!-- ================= ABA 3: VISÃO COMPARATIVA GERAL ================= -->
-            <section id="aba-graficos-geral" class="hidden space-y-6 fade-in">
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border">
-                    <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider border-b border-slate-100 pb-3 mb-4">
-                        Comparativo Geral de Performance: Ciclo AM vs Ciclo PM
-                    </h2>
-                    <div class="relative h-96 w-full">
-                        <canvas id="graficoGeral"></canvas>
-                    </div>
-                </div>
+            <section id="aba-graficos-am" class="hidden bg-white p-5 rounded-xl border border-kn-border shadow-sm">
+                <h3 class="text-xs font-bold text-kn-navy uppercase tracking-wider mb-4">Status Exclusivo - Ciclo AM</h3>
+                <canvas id="chartAM" class="max-h-72"></canvas>
             </section>
 
-            <!-- ================= ABA 4: PAINEL CICLO AM ================= -->
-            <section id="aba-graficos-am" class="hidden space-y-6 fade-in">
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border">
-                    <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider border-b border-slate-100 pb-3 mb-4">
-                        Analytics Operacional - Distribuição de Status do Ciclo AM
-                    </h2>
-                    <div class="relative h-96 w-full">
-                        <canvas id="graficoAM"></canvas>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ================= ABA 5: PAINEL CICLO PM ================= -->
-            <section id="aba-graficos-pm" class="hidden space-y-6 fade-in">
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border">
-                    <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider border-b border-slate-100 pb-3 mb-4">
-                        Analytics Operacional - Distribuição de Status do Ciclo PM
-                    </h2>
-                    <div class="relative h-96 w-full">
-                        <canvas id="graficoPM"></canvas>
-                    </div>
-                </div>
+            <section id="aba-graficos-pm" class="hidden bg-white p-5 rounded-xl border border-kn-border shadow-sm">
+                <h3 class="text-xs font-bold text-kn-navy uppercase tracking-wider mb-4">Status Exclusivo - Ciclo PM</h3>
+                <canvas id="chartPM" class="max-h-72"></canvas>
             </section>
 
         </div>
     </main>
 
-    <style>
-        .fade-in { animation: fadeIn 0.2s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
-
-    <!-- ================= SCRIPTS DE LÓGICA E CHART.JS ================= -->
-    <script>
-        lucide.createIcons();
-        
-        const STORAGE_KEY = 'kn_logistica_dados';
-        let dadosOperacao = carregardados();
-        let rotaAtivaSelecionada = null;
-        
-        let chartAM = null;
-        let chartPM = null;
-        let chartGeral = null;
-
-        const STATUS_MAP = {
-            'DESPACHAR': { label: 'Despachar', class: 'bg-sky-100 text-sky-800 border-sky-300' },
-            'EM_ROTA_DE_ENTREGA': { label: 'Em Rota de Entrega', class: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
-            'FICOU_NO_PISO': { label: 'Ficou no Piso', class: 'bg-amber-100 text-amber-800 border-amber-300' },
-            'FALHA_NA_ENTREGA': { label: 'Falha na Entrega', class: 'bg-rose-100 text-rose-800 border-rose-300' },
-            'SOLUCAO_DE_PROBLEMA': { label: 'Solução de Problema', class: 'bg-purple-100 text-purple-800 border-purple-300' },
-            'NULO': { label: 'Status Nulo', class: 'bg-slate-100 text-slate-700 border-slate-300' }
-        };
-
-        window.onload = function() {
-            aplicarFiltros();
-            atualizarKPIs();
-            document.getElementById('barcodeInput').focus();
-        };
-
-        function mudarAba(abaSelecionada) {
-            const abas = ['operacao', 'rotas', 'graficos-geral', 'graficos-am', 'graficos-pm'];
+    <!-- ================= MODAL DE EDIÇÃO MANUAL (CICLO, ROTA E STATUS) ================= -->
+    <div id="modalEditar" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="edit-3" class="w-4 h-4 text-kn-navy"></i>
+                    <h3 class="text-xs font-bold text-kn-navy uppercase tracking-wider">Editar Pacote Manualmente</h3>
+                </div>
+                <button onclick="fecharModalEditar()" class="text-slate-400 hover:text-slate-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
             
-            abas.forEach(aba => {
-                document.getElementById('aba-' + aba).classList.add('hidden');
-                const btn = document.getElementById('btn-aba-' + aba);
-                if (btn) {
-                    btn.classList.remove('bg-kn-blue', 'text-white', 'shadow-sm');
-                    btn.classList.add('hover:bg-white/5', 'text-slate-300');
+            <input type="hidden" id="editIndex">
+
+            <div>
+                <label class="text-[10px] font-bold text-slate-500 uppercase">ID do Pacote</label>
+                <input type="text" id="editId" readonly class="w-full p-2.5 bg-slate-100 border border-slate-200 rounded-lg text-xs font-mono font-bold text-slate-500 mt-1 cursor-not-allowed">
+            </div>
+
+            <div>
+                <label class="text-[10px] font-bold text-slate-500 uppercase">Rota / Gaiola Manual</label>
+                <input type="text" id="editRota" placeholder="Ex: Gaiola 05 / Rota X" class="w-full p-2.5 border border-slate-300 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-kn-navy focus:outline-none">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase">Ciclo Manual</label>
+                    <select id="editCiclo" class="w-full p-2.5 border border-slate-300 rounded-lg text-xs mt-1 bg-white font-bold text-kn-navy focus:ring-2 focus:ring-kn-navy focus:outline-none">
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase">Status Manual</label>
+                    <select id="editStatus" class="w-full p-2.5 border border-slate-300 rounded-lg text-xs mt-1 bg-white font-semibold text-slate-700 focus:ring-2 focus:ring-kn-navy focus:outline-none">
+                        <option value="DESPACHAR">DESPACHAR</option>
+                        <option value="EM_ROTA_DE_ENTREGA">EM ROTA DE ENTREGA</option>
+                        <option value="FICOU_NO_PISO">FICOU NO PISO</option>
+                        <option value="FALHA_NA_ENTREGA">FALHA NA ENTREGA</option>
+                        <option value="SOLUCAO_DE_PROBLEMA">SOLUÇÃO DE PROBLEMA</option>
+                        <option value="NULO">NULO</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-2 pt-3 border-t">
+                <button onclick="fecharModalEditar()" class="px-4 py-2 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-lg text-xs font-semibold transition">Cancelar</button>
+                <button onclick="salvarEdicaoManual()" class="px-4 py-2 bg-kn-navy text-white hover:bg-kn-blue rounded-lg text-xs font-bold transition shadow-sm flex items-center space-x-1.5">
+                    <i data-lucide="check" class="w-4 h-4"></i>
+                    <span>Salvar Alterações</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= SCRIPT DE LÓGICA E ESTADO ================= -->
+    <script>
+        // Estado Global
+        let pacotes = JSON.parse(localStorage.getItem('kn_pacotes')) || [];
+        let charts = {};
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            atualizarCicloBadge();
+            renderizarTabela();
+            atualizarKPIs();
+            renderizarResumoRotas();
+            
+            document.getElementById('barcodeInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    processarBip(this.value.trim());
+                    this.value = '';
                 }
             });
-
-            document.getElementById('aba-' + abaSelecionada).classList.remove('hidden');
-            const btnAtivo = document.getElementById('btn-aba-' + abaSelecionada);
-            if (btnAtivo) {
-                btnAtivo.classList.add('bg-kn-blue', 'text-white', 'shadow-sm');
-                btnAtivo.classList.remove('hover:bg-white/5', 'text-slate-300');
-            }
-
-            if (abaSelecionada === 'rotas') {
-                renderizarAbaRotas();
-            } else if (abaSelecionada.startsWith('graficos')) {
-                setTimeout(renderizarGraficos, 60); 
-            } else {
-                document.getElementById('barcodeInput').focus();
-            }
-        }
-
-        function salvarDados() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(dadosOperacao));
-            atualizarKPIs();
-            renderizarGraficos();
-            if (!document.getElementById('aba-rotas').classList.contains('hidden')) {
-                renderizarAbaRotas();
-            }
-        }
-
-        function carregardados() {
-            const dadosSalvos = localStorage.getItem(STORAGE_KEY);
-            return dadosSalvos ? JSON.parse(dadosSalvos) : [];
-        }
-
-        function atualizarCicloBadge() {
-            const ciclo = document.getElementById('selectCiclo').value;
-            document.getElementById('badge-ciclo').innerText = `CICLO ${ciclo}`;
-            document.getElementById('barcodeInput').focus();
-        }
-
-        function mostrarAlerta(mensagem, tipo) {
-            const alerta = document.getElementById('feedbackAlerta');
-            alerta.classList.remove('hidden', 'bg-emerald-50', 'border-emerald-200', 'text-emerald-800', 'bg-amber-50', 'border-amber-200', 'text-amber-800', 'bg-blue-50', 'border-blue-200', 'text-blue-800');
-            
-            if (tipo === 'success') alerta.classList.add('bg-emerald-50', 'border-emerald-200', 'text-emerald-800');
-            else if (tipo === 'info') alerta.classList.add('bg-blue-50', 'border-blue-200', 'text-blue-800');
-            else alerta.classList.add('bg-amber-50', 'border-amber-200', 'text-amber-800');
-            
-            alerta.innerText = mensagem;
-            setTimeout(() => { alerta.classList.add('hidden'); }, 3500);
-        }
-
-        function copiarTodosIDs() {
-            if (dadosOperacao.length === 0) {
-                mostrarAlerta('⚠️ Nenhum ID disponível para copiar.', 'warning');
-                return;
-            }
-            const listaIDs = [...new Set(dadosOperacao.map(item => item.barcode))].join('\n');
-            navigator.clipboard.writeText(listaIDs).then(() => {
-                mostrarAlerta(`📋 ${dadosOperacao.length} ID(s) copiado(s) com sucesso!`, 'info');
-            });
-        }
-
-        document.getElementById('barcodeInput').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                processarBip();
-            }
         });
 
-        function processarBip() {
-            const input = document.getElementById('barcodeInput');
-            const barcode = input.value.trim();
-            const atribuicao = document.getElementById('atribuicaoInput').value.trim() || 'Sem Rota';
+        // Alternância de Ciclo Badge
+        function atualizarCicloBadge() {
             const ciclo = document.getElementById('selectCiclo').value;
+            const badge = document.getElementById('badge-ciclo');
+            badge.innerText = `CICLO ${ciclo}`;
+            badge.className = `text-[10px] ${ciclo === 'AM' ? 'bg-amber-500' : 'bg-indigo-600'} text-white px-2.5 py-1 rounded font-mono font-bold shadow-sm`;
+        }
 
-            if (!barcode) return;
+        // Lógica de Leitura por Bip
+        function processarBip(codigo) {
+            if (!codigo) return;
 
-            let itemExistente = dadosOperacao.find(d => d.barcode === barcode && d.ciclo === ciclo);
+            const ciclo = document.getElementById('selectCiclo').value;
+            const rota = document.getElementById('atribuicaoInput').value.trim() || 'Sem Rota';
+            const index = pacotes.findIndex(p => p.id === codigo);
 
-            if (!itemExistente) {
-                const novoItem = {
-                    id: Date.now() + Math.random(),
-                    barcode: barcode,
+            const agora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+            if (index === -1) {
+                // 1º Bipe: Em Rota
+                pacotes.unshift({
+                    id: codigo,
+                    rota: rota,
                     ciclo: ciclo,
-                    atribuicao: atribuicao,
                     status: 'EM_ROTA_DE_ENTREGA',
-                    hora: new Date().toLocaleTimeString('pt-BR'),
-                    data: new Date().toLocaleDateString('pt-BR')
-                };
-                dadosOperacao.unshift(novoItem);
-                mostrarAlerta(`✅ Pacote ${barcode} cadastrado como Em Rota (1º Bipe).`, 'success');
+                    hora: agora,
+                    bips: 1
+                });
+                exibirAlerta(`Pacote ${codigo} adicionado: EM ROTA`, 'sucesso');
             } else {
-                if (itemExistente.status === 'EM_ROTA_DE_ENTREGA') {
-                    itemExistente.status = 'FICOU_NO_PISO';
-                    mostrarAlerta(`⚠️ Pacote ${barcode} alterado para Ficou no Piso (2º Bipe).`, 'warning');
-                } else {
-                    itemExistente.status = 'EM_ROTA_DE_ENTREGA';
-                    mostrarAlerta(`✅ Pacote ${barcode} retornado para Em Rota.`, 'success');
-                }
-                itemExistente.hora = new Date().toLocaleTimeString('pt-BR');
-                itemExistente.atribuicao = atribuicao;
+                // 2º Bipe: Ficou no piso
+                pacotes[index].status = 'FICOU_NO_PISO';
+                pacotes[index].bips += 1;
+                pacotes[index].hora = agora;
+                if(rota !== 'Sem Rota') pacotes[index].rota = rota;
+                exibirAlerta(`Pacote ${codigo} atualizado: FICOU NO PISO`, 'aviso');
             }
 
-            input.value = '';
-            salvarDados();
-            aplicarFiltros();
-            input.focus();
+            salvarEAtualizar();
         }
 
-        function processarMassaPiso() {
-            const texto = document.getElementById('bulkInput').value.trim();
-            if (!texto) return;
-
-            const linhas = texto.split('\n');
-            let count = 0;
-            const ciclo = document.getElementById('selectCiclo').value;
-
-            linhas.forEach(linha => {
-                const barcode = linha.trim();
-                if (barcode) {
-                    let item = dadosOperacao.find(d => d.barcode === barcode && d.ciclo === ciclo);
-                    if (item) {
-                        item.status = 'FICOU_NO_PISO';
-                        count++;
-                    } else {
-                        dadosOperacao.unshift({
-                            id: Date.now() + Math.random(),
-                            barcode: barcode,
-                            ciclo: ciclo,
-                            atribuicao: 'Massa / Piso',
-                            status: 'FICOU_NO_PISO',
-                            hora: new Date().toLocaleTimeString('pt-BR'),
-                            data: new Date().toLocaleDateString('pt-BR')
-                        });
-                        count++;
-                    }
-                }
-            });
-
-            document.getElementById('bulkInput').value = '';
-            salvarDados();
-            aplicarFiltros();
-            mostrarAlerta(`📦 ${count} pacote(s) marcado(s) como 'Ficou no Piso' em massa.`, 'success');
-        }
-
+        // Processar Texto/Print do ML
         function processarPrintMercadoLivre() {
-            const texto = document.getElementById('mlTextInput').value.trim();
-            if (!texto) {
-                mostrarAlerta('⚠️ Cole o conteúdo do Mercado Livre primeiro.', 'warning');
-                return;
-            }
+            const texto = document.getElementById('mlTextInput').value;
+            if (!texto.trim()) return;
 
             const linhas = texto.split('\n');
             let atualizados = 0;
-            const ciclo = document.getElementById('selectCiclo').value;
 
             linhas.forEach(linha => {
-                // Tenta extrair ID (ex: MLB...) e status textual
-                const matchId = linha.match(/(MLB\d+|\b\d{8,}\b)/i);
-                if (matchId) {
-                    const barcode = matchId[0];
-                    let novoStatus = 'EM_ROTA_DE_ENTREGA';
+                const match = linha.match(/(MLB\d+|\d{10,})/i);
+                if (match) {
+                    const id = match[0].toUpperCase();
+                    let status = 'DESPACHAR';
 
-                    const lower = linha.toLowerCase();
-                    if (lower.includes('despachar') || lower.includes('pendente')) novoStatus = 'DESPACHAR';
-                    else if (lower.includes('piso') || lower.includes('ficou')) novoStatus = 'FICOU_NO_PISO';
-                    else if (lower.includes('falha') || lower.includes('não entregue')) novoStatus = 'FALHA_NA_ENTREGA';
-                    else if (lower.includes('problema') || lower.includes('solução')) novoStatus = 'SOLUCAO_DE_PROBLEMA';
-
-                    let item = dadosOperacao.find(d => d.barcode === barcode && d.ciclo === ciclo);
-                    if (item) {
-                        item.status = novoStatus;
-                        atualizados++;
-                    } else {
-                        dadosOperacao.unshift({
-                            id: Date.now() + Math.random(),
-                            barcode: barcode,
-                            ciclo: ciclo,
-                            atribuicao: 'Reconciliação ML',
-                            status: novoStatus,
-                            hora: new Date().toLocaleTimeString('pt-BR'),
-                            data: new Date().toLocaleDateString('pt-BR')
-                        });
-                        atualizados++;
+                    if (linha.toLowerCase().includes('rota') || linha.toLowerCase().includes('caminho')) {
+                        status = 'EM_ROTA_DE_ENTREGA';
+                    } else if (linha.toLowerCase().includes('piso') || linha.toLowerCase().includes('retido')) {
+                        status = 'FICOU_NO_PISO';
+                    } else if (linha.toLowerCase().includes('falha') || linha.toLowerCase().includes('cancelado')) {
+                        status = 'FALHA_NA_ENTREGA';
                     }
+
+                    const idx = pacotes.findIndex(p => p.id === id);
+                    const cicloAtual = document.getElementById('selectCiclo').value;
+                    const rotaAtual = document.getElementById('atribuicaoInput').value.trim() || 'ML Import';
+
+                    if (idx !== -1) {
+                        pacotes[idx].status = status;
+                    } else {
+                        pacotes.unshift({
+                            id: id,
+                            rota: rotaAtual,
+                            ciclo: cicloAtual,
+                            status: status,
+                            hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                            bips: 1
+                        });
+                    }
+                    atualizados++;
                 }
             });
 
             document.getElementById('mlTextInput').value = '';
-            salvarDados();
-            aplicarFiltros();
-            mostrarAlerta(`🔄 Reconciliação concluída! ${atualizados} pacote(s) atualizados com dados do Mercado Livre.`, 'success');
+            exibirAlerta(`${atualizados} pacotes reconciliados com sucesso!`, 'sucesso');
+            salvarEAtualizar();
         }
 
-        function aplicarFiltros() {
-            const texto = document.getElementById('filtroTexto').value.toLowerCase();
-            const statusFiltro = document.getElementById('filtroStatus').value;
-            const cicloFiltro = document.getElementById('filtroCiclo').value;
+        // Processar Massa Piso
+        function processarMassaPiso() {
+            const ids = document.getElementById('bulkInput').value.split('\n').map(i => i.trim()).filter(Boolean);
+            if (ids.length === 0) return;
 
-            const filtrados = dadosOperacao.filter(item => {
-                const matchTexto = item.barcode.toLowerCase().includes(texto) || item.atribuicao.toLowerCase().includes(texto);
-                const matchStatus = !statusFiltro || item.status === statusFiltro;
-                const matchCiclo = !cicloFiltro || item.ciclo === cicloFiltro;
+            const cicloAtual = document.getElementById('selectCiclo').value;
+            let alterados = 0;
+
+            ids.forEach(id => {
+                const idx = pacotes.findIndex(p => p.id === id);
+                if (idx !== -1) {
+                    pacotes[idx].status = 'FICOU_NO_PISO';
+                } else {
+                    pacotes.unshift({
+                        id: id,
+                        rota: 'Massa Piso',
+                        ciclo: cicloAtual,
+                        status: 'FICOU_NO_PISO',
+                        hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                        bips: 1
+                    });
+                }
+                alterados++;
+            });
+
+            document.getElementById('bulkInput').value = '';
+            exibirAlerta(`${alterados} pacotes marcados como FICOU NO PISO!`, 'aviso');
+            salvarEAtualizar();
+        }
+
+        // ================= EDIÇÃO MANUAL (MODAL) =================
+        function abrirModalEditar(index) {
+            const item = pacotes[index];
+            document.getElementById('editIndex').value = index;
+            document.getElementById('editId').value = item.id;
+            document.getElementById('editRota').value = item.rota;
+            document.getElementById('editCiclo').value = item.ciclo;
+            document.getElementById('editStatus').value = item.status;
+
+            document.getElementById('modalEditar').classList.remove('hidden');
+            document.getElementById('modalEditar').classList.add('flex');
+        }
+
+        function fecharModalEditar() {
+            document.getElementById('modalEditar').classList.add('hidden');
+            document.getElementById('modalEditar').classList.remove('flex');
+        }
+
+        function salvarEdicaoManual() {
+            const index = document.getElementById('editIndex').value;
+            if (index === '' || index === null) return;
+
+            // Atualiza os dados manualmente fornecidos
+            pacotes[index].rota = document.getElementById('editRota').value.trim() || 'Sem Rota';
+            pacotes[index].ciclo = document.getElementById('editCiclo').value;
+            pacotes[index].status = document.getElementById('editStatus').value;
+
+            fecharModalEditar();
+            exibirAlerta(`Pacote ${pacotes[index].id} alterado manualmente com sucesso!`, 'sucesso');
+            salvarEAtualizar();
+        }
+
+        function excluirPacote(index) {
+            if (confirm('Deseja realmente remover este pacote?')) {
+                pacotes.splice(index, 1);
+                salvarEAtualizar();
+            }
+        }
+
+        // Renderização e Atualização UI
+        function salvarEAtualizar() {
+            localStorage.setItem('kn_pacotes', JSON.stringify(pacotes));
+            renderizarTabela();
+            atualizarKPIs();
+            renderizarResumoRotas();
+            if (document.getElementById('aba-graficos-geral').classList.contains('hidden') === false) renderizarGraficos();
+        }
+
+        function renderizarTabela() {
+            const tbody = document.getElementById('tabelaHistorico');
+            const filtroTexto = document.getElementById('filtroTexto').value.toLowerCase();
+            const filtroStatus = document.getElementById('filtroStatus').value;
+            const filtroCiclo = document.getElementById('filtroCiclo').value;
+
+            tbody.innerHTML = '';
+
+            const filtrados = pacotes.filter(p => {
+                const matchTexto = p.id.toLowerCase().includes(filtroTexto) || p.rota.toLowerCase().includes(filtroTexto);
+                const matchStatus = !filtroStatus || p.status === filtroStatus;
+                const matchCiclo = !filtroCiclo || p.ciclo === filtroCiclo;
                 return matchTexto && matchStatus && matchCiclo;
             });
 
-            const tbody = document.getElementById('tabelaBips');
-            tbody.innerHTML = '';
+            document.getElementById('contadorBips').innerText = `${filtrados.length} Pacotes`;
 
-            if (filtrados.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-8 text-center text-slate-400">Nenhum registro encontrado.</td></tr>`;
-            } else {
-                filtrados.forEach(item => {
-                    const statusObj = STATUS_MAP[item.status] || STATUS_MAP['NULO'];
-                    const tr = document.createElement('tr');
-                    tr.className = 'hover:bg-slate-50/80 transition';
-                    tr.innerHTML = `
-                        <td class="px-4 py-3 font-mono font-bold text-slate-700">${item.barcode}</td>
-                        <td class="px-4 py-3"><span class="px-2 py-0.5 rounded font-mono font-bold text-[10px] ${item.ciclo === 'AM' ? 'bg-sky-100 text-sky-800' : 'bg-indigo-100 text-indigo-800'}">${item.ciclo}</span></td>
-                        <td class="px-4 py-3 font-medium text-slate-700">${item.atribuicao}</td>
-                        <td class="px-4 py-3"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold border ${statusObj.class}">${statusObj.label}</span></td>
-                        <td class="px-4 py-3 text-slate-400">${item.hora}</td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            }
-            document.getElementById('contadorBips').innerText = `${filtrados.length} Pacote(s)`;
-        }
-
-        function atualizarKPIs() {
-            document.getElementById('kpiTotal').innerText = dadosOperacao.length;
-            document.getElementById('kpiDespachar').innerText = dadosOperacao.filter(d => d.status === 'DESPACHAR').length;
-            document.getElementById('kpiEmRota').innerText = dadosOperacao.filter(d => d.status === 'EM_ROTA_DE_ENTREGA').length;
-            document.getElementById('kpiPiso').innerText = dadosOperacao.filter(d => d.status === 'FICOU_NO_PISO').length;
-            document.getElementById('kpiFalha').innerText = dadosOperacao.filter(d => d.status === 'FALHA_NA_ENTREGA').length;
-            document.getElementById('kpiSolucao').innerText = dadosOperacao.filter(d => d.status === 'SOLUCAO_DE_PROBLEMA').length;
-        }
-
-        function renderizarAbaRotas() {
-            const rotasMap = {};
-            dadosOperacao.forEach(item => {
-                const rot = item.atribuicao || 'Sem Rota';
-                if (!rotasMap[rot]) rotasMap[rot] = [];
-                rotasMap[rot].push(item);
-            });
-
-            const container = document.getElementById('listaCardsRotas');
-            container.innerHTML = '';
-
-            const rotasKeys = Object.keys(rotasMap);
-            if (rotasKeys.length === 0) {
-                container.innerHTML = `<div class="p-4 text-center text-xs text-slate-400">Nenhuma rota mapeada.</div>`;
-                return;
-            }
-
-            rotasKeys.forEach(rota => {
-                const qtd = rotasMap[rota].length;
-                const div = document.createElement('div');
-                div.className = `p-3 rounded-lg border cursor-pointer transition flex justify-between items-center ${rotaAtivaSelecionada === rota ? 'bg-sky-50 border-sky-300 shadow-sm' : 'bg-white border-slate-200 hover:bg-slate-50'}`;
-                div.onclick = () => selecionarRota(rota, rotasMap[rota]);
-                div.innerHTML = `
-                    <div class="flex items-center space-x-2">
-                        <i data-lucide="map-pin" class="w-4 h-4 text-kn-navy"></i>
-                        <span class="text-xs font-bold text-slate-700">${rota}</span>
-                    </div>
-                    <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-kn-navy">${qtd} pacotes</span>
-                `;
-                container.appendChild(div);
-            });
-            lucide.createIcons();
-        }
-
-        function selecionarRota(rotaName, listaItens) {
-            rotaAtivaSelecionada = rotaName;
-            document.getElementById('tituloRotaSelecionada').innerText = rotaName;
-            document.getElementById('contadorRotaSelecionada').innerText = `${listaItens.length} Pacotes`;
-
-            const tbody = document.getElementById('tabelaDetalhesRota');
-            tbody.innerHTML = '';
-
-            listaItens.forEach(item => {
-                const statusObj = STATUS_MAP[item.status] || STATUS_MAP['NULO'];
+            filtrados.forEach((item, index) => {
+                const realIndex = pacotes.indexOf(item);
                 const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-50 transition';
+                tr.className = 'hover:bg-slate-50 transition border-b border-slate-100';
+
                 tr.innerHTML = `
-                    <td class="px-4 py-3 font-mono font-bold text-slate-700">${item.barcode}</td>
-                    <td class="px-4 py-3"><span class="px-2 py-0.5 rounded font-mono font-bold text-[10px] ${item.ciclo === 'AM' ? 'bg-sky-100 text-sky-800' : 'bg-indigo-100 text-indigo-800'}">${item.ciclo}</span></td>
-                    <td class="px-4 py-3"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold border ${statusObj.class}">${statusObj.label}</span></td>
-                    <td class="px-4 py-3 text-slate-400">${item.hora}</td>
+                    <td class="p-3 font-bold text-slate-800">${item.id}</td>
+                    <td class="p-3 text-slate-600">${item.rota}</td>
+                    <td class="p-3 font-bold">
+                        <span class="px-2 py-0.5 rounded text-[10px] ${item.ciclo === 'AM' ? 'bg-amber-100 text-amber-800' : 'bg-indigo-100 text-indigo-800'}">
+                            ${item.ciclo}
+                        </span>
+                    </td>
+                    <td class="p-3">${getBadgeStatus(item.status)}</td>
+                    <td class="p-3 text-slate-400 text-[11px]">${item.hora}</td>
+                    <td class="p-3 text-right space-x-1">
+                        <button onclick="abrirModalEditar(${realIndex})" title="Editar Manualmente Rota, Ciclo ou Status" class="p-1 text-slate-500 hover:text-kn-navy hover:bg-slate-200 rounded transition">
+                            <i data-lucide="edit-3" class="w-4 h-4"></i>
+                        </button>
+                        <button onclick="excluirPacote(${realIndex})" title="Excluir" class="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded transition">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </td>
                 `;
                 tbody.appendChild(tr);
             });
-            renderizarAbaRotas();
+
+            lucide.createIcons();
         }
 
-        function renderizarGraficos() {
-            // Ciclo AM
-            const ctxAM = document.getElementById('graficoAM');
-            if (ctxAM) {
-                if (chartAM) chartAM.destroy();
-                const amDados = dadosOperacao.filter(d => d.ciclo === 'AM');
-                chartAM = new Chart(ctxAM, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Despachar', 'Em Rota', 'No Piso', 'Falha', 'Solução'],
-                        datasets: [{
-                            data: [
-                                amDados.filter(d => d.status === 'DESPACHAR').length,
-                                amDados.filter(d => d.status === 'EM_ROTA_DE_ENTREGA').length,
-                                amDados.filter(d => d.status === 'FICOU_NO_PISO').length,
-                                amDados.filter(d => d.status === 'FALHA_NA_ENTREGA').length,
-                                amDados.filter(d => d.status === 'SOLUCAO_DE_PROBLEMA').length
-                            ],
-                            backgroundColor: ['#0ea5e9', '#10b981', '#f59e0b', '#f43f5e', '#a855f7']
-                        }]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false }
-                });
-            }
-
-            // Ciclo PM
-            const ctxPM = document.getElementById('graficoPM');
-            if (ctxPM) {
-                if (chartPM) chartPM.destroy();
-                const pmDados = dadosOperacao.filter(d => d.ciclo === 'PM');
-                chartPM = new Chart(ctxPM, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Despachar', 'Em Rota', 'No Piso', 'Falha', 'Solução'],
-                        datasets: [{
-                            data: [
-                                pmDados.filter(d => d.status === 'DESPACHAR').length,
-                                pmDados.filter(d => d.status === 'EM_ROTA_DE_ENTREGA').length,
-                                pmDados.filter(d => d.status === 'FICOU_NO_PISO').length,
-                                pmDados.filter(d => d.status === 'FALHA_NA_ENTREGA').length,
-                                pmDados.filter(d => d.status === 'SOLUCAO_DE_PROBLEMA').length
-                            ],
-                            backgroundColor: ['#0ea5e9', '#10b981', '#f59e0b', '#f43f5e', '#a855f7']
-                        }]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false }
-                });
-            }
-
-            // Gráfico Geral Comparativo
-            const ctxGeral = document.getElementById('graficoGeral');
-            if (ctxGeral) {
-                if (chartGeral) chartGeral.destroy();
-                chartGeral = new Chart(ctxGeral, {
-                    type: 'bar',
-                    data: {
-                        labels: ['Despachar', 'Em Rota', 'No Piso', 'Falha Entrega', 'Solução Problema'],
-                        datasets: [
-                            {
-                                label: 'Ciclo AM',
-                                data: [
-                                    dadosOperacao.filter(d => d.ciclo === 'AM' && d.status === 'DESPACHAR').length,
-                                    dadosOperacao.filter(d => d.ciclo === 'AM' && d.status === 'EM_ROTA_DE_ENTREGA').length,
-                                    dadosOperacao.filter(d => d.ciclo === 'AM' && d.status === 'FICOU_NO_PISO').length,
-                                    dadosOperacao.filter(d => d.ciclo === 'AM' && d.status === 'FALHA_NA_ENTREGA').length,
-                                    dadosOperacao.filter(d => d.ciclo === 'AM' && d.status === 'SOLUCAO_DE_PROBLEMA').length
-                                ],
-                                backgroundColor: '#0284c7'
-                            },
-                            {
-                                label: 'Ciclo PM',
-                                data: [
-                                    dadosOperacao.filter(d => d.ciclo === 'PM' && d.status === 'DESPACHAR').length,
-                                    dadosOperacao.filter(d => d.ciclo === 'PM' && d.status === 'EM_ROTA_DE_ENTREGA').length,
-                                    dadosOperacao.filter(d => d.ciclo === 'PM' && d.status === 'FICOU_NO_PISO').length,
-                                    dadosOperacao.filter(d => d.ciclo === 'PM' && d.status === 'FALHA_NA_ENTREGA').length,
-                                    dadosOperacao.filter(d => d.ciclo === 'PM' && d.status === 'SOLUCAO_DE_PROBLEMA').length
-                                ],
-                                backgroundColor: '#6366f1'
-                            }
-                        ]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false }
-                });
-            }
+        function getBadgeStatus(status) {
+            const mapa = {
+                'DESPACHAR': '<span class="bg-sky-100 text-sky-800 px-2 py-0.5 rounded text-[10px] font-bold">DESPACHAR</span>',
+                'EM_ROTA_DE_ENTREGA': '<span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-[10px] font-bold">EM ROTA</span>',
+                'FICOU_NO_PISO': '<span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-[10px] font-bold">NO PISO</span>',
+                'FALHA_NA_ENTREGA': '<span class="bg-rose-100 text-rose-800 px-2 py-0.5 rounded text-[10px] font-bold">FALHA</span>',
+                'SOLUCAO_DE_PROBLEMA': '<span class="bg-purple-100 text-purple-800 px-2 py-0.5 rounded text-[10px] font-bold">SOLUÇÃO PROB.</span>',
+                'NULO': '<span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded text-[10px] font-bold">NULO</span>'
+            };
+            return mapa[status] || `<span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px]">${status}</span>`;
         }
 
-        function exportarCSV(tipoCiclo) {
-            if (dadosOperacao.length === 0) {
-                mostrarAlerta('⚠️ Não há dados para exportar.', 'warning');
-                return;
-            }
+        function atualizarKPIs() {
+            document.getElementById('kpiTotal').innerText = pacotes.length;
+            document.getElementById('kpiDespachar').innerText = pacotes.filter(p => p.status === 'DESPACHAR').length;
+            document.getElementById('kpiEmRota').innerText = pacotes.filter(p => p.status === 'EM_ROTA_DE_ENTREGA').length;
+            document.getElementById('kpiPiso').innerText = pacotes.filter(p => p.status === 'FICOU_NO_PISO').length;
+            document.getElementById('kpiFalha').innerText = pacotes.filter(p => p.status === 'FALHA_NA_ENTREGA').length;
+            document.getElementById('kpiSolucao').innerText = pacotes.filter(p => p.status === 'SOLUCAO_DE_PROBLEMA').length;
+        }
 
-            let dadosFiltrados = dadosOperacao;
-            if (tipoCiclo === 'AM' || tipoCiclo === 'PM') {
-                dadosFiltrados = dadosOperacao.filter(d => d.ciclo === tipoCiclo);
-            }
+        function renderizarResumoRotas() {
+            const tbody = document.getElementById('tabelaRotas');
+            tbody.innerHTML = '';
 
-            if (dadosFiltrados.length === 0) {
-                mostrarAlerta(`⚠️ Nenhum dado encontrado para o ciclo ${tipoCiclo}.`, 'warning');
-                return;
-            }
-
-            let csvContent = "data:text/csv;charset=utf-8,Codigo de Barras;Ciclo;Atribuicao/Rota;Status;Horario;Data\n";
-            dadosFiltrados.forEach(row => {
-                csvContent += `${row.barcode};${row.ciclo};${row.atribuicao};${row.status};${row.hora};${row.data}\n`;
+            const rotasMap = {};
+            pacotes.forEach(p => {
+                const r = p.rota || 'Sem Rota';
+                if (!rotasMap[r]) {
+                    rotasMap[r] = { total: 0, emRota: 0, piso: 0, despachar: 0, falha: 0 };
+                }
+                rotasMap[r].total++;
+                if (p.status === 'EM_ROTA_DE_ENTREGA') rotasMap[r].emRota++;
+                if (p.status === 'FICOU_NO_PISO') rotasMap[r].piso++;
+                if (p.status === 'DESPACHAR') rotasMap[r].despachar++;
+                if (p.status === 'FALHA_NA_ENTREGA') rotasMap[r].falha++;
             });
 
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `KN_PosSorting_${tipoCiclo}_${new Date().toISOString().slice(0,10)}.csv`);
-            document.body.appendChild(link);
+            Object.keys(rotasMap).forEach(rota => {
+                const d = rotasMap[rota];
+                const tr = document.createElement('tr');
+                tr.className = 'border-b border-slate-100 hover:bg-slate-50';
+                tr.innerHTML = `
+                    <td class="p-3 font-bold text-slate-800">${rota}</td>
+                    <td class="p-3">${d.total}</td>
+                    <td class="p-3 text-emerald-600 font-bold">${d.emRota}</td>
+                    <td class="p-3 text-amber-600 font-bold">${d.piso}</td>
+                    <td class="p-3 text-sky-600 font-bold">${d.despachar}</td>
+                    <td class="p-3 text-rose-600 font-bold">${d.falha}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Alternar Navegação entre Abas
+        function mudarAba(abaId) {
+            ['operacao', 'rotas', 'graficos-geral', 'graficos-am', 'graficos-pm'].forEach(id => {
+                const sec = document.getElementById(`aba-${id}`);
+                const btn = document.getElementById(`btn-aba-${id}`);
+                if (sec) sec.classList.add('hidden');
+                if (btn) {
+                    btn.classList.remove('bg-kn-blue', 'text-white');
+                    btn.classList.add('text-slate-300', 'hover:bg-white/5');
+                }
+            });
+
+            document.getElementById(`aba-${abaId}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`btn-aba-${abaId}`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-kn-blue', 'text-white');
+                activeBtn.classList.remove('text-slate-300', 'hover:bg-white/5');
+            }
+
+            if (abaId.startsWith('graficos')) {
+                renderizarGraficos();
+            }
+        }
+
+        // Gráficos Chart.js
+        function renderizarGraficos() {
+            const ctxGeral = document.getElementById('chartGeralStatus').getContext('2d');
+            const ctxCiclos = document.getElementById('chartGeralCiclos').getContext('2d');
+            const ctxAM = document.getElementById('chartAM').getContext('2d');
+            const ctxPM = document.getElementById('chartPM').getContext('2d');
+
+            if (charts.geral) charts.geral.destroy();
+            if (charts.ciclos) charts.ciclos.destroy();
+            if (charts.am) charts.am.destroy();
+            if (charts.pm) charts.pm.destroy();
+
+            const countStatus = (lista, st) => lista.filter(p => p.status === st).length;
+
+            charts.geral = new Chart(ctxGeral, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Em Rota', 'No Piso', 'Despachar', 'Falha'],
+                    datasets: [{
+                        data: [
+                            countStatus(pacotes, 'EM_ROTA_DE_ENTREGA'),
+                            countStatus(pacotes, 'FICOU_NO_PISO'),
+                            countStatus(pacotes, 'DESPACHAR'),
+                            countStatus(pacotes, 'FALHA_NA_ENTREGA')
+                        ],
+                        backgroundColor: ['#10B981', '#F59E0B', '#0EA5E9', '#EF4444']
+                    }]
+                }
+            });
+
+            charts.ciclos = new Chart(ctxCiclos, {
+                type: 'bar',
+                data: {
+                    labels: ['AM', 'PM'],
+                    datasets: [{
+                        label: 'Volume por Ciclo',
+                        data: [
+                            pacotes.filter(p => p.ciclo === 'AM').length,
+                            pacotes.filter(p => p.ciclo === 'PM').length
+                        ],
+                        backgroundColor: ['#F59E0B', '#6366F1']
+                    }]
+                }
+            });
+
+            const amList = pacotes.filter(p => p.ciclo === 'AM');
+            charts.am = new Chart(ctxAM, {
+                type: 'bar',
+                data: {
+                    labels: ['Em Rota', 'No Piso', 'Despachar', 'Falha'],
+                    datasets: [{
+                        label: 'Ciclo AM',
+                        data: [countStatus(amList, 'EM_ROTA_DE_ENTREGA'), countStatus(amList, 'FICOU_NO_PISO'), countStatus(amList, 'DESPACHAR'), countStatus(amList, 'FALHA_NA_ENTREGA')],
+                        backgroundColor: '#F59E0B'
+                    }]
+                }
+            });
+
+            const pmList = pacotes.filter(p => p.ciclo === 'PM');
+            charts.pm = new Chart(ctxPM, {
+                type: 'bar',
+                data: {
+                    labels: ['Em Rota', 'No Piso', 'Despachar', 'Falha'],
+                    datasets: [{
+                        label: 'Ciclo PM',
+                        data: [countStatus(pmList, 'EM_ROTA_DE_ENTREGA'), countStatus(pmList, 'FICOU_NO_PISO'), countStatus(pmList, 'DESPACHAR'), countStatus(pmList, 'FALHA_NA_ENTREGA')],
+                        backgroundColor: '#6366F1'
+                    }]
+                }
+            });
+        }
+
+        // Utilitários de Cópia e Exportação CSV
+        function copiarTodosIDs() {
+            if (pacotes.length === 0) return alert('Nenhum pacote registrado.');
+            const text = pacotes.map(p => p.id).join('\n');
+            navigator.clipboard.writeText(text).then(() => {
+                exibirAlerta('Todos os IDs foram copiados para a área de transferência!', 'sucesso');
+            });
+        }
+
+        function exportarCSV(filtroCiclo) {
+            let dados = pacotes;
+            if (filtroCiclo !== 'TODOS') {
+                dados = pacotes.filter(p => p.ciclo === filtroCiclo);
+            }
+
+            if (dados.length === 0) return alert('Nenhum dado encontrado para exportação.');
+
+            let csv = 'ID,Rota,Ciclo,Status,Hora\n';
+            dados.forEach(p => {
+                csv += `"${p.id}","${p.rota}","${p.ciclo}","${p.status}","${p.hora}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `KN_Relatorio_${filtroCiclo}_${new Date().toISOString().slice(0, 10)}.csv`;
             link.click();
-            document.body.removeChild(link);
-            mostrarAlerta(`📥 CSV do ${tipoCiclo} exportado com sucesso!`, 'success');
         }
 
         function limparBase() {
-            if (confirm("Tem certeza que deseja apagar todos os registros da operação?")) {
-                dadosOperacao = [];
-                localStorage.removeItem(STORAGE_KEY);
-                aplicarFiltros();
-                atualizarKPIs();
-                renderizarGraficos();
-                mostrarAlerta('🗑️ Base de dados limpa com sucesso.', 'info');
+            if (confirm('Tem certeza de que deseja apagar TODOS os registros salvos?')) {
+                pacotes = [];
+                salvarEAtualizar();
+                exibirAlerta('Base de dados zerada com sucesso.', 'aviso');
             }
+        }
+
+        function exibirAlerta(msg, tipo) {
+            const el = document.getElementById('feedbackAlerta');
+            el.innerText = msg;
+            el.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-800', 'border-emerald-200', 'bg-amber-50', 'text-amber-800', 'border-amber-200');
+
+            if (tipo === 'sucesso') {
+                el.classList.add('bg-emerald-50', 'text-emerald-800', 'border-emerald-200');
+            } else {
+                el.classList.add('bg-amber-50', 'text-amber-800', 'border-amber-200');
+            }
+
+            setTimeout(() => el.classList.add('hidden'), 3500);
         }
     </script>
 </body>
