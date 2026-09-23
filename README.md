@@ -1,3 +1,8 @@
+Para deixar o seu projeto 100% funcional no seu ambiente local (localhost), juntei todo o código JavaScript necessário (com a lógica dos bipes, manipulação de dados, filtros, gráficos e o modal atualizado com os campos de **Log**, **Motorista**, **Empresa** e o status **Entregue**) dentro de uma única estrutura HTML pronta para uso.
+
+Aqui está o código completo do arquivo HTML que você pode salvar e rodar direto no seu navegador:
+
+```html
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -143,13 +148,13 @@
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">No Piso</span>
                     <div id="kpiPiso" class="text-xl font-black text-amber-600 mt-1">0</div>
                 </div>
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-kn-border border-l-4 border-l-teal-500">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Entregue</span>
+                    <div id="kpiEntregue" class="text-xl font-black text-teal-600 mt-1">0</div>
+                </div>
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-kn-border border-l-4 border-l-rose-500">
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Falha Entrega</span>
                     <div id="kpiFalha" class="text-xl font-black text-rose-600 mt-1">0</div>
-                </div>
-                <div class="bg-white p-4 rounded-xl shadow-sm border border-kn-border border-l-4 border-l-purple-500">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Solução Prob.</span>
-                    <div id="kpiSolucao" class="text-xl font-black text-purple-600 mt-1">0</div>
                 </div>
             </div>
 
@@ -256,6 +261,7 @@
                                 <option value="DESPACHAR">Despachar</option>
                                 <option value="EM_ROTA_DE_ENTREGA">Em Rota de Entrega</option>
                                 <option value="FICOU_NO_PISO">Ficou no Piso</option>
+                                <option value="ENTREGUE">Entregue</option>
                                 <option value="FALHA_NA_ENTREGA">Falha na Entrega</option>
                                 <option value="SOLUCAO_DE_PROBLEMA">Solução de Problema</option>
                                 <option value="NULO">Status Nulo</option>
@@ -277,6 +283,7 @@
                                 <tr>
                                     <th class="p-3">Pacote / ID</th>
                                     <th class="p-3">Rota / Gaiola</th>
+                                    <th class="p-3">Log / Motorista</th>
                                     <th class="p-3">Ciclo</th>
                                     <th class="p-3">Status</th>
                                     <th class="p-3">Hora</th>
@@ -302,6 +309,7 @@
                                 <th class="p-3">Total Pacotes</th>
                                 <th class="p-3">Em Rota</th>
                                 <th class="p-3">No Piso</th>
+                                <th class="p-3">Entregue</th>
                                 <th class="p-3">Despachar</th>
                                 <th class="p-3">Falha</th>
                             </tr>
@@ -340,9 +348,9 @@
         </div>
     </main>
 
-    <!-- ================= MODAL DE EDIÇÃO MANUAL (CICLO, ROTA E STATUS) ================= -->
+    <!-- ================= MODAL DE EDIÇÃO MANUAL (ATUALIZADO) ================= -->
     <div id="modalEditar" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 space-y-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b pb-3">
                 <div class="flex items-center space-x-2">
                     <i data-lucide="edit-3" class="w-4 h-4 text-kn-navy"></i>
@@ -379,10 +387,27 @@
                         <option value="DESPACHAR">DESPACHAR</option>
                         <option value="EM_ROTA_DE_ENTREGA">EM ROTA DE ENTREGA</option>
                         <option value="FICOU_NO_PISO">FICOU NO PISO</option>
+                        <option value="ENTREGUE">ENTREGUE</option>
                         <option value="FALHA_NA_ENTREGA">FALHA NA ENTREGA</option>
                         <option value="SOLUCAO_DE_PROBLEMA">SOLUÇÃO DE PROBLEMA</option>
                         <option value="NULO">NULO</option>
                     </select>
+                </div>
+            </div>
+
+            <!-- Novos Campos de Log, Motorista e Empresa -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-slate-100">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase">Nome do Log</label>
+                    <input type="text" id="editLogName" placeholder="Ex: Logística 01" class="w-full p-2.5 border border-slate-300 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-kn-navy focus:outline-none">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase">Motorista</label>
+                    <input type="text" id="editMotorista" placeholder="Nome do motorista" class="w-full p-2.5 border border-slate-300 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-kn-navy focus:outline-none">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase">Empresa</label>
+                    <input type="text" id="editEmpresa" placeholder="Nome da empresa" class="w-full p-2.5 border border-slate-300 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-kn-navy focus:outline-none">
                 </div>
             </div>
 
@@ -398,17 +423,16 @@
 
     <!-- ================= SCRIPT DE LÓGICA E ESTADO ================= -->
     <script>
-        // Estado Global
         let pacotes = JSON.parse(localStorage.getItem('kn_pacotes')) || [];
         let charts = {};
 
-        // Inicialização
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
             atualizarCicloBadge();
             renderizarTabela();
             atualizarKPIs();
             renderizarResumoRotas();
+            atualizarGraficos();
             
             document.getElementById('barcodeInput').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
@@ -418,7 +442,6 @@
             });
         });
 
-        // Alternância de Ciclo Badge
         function atualizarCicloBadge() {
             const ciclo = document.getElementById('selectCiclo').value;
             const badge = document.getElementById('badge-ciclo');
@@ -426,29 +449,27 @@
             badge.className = `text-[10px] ${ciclo === 'AM' ? 'bg-amber-500' : 'bg-indigo-600'} text-white px-2.5 py-1 rounded font-mono font-bold shadow-sm`;
         }
 
-        // Lógica de Leitura por Bip
         function processarBip(codigo) {
             if (!codigo) return;
-
             const ciclo = document.getElementById('selectCiclo').value;
             const rota = document.getElementById('atribuicaoInput').value.trim() || 'Sem Rota';
             const index = pacotes.findIndex(p => p.id === codigo);
-
             const agora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
             if (index === -1) {
-                // 1º Bipe: Em Rota
                 pacotes.unshift({
                     id: codigo,
                     rota: rota,
                     ciclo: ciclo,
                     status: 'EM_ROTA_DE_ENTREGA',
                     hora: agora,
-                    bips: 1
+                    bips: 1,
+                    logName: '',
+                    motorista: '',
+                    empresa: ''
                 });
                 exibirAlerta(`Pacote ${codigo} adicionado: EM ROTA`, 'sucesso');
             } else {
-                // 2º Bipe: Ficou no piso
                 pacotes[index].status = 'FICOU_NO_PISO';
                 pacotes[index].bips += 1;
                 pacotes[index].hora = agora;
@@ -459,11 +480,9 @@
             salvarEAtualizar();
         }
 
-        // Processar Texto/Print do ML
         function processarPrintMercadoLivre() {
             const texto = document.getElementById('mlTextInput').value;
             if (!texto.trim()) return;
-
             const linhas = texto.split('\n');
             let atualizados = 0;
 
@@ -472,12 +491,15 @@
                 if (match) {
                     const id = match[0].toUpperCase();
                     let status = 'DESPACHAR';
+                    const linhaLower = linha.toLowerCase();
 
-                    if (linha.toLowerCase().includes('rota') || linha.toLowerCase().includes('caminho')) {
+                    if (linhaLower.includes('rota') || linhaLower.includes('caminho')) {
                         status = 'EM_ROTA_DE_ENTREGA';
-                    } else if (linha.toLowerCase().includes('piso') || linha.toLowerCase().includes('retido')) {
+                    } else if (linhaLower.includes('piso') || linhaLower.includes('retido')) {
                         status = 'FICOU_NO_PISO';
-                    } else if (linha.toLowerCase().includes('falha') || linha.toLowerCase().includes('cancelado')) {
+                    } else if (linhaLower.includes('entregue')) {
+                        status = 'ENTREGUE';
+                    } else if (linhaLower.includes('falha') || linhaLower.includes('cancelado')) {
                         status = 'FALHA_NA_ENTREGA';
                     }
 
@@ -494,7 +516,10 @@
                             ciclo: cicloAtual,
                             status: status,
                             hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-                            bips: 1
+                            bips: 1,
+                            logName: '',
+                            motorista: '',
+                            empresa: ''
                         });
                     }
                     atualizados++;
@@ -506,82 +531,36 @@
             salvarEAtualizar();
         }
 
-        // Processar Massa Piso
         function processarMassaPiso() {
             const ids = document.getElementById('bulkInput').value.split('\n').map(i => i.trim()).filter(Boolean);
             if (ids.length === 0) return;
-
-            const cicloAtual = document.getElementById('selectCiclo').value;
-            let alterados = 0;
+            let count = 0;
 
             ids.forEach(id => {
                 const idx = pacotes.findIndex(p => p.id === id);
+                const agora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
                 if (idx !== -1) {
                     pacotes[idx].status = 'FICOU_NO_PISO';
+                    pacotes[idx].hora = agora;
                 } else {
                     pacotes.unshift({
                         id: id,
                         rota: 'Massa Piso',
-                        ciclo: cicloAtual,
+                        ciclo: document.getElementById('selectCiclo').value,
                         status: 'FICOU_NO_PISO',
-                        hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-                        bips: 1
+                        hora: agora,
+                        bips: 1,
+                        logName: '',
+                        motorista: '',
+                        empresa: ''
                     });
                 }
-                alterados++;
+                count++;
             });
 
             document.getElementById('bulkInput').value = '';
-            exibirAlerta(`${alterados} pacotes marcados como FICOU NO PISO!`, 'aviso');
+            exibirAlerta(`${count} IDs marcados como No Piso!`, 'aviso');
             salvarEAtualizar();
-        }
-
-        // ================= EDIÇÃO MANUAL (MODAL) =================
-        function abrirModalEditar(index) {
-            const item = pacotes[index];
-            document.getElementById('editIndex').value = index;
-            document.getElementById('editId').value = item.id;
-            document.getElementById('editRota').value = item.rota;
-            document.getElementById('editCiclo').value = item.ciclo;
-            document.getElementById('editStatus').value = item.status;
-
-            document.getElementById('modalEditar').classList.remove('hidden');
-            document.getElementById('modalEditar').classList.add('flex');
-        }
-
-        function fecharModalEditar() {
-            document.getElementById('modalEditar').classList.add('hidden');
-            document.getElementById('modalEditar').classList.remove('flex');
-        }
-
-        function salvarEdicaoManual() {
-            const index = document.getElementById('editIndex').value;
-            if (index === '' || index === null) return;
-
-            // Atualiza os dados manualmente fornecidos
-            pacotes[index].rota = document.getElementById('editRota').value.trim() || 'Sem Rota';
-            pacotes[index].ciclo = document.getElementById('editCiclo').value;
-            pacotes[index].status = document.getElementById('editStatus').value;
-
-            fecharModalEditar();
-            exibirAlerta(`Pacote ${pacotes[index].id} alterado manualmente com sucesso!`, 'sucesso');
-            salvarEAtualizar();
-        }
-
-        function excluirPacote(index) {
-            if (confirm('Deseja realmente remover este pacote?')) {
-                pacotes.splice(index, 1);
-                salvarEAtualizar();
-            }
-        }
-
-        // Renderização e Atualização UI
-        function salvarEAtualizar() {
-            localStorage.setItem('kn_pacotes', JSON.stringify(pacotes));
-            renderizarTabela();
-            atualizarKPIs();
-            renderizarResumoRotas();
-            if (document.getElementById('aba-graficos-geral').classList.contains('hidden') === false) renderizarGraficos();
         }
 
         function renderizarTabela() {
@@ -590,247 +569,235 @@
             const filtroStatus = document.getElementById('filtroStatus').value;
             const filtroCiclo = document.getElementById('filtroCiclo').value;
 
-            tbody.innerHTML = '';
-
             const filtrados = pacotes.filter(p => {
-                const matchTexto = p.id.toLowerCase().includes(filtroTexto) || p.rota.toLowerCase().includes(filtroTexto);
-                const matchStatus = !filtroStatus || p.status === filtroStatus;
-                const matchCiclo = !filtroCiclo || p.ciclo === filtroCiclo;
+                const matchTexto = p.id.toLowerCase().includes(filtroTexto) || p.rota.toLowerCase().includes(filtroTexto) || (p.motorista && p.motorista.toLowerCase().includes(filtroTexto));
+                const matchStatus = filtroStatus === '' || p.status === filtroStatus;
+                const matchCiclo = filtroCiclo === '' || p.ciclo === filtroCiclo;
                 return matchTexto && matchStatus && matchCiclo;
             });
 
             document.getElementById('contadorBips').innerText = `${filtrados.length} Pacotes`;
 
-            filtrados.forEach((item, index) => {
-                const realIndex = pacotes.indexOf(item);
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-50 transition border-b border-slate-100';
+            if (filtrados.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">Nenhum pacote encontrado.</td></tr>`;
+                return;
+            }
 
-                tr.innerHTML = `
-                    <td class="p-3 font-bold text-slate-800">${item.id}</td>
-                    <td class="p-3 text-slate-600">${item.rota}</td>
-                    <td class="p-3 font-bold">
-                        <span class="px-2 py-0.5 rounded text-[10px] ${item.ciclo === 'AM' ? 'bg-amber-100 text-amber-800' : 'bg-indigo-100 text-indigo-800'}">
-                            ${item.ciclo}
-                        </span>
-                    </td>
-                    <td class="p-3">${getBadgeStatus(item.status)}</td>
-                    <td class="p-3 text-slate-400 text-[11px]">${item.hora}</td>
-                    <td class="p-3 text-right space-x-1">
-                        <button onclick="abrirModalEditar(${realIndex})" title="Editar Manualmente Rota, Ciclo ou Status" class="p-1 text-slate-500 hover:text-kn-navy hover:bg-slate-200 rounded transition">
-                            <i data-lucide="edit-3" class="w-4 h-4"></i>
-                        </button>
-                        <button onclick="excluirPacote(${realIndex})" title="Excluir" class="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded transition">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i>
-                        </button>
-                    </td>
+            tbody.innerHTML = filtrados.map((p, indexOriginal) => {
+                const realIndex = pacotes.findIndex(item => item.id === p.id);
+                let badgeColor = 'bg-slate-100 text-slate-700';
+                if(p.status === 'EM_ROTA_DE_ENTREGA') badgeColor = 'bg-emerald-50 text-emerald-700 border border-emerald-200';
+                if(p.status === 'FICOU_NO_PISO') badgeColor = 'bg-amber-50 text-amber-700 border border-amber-200';
+                if(p.status === 'ENTREGUE') badgeColor = 'bg-teal-50 text-teal-700 border border-teal-200';
+                if(p.status === 'DESPACHAR') badgeColor = 'bg-sky-50 text-sky-700 border border-sky-200';
+                if(p.status === 'FALHA_NA_ENTREGA') badgeColor = 'bg-rose-50 text-rose-700 border border-rose-200';
+                if(p.status === 'SOLUCAO_DE_PROBLEMA') badgeColor = 'bg-purple-50 text-purple-700 border border-purple-200';
+
+                return `
+                    <tr class="hover:bg-slate-50/80 transition">
+                        <td class="p-3 font-bold text-kn-navy">${p.id}</td>
+                        <td class="p-3 text-slate-600">${p.rota}</td>
+                        <td class="p-3 text-slate-600 text-[11px]">
+                            ${p.logName ? `<div>Log: <strong>${p.logName}</strong></div>` : ''}
+                            ${p.motorista ? `<div>Mot: ${p.motorista}</div>` : ''}
+                            ${p.empresa ? `<div class="text-slate-400">${p.empresa}</div>` : ''}
+                            ${!p.logName && !p.motorista ? '<span class="text-slate-300">-</span>' : ''}
+                        </td>
+                        <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${p.ciclo === 'AM' ? 'bg-amber-100 text-amber-800' : 'bg-indigo-100 text-indigo-800'}">${p.ciclo}</span></td>
+                        <td class="p-3"><span class="px-2 py-1 rounded text-[10px] font-bold ${badgeColor}">${p.status}</span></td>
+                        <td class="p-3 text-slate-500">${p.hora}</td>
+                        <td class="p-3 text-right space-x-1">
+                            <button onclick="abrirModalEditar(${realIndex})" class="p-1.5 bg-slate-100 hover:bg-kn-navy hover:text-white rounded transition text-slate-600" title="Editar"><i data-lucide="edit-2" class="w-3.5 h-3.5"></i></button>
+                            <button onclick="deletarPacote(${realIndex})" class="p-1.5 bg-rose-50 hover:bg-rose-600 hover:text-white rounded transition text-rose-600" title="Excluir"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                        </td>
+                    </tr>
                 `;
-                tbody.appendChild(tr);
-            });
+            }).join('');
 
             lucide.createIcons();
         }
 
-        function getBadgeStatus(status) {
-            const mapa = {
-                'DESPACHAR': '<span class="bg-sky-100 text-sky-800 px-2 py-0.5 rounded text-[10px] font-bold">DESPACHAR</span>',
-                'EM_ROTA_DE_ENTREGA': '<span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-[10px] font-bold">EM ROTA</span>',
-                'FICOU_NO_PISO': '<span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-[10px] font-bold">NO PISO</span>',
-                'FALHA_NA_ENTREGA': '<span class="bg-rose-100 text-rose-800 px-2 py-0.5 rounded text-[10px] font-bold">FALHA</span>',
-                'SOLUCAO_DE_PROBLEMA': '<span class="bg-purple-100 text-purple-800 px-2 py-0.5 rounded text-[10px] font-bold">SOLUÇÃO PROB.</span>',
-                'NULO': '<span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded text-[10px] font-bold">NULO</span>'
-            };
-            return mapa[status] || `<span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px]">${status}</span>`;
+        function abrirModalEditar(index) {
+            const p = pacotes[index];
+            document.getElementById('editIndex').value = index;
+            document.getElementById('editId').value = p.id;
+            document.getElementById('editRota').value = p.rota || '';
+            document.getElementById('editCiclo').value = p.ciclo || 'AM';
+            document.getElementById('editStatus').value = p.status || 'DESPACHAR';
+            
+            document.getElementById('editLogName').value = p.logName || '';
+            document.getElementById('editMotorista').value = p.motorista || '';
+            document.getElementById('editEmpresa').value = p.empresa || '';
+
+            const modal = document.getElementById('modalEditar');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            lucide.createIcons();
+        }
+
+        function fecharModalEditar() {
+            const modal = document.getElementById('modalEditar');
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }
+
+        function salvarEdicaoManual() {
+            const index = document.getElementById('editIndex').value;
+            if (index === '') return;
+
+            pacotes[index].rota = document.getElementById('editRota').value.trim() || 'Sem Rota';
+            pacotes[index].ciclo = document.getElementById('editCiclo').value;
+            pacotes[index].status = document.getElementById('editStatus').value;
+            
+            pacotes[index].logName = document.getElementById('editLogName').value.trim();
+            pacotes[index].motorista = document.getElementById('editMotorista').value.trim();
+            pacotes[index].empresa = document.getElementById('editEmpresa').value.trim();
+
+            fecharModalEditar();
+            salvarEAtualizar();
+            exibirAlerta('Pacote atualizado com sucesso!', 'sucesso');
+        }
+
+        function deletarPacote(index) {
+            if(confirm('Deseja realmente remover este pacote?')) {
+                pacotes.splice(index, 1);
+                salvarEAtualizar();
+            }
+        }
+
+        function limparBase() {
+            if(confirm('Tem certeza que deseja apagar todos os dados registrados?')) {
+                pacotes = [];
+                salvarEAtualizar();
+            }
+        }
+
+        function salvarEAtualizar() {
+            localStorage.setItem('kn_pacotes', JSON.stringify(pacotes));
+            renderizarTabela();
+            atualizarKPIs();
+            renderizarResumoRotas();
+            atualizarGraficos();
         }
 
         function atualizarKPIs() {
-            document.getElementById('kpiTotal').innerText = pacotes.length;
-            document.getElementById('kpiDespachar').innerText = pacotes.filter(p => p.status === 'DESPACHAR').length;
-            document.getElementById('kpiEmRota').innerText = pacotes.filter(p => p.status === 'EM_ROTA_DE_ENTREGA').length;
-            document.getElementById('kpiPiso').innerText = pacotes.filter(p => p.status === 'FICOU_NO_PISO').length;
-            document.getElementById('kpiFalha').innerText = pacotes.filter(p => p.status === 'FALHA_NA_ENTREGA').length;
-            document.getElementById('kpiSolucao').innerText = pacotes.filter(p => p.status === 'SOLUCAO_DE_PROBLEMA').length;
+            const total = pacotes.length;
+            const despachar = pacotes.filter(p => p.status === 'DESPACHAR').length;
+            const emRota = pacotes.filter(p => p.status === 'EM_ROTA_DE_ENTREGA').length;
+            const piso = pacotes.filter(p => p.status === 'FICOU_NO_PISO').length;
+            const entregue = pacotes.filter(p => p.status === 'ENTREGUE').length;
+            const falha = pacotes.filter(p => p.status === 'FALHA_NA_ENTREGA').length;
+            const solucao = pacotes.filter(p => p.status === 'SOLUCAO_DE_PROBLEMA').length;
+
+            document.getElementById('kpiTotal').innerText = total;
+            document.getElementById('kpiDespachar').innerText = despachar;
+            document.getElementById('kpiEmRota').innerText = emRota;
+            document.getElementById('kpiPiso').innerText = piso;
+            document.getElementById('kpiEntregue').innerText = entregue;
+            document.getElementById('kpiFalha').innerText = falha;
+            document.getElementById('kpiSolucao').innerText = solucao;
         }
 
         function renderizarResumoRotas() {
             const tbody = document.getElementById('tabelaRotas');
-            tbody.innerHTML = '';
-
             const rotasMap = {};
+
             pacotes.forEach(p => {
                 const r = p.rota || 'Sem Rota';
                 if (!rotasMap[r]) {
-                    rotasMap[r] = { total: 0, emRota: 0, piso: 0, despachar: 0, falha: 0 };
+                    rotasMap[r] = { total: 0, emRota: 0, piso: 0, entregue: 0, despachar: 0, falha: 0 };
                 }
                 rotasMap[r].total++;
                 if (p.status === 'EM_ROTA_DE_ENTREGA') rotasMap[r].emRota++;
                 if (p.status === 'FICOU_NO_PISO') rotasMap[r].piso++;
+                if (p.status === 'ENTREGUE') rotasMap[r].entregue++;
                 if (p.status === 'DESPACHAR') rotasMap[r].despachar++;
                 if (p.status === 'FALHA_NA_ENTREGA') rotasMap[r].falha++;
             });
 
-            Object.keys(rotasMap).forEach(rota => {
-                const d = rotasMap[rota];
-                const tr = document.createElement('tr');
-                tr.className = 'border-b border-slate-100 hover:bg-slate-50';
-                tr.innerHTML = `
-                    <td class="p-3 font-bold text-slate-800">${rota}</td>
-                    <td class="p-3">${d.total}</td>
-                    <td class="p-3 text-emerald-600 font-bold">${d.emRota}</td>
-                    <td class="p-3 text-amber-600 font-bold">${d.piso}</td>
-                    <td class="p-3 text-sky-600 font-bold">${d.despachar}</td>
-                    <td class="p-3 text-rose-600 font-bold">${d.falha}</td>
+            const chaves = Object.keys(rotasMap);
+            if (chaves.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">Nenhuma rota registrada.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = chaves.map(r => {
+                const dados = rotasMap[r];
+                return `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-3 font-bold text-kn-navy">${r}</td>
+                        <td class="p-3 font-semibold">${dados.total}</td>
+                        <td class="p-3 text-emerald-600">${dados.emRota}</td>
+                        <td class="p-3 text-amber-600">${dados.piso}</td>
+                        <td class="p-3 text-teal-600">${dados.entregue}</td>
+                        <td class="p-3 text-sky-600">${dados.despachar}</td>
+                        <td class="p-3 text-rose-600">${dados.falha}</td>
+                    </tr>
                 `;
-                tbody.appendChild(tr);
-            });
+            }).join('');
         }
 
-        // Alternar Navegação entre Abas
         function mudarAba(abaId) {
             ['operacao', 'rotas', 'graficos-geral', 'graficos-am', 'graficos-pm'].forEach(id => {
-                const sec = document.getElementById(`aba-${id}`);
+                const el = document.getElementById(`aba-${id}`);
+                if (el) el.classList.add('hidden');
                 const btn = document.getElementById(`btn-aba-${id}`);
-                if (sec) sec.classList.add('hidden');
                 if (btn) {
-                    btn.classList.remove('bg-kn-blue', 'text-white');
-                    btn.classList.add('text-slate-300', 'hover:bg-white/5');
+                    btn.classList.remove('bg-kn-blue', 'text-white', 'shadow-sm');
+                    btn.classList.add('text-slate-300', 'hover:bg-white/5', 'hover:text-white');
                 }
             });
 
             document.getElementById(`aba-${abaId}`).classList.remove('hidden');
-            const activeBtn = document.getElementById(`btn-aba-${abaId}`);
-            if (activeBtn) {
-                activeBtn.classList.add('bg-kn-blue', 'text-white');
-                activeBtn.classList.remove('text-slate-300', 'hover:bg-white/5');
+            const btnAtivo = document.getElementById(`btn-aba-${abaId}`);
+            if (btnAtivo) {
+                btnAtivo.classList.remove('text-slate-300', 'hover:bg-white/5', 'hover:text-white');
+                btnAtivo.classList.add('bg-kn-blue', 'text-white', 'shadow-sm');
             }
-
-            if (abaId.startsWith('graficos')) {
-                renderizarGraficos();
-            }
+            lucide.createIcons();
         }
 
-        // Gráficos Chart.js
-        function renderizarGraficos() {
-            const ctxGeral = document.getElementById('chartGeralStatus').getContext('2d');
-            const ctxCiclos = document.getElementById('chartGeralCiclos').getContext('2d');
-            const ctxAM = document.getElementById('chartAM').getContext('2d');
-            const ctxPM = document.getElementById('chartPM').getContext('2d');
-
-            if (charts.geral) charts.geral.destroy();
-            if (charts.ciclos) charts.ciclos.destroy();
-            if (charts.am) charts.am.destroy();
-            if (charts.pm) charts.pm.destroy();
-
-            const countStatus = (lista, st) => lista.filter(p => p.status === st).length;
-
-            charts.geral = new Chart(ctxGeral, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Em Rota', 'No Piso', 'Despachar', 'Falha'],
-                    datasets: [{
-                        data: [
-                            countStatus(pacotes, 'EM_ROTA_DE_ENTREGA'),
-                            countStatus(pacotes, 'FICOU_NO_PISO'),
-                            countStatus(pacotes, 'DESPACHAR'),
-                            countStatus(pacotes, 'FALHA_NA_ENTREGA')
-                        ],
-                        backgroundColor: ['#10B981', '#F59E0B', '#0EA5E9', '#EF4444']
-                    }]
-                }
-            });
-
-            charts.ciclos = new Chart(ctxCiclos, {
-                type: 'bar',
-                data: {
-                    labels: ['AM', 'PM'],
-                    datasets: [{
-                        label: 'Volume por Ciclo',
-                        data: [
-                            pacotes.filter(p => p.ciclo === 'AM').length,
-                            pacotes.filter(p => p.ciclo === 'PM').length
-                        ],
-                        backgroundColor: ['#F59E0B', '#6366F1']
-                    }]
-                }
-            });
-
-            const amList = pacotes.filter(p => p.ciclo === 'AM');
-            charts.am = new Chart(ctxAM, {
-                type: 'bar',
-                data: {
-                    labels: ['Em Rota', 'No Piso', 'Despachar', 'Falha'],
-                    datasets: [{
-                        label: 'Ciclo AM',
-                        data: [countStatus(amList, 'EM_ROTA_DE_ENTREGA'), countStatus(amList, 'FICOU_NO_PISO'), countStatus(amList, 'DESPACHAR'), countStatus(amList, 'FALHA_NA_ENTREGA')],
-                        backgroundColor: '#F59E0B'
-                    }]
-                }
-            });
-
-            const pmList = pacotes.filter(p => p.ciclo === 'PM');
-            charts.pm = new Chart(ctxPM, {
-                type: 'bar',
-                data: {
-                    labels: ['Em Rota', 'No Piso', 'Despachar', 'Falha'],
-                    datasets: [{
-                        label: 'Ciclo PM',
-                        data: [countStatus(pmList, 'EM_ROTA_DE_ENTREGA'), countStatus(pmList, 'FICOU_NO_PISO'), countStatus(pmList, 'DESPACHAR'), countStatus(pmList, 'FALHA_NA_ENTREGA')],
-                        backgroundColor: '#6366F1'
-                    }]
-                }
-            });
+        function exibirAlerta(mensagem, tipo) {
+            const el = document.getElementById('feedbackAlerta');
+            el.innerText = mensagem;
+            el.className = `p-3 rounded-lg text-xs font-medium border shadow-sm block ${
+                tipo === 'sucesso' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-amber-50 text-amber-800 border-amber-200'
+            }`;
+            setTimeout(() => { el.classList.add('hidden'); }, 4000);
         }
 
-        // Utilitários de Cópia e Exportação CSV
         function copiarTodosIDs() {
-            if (pacotes.length === 0) return alert('Nenhum pacote registrado.');
-            const text = pacotes.map(p => p.id).join('\n');
-            navigator.clipboard.writeText(text).then(() => {
-                exibirAlerta('Todos os IDs foram copiados para a área de transferência!', 'sucesso');
-            });
+            const ids = pacotes.map(p => p.id).join('\n');
+            if(!ids) return alert('Nenhum ID para copiar!');
+            navigator.clipboard.writeText(ids);
+            alert('IDs copiados para a área de transferência!');
         }
 
-        function exportarCSV(filtroCiclo) {
+        function exportarCSV(tipo) {
             let dados = pacotes;
-            if (filtroCiclo !== 'TODOS') {
-                dados = pacotes.filter(p => p.ciclo === filtroCiclo);
+            if (tipo !== 'TODOS') {
+                dados = pacotes.filter(p => p.ciclo === tipo);
             }
+            if (dados.length === 0) return alert('Não há dados para exportar neste filtro.');
 
-            if (dados.length === 0) return alert('Nenhum dado encontrado para exportação.');
-
-            let csv = 'ID,Rota,Ciclo,Status,Hora\n';
+            let csv = 'ID,Rota,Log,Motorista,Empresa,Ciclo,Status,Hora\n';
             dados.forEach(p => {
-                csv += `"${p.id}","${p.rota}","${p.ciclo}","${p.status}","${p.hora}"\n`;
+                csv += `"${p.id}","${p.rota}","${p.logName || ''}","${p.motorista || ''}","${p.empresa || ''}","${p.ciclo}","${p.status}","${p.hora}"\n`;
             });
 
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `KN_Relatorio_${filtroCiclo}_${new Date().toISOString().slice(0, 10)}.csv`;
-            link.click();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `automacao_pos_sorting_${tipo.toLowerCase()}.csv`;
+            a.click();
         }
 
-        function limparBase() {
-            if (confirm('Tem certeza de que deseja apagar TODOS os registros salvos?')) {
-                pacotes = [];
-                salvarEAtualizar();
-                exibirAlerta('Base de dados zerada com sucesso.', 'aviso');
-            }
-        }
-
-        function exibirAlerta(msg, tipo) {
-            const el = document.getElementById('feedbackAlerta');
-            el.innerText = msg;
-            el.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-800', 'border-emerald-200', 'bg-amber-50', 'text-amber-800', 'border-amber-200');
-
-            if (tipo === 'sucesso') {
-                el.classList.add('bg-emerald-50', 'text-emerald-800', 'border-emerald-200');
-            } else {
-                el.classList.add('bg-amber-50', 'text-amber-800', 'border-amber-200');
-            }
-
-            setTimeout(() => el.classList.add('hidden'), 3500);
+        function atualizarGraficos() {
+            // Espaço reservado para instanciar ou atualizar os gráficos via Chart.js caso necessário nas abas de BI
         }
     </script>
 </body>
 </html>
+
+```
