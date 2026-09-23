@@ -1,6 +1,3 @@
-
-
-Kn pos sorting · HTML
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -31,8 +28,17 @@ Kn pos sorting · HTML
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+        }
+        * { box-sizing: border-box; }
+    </style>
 </head>
-<body class="bg-kn-light flex h-screen overflow-hidden font-sans text-slate-800">
+<body class="bg-kn-light flex h-screen w-screen overflow-hidden font-sans text-slate-800">
  
     <!-- ================= SIDEBAR CORPORATIVA (KUEHNE+NAGEL) ================= -->
     <aside class="w-64 bg-kn-navy text-white flex flex-col justify-between z-20 shadow-xl flex-shrink-0">
@@ -64,6 +70,11 @@ Kn pos sorting · HTML
                 <button onclick="mudarAba('rotas')" id="btn-aba-rotas" class="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-white/5 text-slate-300 hover:text-white transition font-medium">
                     <i data-lucide="truck" class="w-4 h-4"></i>
                     <span>Resumo por Rota</span>
+                </button>
+ 
+                <button onclick="mudarAba('confronto')" id="btn-aba-confronto" class="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-white/5 text-slate-300 hover:text-white transition font-medium">
+                    <i data-lucide="git-compare-arrows" class="w-4 h-4"></i>
+                    <span>Confronto de Status</span>
                 </button>
  
                 <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider px-3 pb-1 pt-5">Business Intelligence</div>
@@ -317,6 +328,67 @@ Kn pos sorting · HTML
                 </div>
             </section>
  
+            <!-- ================= ABA CONFRONTO DE STATUS ================= -->
+            <section id="aba-confronto" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border space-y-4">
+                    <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                        <div class="flex items-center space-x-2">
+                            <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider">Confrontar Lista de IDs</h2>
+                        </div>
+                        <i data-lucide="git-compare-arrows" class="w-4 h-4 text-kn-navy"></i>
+                    </div>
+                    <p class="text-[11px] text-slate-500 leading-relaxed">Cole aqui uma lista de IDs (ex: exportação do AWS/Mercado Livre por status). O sistema vai comparar cada ID com os pacotes já bipados na ferramenta — todo pacote que já existir na base e aparecer nessa lista terá o status atualizado automaticamente para o status escolhido abaixo. IDs que não estiverem na base são ignorados.</p>
+ 
+                    <div>
+                        <label class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Lista de IDs (um por linha)</label>
+                        <textarea id="confrontoInput" rows="12" placeholder="Cole aqui a lista de IDs...&#10;Ex:&#10;47942778375&#10;47983610289&#10;48018857580" class="w-full p-3 border border-slate-300 rounded-lg font-mono text-xs mt-1 focus:ring-2 focus:ring-kn-navy focus:outline-none bg-slate-50/50 resize-none"></textarea>
+                    </div>
+ 
+                    <div>
+                        <label class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Status a Aplicar nos Encontrados</label>
+                        <select id="confrontoStatus" class="w-full p-2.5 border border-slate-300 rounded-lg text-xs mt-1 bg-white font-bold text-kn-navy focus:outline-none focus:border-kn-navy">
+                            <option value="DESPACHAR">DESPACHAR</option>
+                            <option value="EM_ROTA_DE_ENTREGA">EM ROTA DE ENTREGA</option>
+                            <option value="FICOU_NO_PISO">FICOU NO PISO</option>
+                            <option value="ENTREGUE">ENTREGUE</option>
+                            <option value="FALHA_NA_ENTREGA">FALHA NA ENTREGA</option>
+                            <option value="SOLUCAO_DE_PROBLEMA">SOLUÇÃO DE PROBLEMA</option>
+                            <option value="NULO">NULO</option>
+                        </select>
+                    </div>
+ 
+                    <div id="feedbackConfronto" class="hidden p-3 rounded-lg text-xs font-medium border transition-all shadow-sm"></div>
+ 
+                    <button onclick="confrontarStatus()" class="w-full bg-kn-navy hover:bg-kn-blue text-white p-2.5 rounded-lg text-xs font-bold transition shadow-sm flex items-center justify-center space-x-2">
+                        <i data-lucide="git-compare-arrows" class="w-4 h-4"></i>
+                        <span>Confrontar com a Base Atual</span>
+                    </button>
+                </div>
+ 
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border space-y-4">
+                    <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                        <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider">Resultado do Último Confronto</h2>
+                        <i data-lucide="list-checks" class="w-4 h-4 text-kn-navy"></i>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-center">
+                            <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">Encontrados e Atualizados</span>
+                            <div id="confrontoEncontrados" class="text-2xl font-black text-emerald-700 mt-1">0</div>
+                        </div>
+                        <div class="bg-slate-50 border border-slate-200 rounded-lg p-4 text-center">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Não Encontrados na Base</span>
+                            <div id="confrontoNaoEncontrados" class="text-2xl font-black text-slate-500 mt-1">0</div>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">IDs Atualizados</span>
+                        <div id="listaConfrontoEncontrados" class="mt-1 max-h-64 overflow-y-auto font-mono text-xs bg-slate-50 border border-slate-200 rounded-lg p-3 space-y-1 text-slate-600">
+                            <span class="text-slate-400">Nenhum confronto realizado ainda.</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+ 
             <!-- ================= ABAS BI / GRÁFICOS ================= -->
             <section id="aba-graficos-geral" class="hidden space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -560,9 +632,54 @@ Kn pos sorting · HTML
             salvarEAtualizar();
         }
  
+        // Confronto de Status: cruza uma lista colada de IDs com a base atual
+        function confrontarStatus() {
+            const texto = document.getElementById('confrontoInput').value;
+            const statusEscolhido = document.getElementById('confrontoStatus').value;
+            if (!texto.trim()) return;
+ 
+            const linhas = texto.split('\n');
+            const agora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            let encontrados = [];
+            let naoEncontrados = 0;
+ 
+            linhas.forEach(linha => {
+                const match = linha.trim().match(/(MLB\d+|\d{6,})/i);
+                if (!match) return;
+                const id = match[0].toUpperCase();
+                const idx = pacotes.findIndex(p => p.id === id);
+                if (idx !== -1) {
+                    pacotes[idx].status = statusEscolhido;
+                    pacotes[idx].hora = agora;
+                    encontrados.push(id);
+                } else {
+                    naoEncontrados++;
+                }
+            });
+ 
+            document.getElementById('confrontoEncontrados').innerText = encontrados.length;
+            document.getElementById('confrontoNaoEncontrados').innerText = naoEncontrados;
+ 
+            const listaDiv = document.getElementById('listaConfrontoEncontrados');
+            if (encontrados.length > 0) {
+                listaDiv.innerHTML = encontrados.map(id => `<div>${id}</div>`).join('');
+            } else {
+                listaDiv.innerHTML = '<span class="text-slate-400">Nenhum ID da lista foi encontrado na base atual.</span>';
+            }
+ 
+            document.getElementById('confrontoInput').value = '';
+ 
+            if (encontrados.length > 0) {
+                exibirAlerta(`${encontrados.length} pacotes atualizados para ${statusEscolhido.replace(/_/g, ' ')}. ${naoEncontrados} não estavam na base.`, 'sucesso', 'feedbackConfronto');
+                salvarEAtualizar();
+            } else {
+                exibirAlerta(`Nenhum ID da lista foi encontrado na base atual (${naoEncontrados} ignorados).`, 'aviso', 'feedbackConfronto');
+            }
+        }
+ 
         // Utilitários e Atualizações da Interface
-        function exibirAlerta(msg, tipo) {
-            const alerta = document.getElementById('feedbackAlerta');
+        function exibirAlerta(msg, tipo, elementId) {
+            const alerta = document.getElementById(elementId || 'feedbackAlerta');
             alerta.innerText = msg;
             
             alerta.className = 'p-3 rounded-lg text-xs font-medium border transition-all shadow-sm';
@@ -764,7 +881,7 @@ Kn pos sorting · HTML
  
         // Navegação de Abas
         function mudarAba(abaDestino) {
-            const abas = ['operacao', 'rotas', 'graficos-geral', 'graficos-am', 'graficos-pm'];
+            const abas = ['operacao', 'rotas', 'confronto', 'graficos-geral', 'graficos-am', 'graficos-pm'];
             
             abas.forEach(aba => {
                 const section = document.getElementById(`aba-${aba}`);
@@ -885,3 +1002,7 @@ Kn pos sorting · HTML
 </body>
 </html>
  
+
+
+
+
