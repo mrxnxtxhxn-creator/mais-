@@ -427,11 +427,14 @@
             atualizarKPIs();
             renderizarResumoRotas();
             
-            document.getElementById('barcodeInput').addEventListener('keypress', function(e) {
+            document.getElementById('barcodeInput').addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
-                    processarBip(this.value.trim());
-                    this.value = '';
+                    const val = this.value.trim();
+                    if (val) {
+                        processarBip(val);
+                        this.value = '';
+                    }
                 }
             });
         });
@@ -449,8 +452,7 @@
             const ciclo = document.getElementById('selectCiclo').value;
             const rota = document.getElementById('atribuicaoInput').value.trim() || 'Sem Rota';
             
-            // Procura utilizando o ID exato
-            const index = pacotes.findIndex(p => p.id === codigo);
+            const index = pacotes.findIndex(p => p.id.toUpperCase() === codigo.toUpperCase());
             const agora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
             if (index === -1) {
@@ -502,7 +504,7 @@
                         status = 'ENTREGUE';
                     }
 
-                    const idx = pacotes.findIndex(p => p.id === id);
+                    const idx = pacotes.findIndex(p => p.id.toUpperCase() === id);
                     const cicloAtual = document.getElementById('selectCiclo').value;
                     const rotaAtual = document.getElementById('atribuicaoInput').value.trim() || 'ML Import';
 
@@ -536,7 +538,7 @@
 
             let alterados = 0;
             ids.forEach(id => {
-                const idx = pacotes.findIndex(p => p.id === id);
+                const idx = pacotes.findIndex(p => p.id.toUpperCase() === id.toUpperCase());
                 if (idx !== -1) {
                     pacotes[idx].status = 'FICOU_NO_PISO';
                     alterados++;
@@ -584,7 +586,6 @@
             }
 
             filtrados.forEach((p) => {
-                // Encontra o índice real no array global "pacotes" com base no id único
                 const realIndex = pacotes.findIndex(item => item.id === p.id);
                 
                 let badgeStatus = '';
@@ -642,6 +643,8 @@
 
         function salvarEdicaoManual() {
             const index = document.getElementById('editIndex').value;
+            if (index === "" || !pacotes[index]) return;
+
             pacotes[index].rota = document.getElementById('editRota').value.trim() || 'Sem Rota';
             pacotes[index].ciclo = document.getElementById('editCiclo').value;
             pacotes[index].status = document.getElementById('editStatus').value;
