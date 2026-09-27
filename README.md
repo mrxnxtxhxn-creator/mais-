@@ -85,7 +85,7 @@
         <div class="p-4 border-t border-white/10 text-[11px] text-slate-300 text-center flex flex-col items-center justify-center space-y-1 bg-[#002850]">
             <i data-lucide="code-2" class="w-4 h-4 text-sky-400 mb-0.5"></i>
             <span class="font-semibold tracking-wide text-white">Desenvolvido por Nathan</span>
-            <span class="text-[9px] text-slate-400">Logistics Systems v2.6</span>
+            <span class="text-[9px] text-slate-400">Logistics Systems v2.7</span>
         </div>
     </aside>
 
@@ -293,7 +293,10 @@
 
             <!-- ================= ABA 2: RESUMO POR ROTA ================= -->
             <section id="aba-rotas" class="hidden bg-white p-6 rounded-xl shadow-sm border border-kn-border space-y-4">
-                <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider border-b pb-3">Resumo Agrupado por Rota</h2>
+                <div class="flex justify-between items-center border-b pb-3">
+                    <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider">Resumo Agrupado por Rota</h2>
+                    <span class="text-xs text-slate-400">Clique na rota ou no botão para detalhes/download</span>
+                </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs">
                         <thead class="bg-slate-100 text-slate-600 font-bold uppercase border-b border-slate-200">
@@ -304,6 +307,7 @@
                                 <th class="p-3">Entregue</th>
                                 <th class="p-3">Despachar</th>
                                 <th class="p-3">Falha</th>
+                                <th class="p-3 text-right">Ações</th>
                             </tr>
                         </thead>
                         <tbody id="tabelaRotas" class="divide-y divide-slate-100 font-mono">
@@ -340,7 +344,50 @@
         </div>
     </main>
 
-    <!-- ================= MODAL DE EDIÇÃO MANUAL (CICLO, ROTA E STATUS) ================= -->
+    <!-- ================= MODAL DE DETALHES DA ROTA ================= -->
+    <div id="modalRota" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-6 space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="truck" class="w-5 h-5 text-kn-navy"></i>
+                    <h3 id="modalRotaTitulo" class="text-sm font-bold text-kn-navy uppercase tracking-wider">IDs da Rota</h3>
+                </div>
+                <button onclick="fecharModalRota()" class="text-slate-400 hover:text-slate-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-xs">
+                <span id="modalRotaContador" class="font-bold text-slate-700">0 Pacotes encontrados</span>
+                <button onclick="copiarIDsModalRota()" class="bg-kn-navy hover:bg-kn-blue text-white px-3 py-1.5 rounded font-semibold flex items-center space-x-1.5 transition">
+                    <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                    <span>Copiar Lista de IDs</span>
+                </button>
+            </div>
+
+            <div class="max-h-80 overflow-y-auto border border-slate-200 rounded-lg">
+                <table class="w-full text-left text-xs font-mono">
+                    <thead class="bg-slate-100 text-slate-600 uppercase border-b sticky top-0">
+                        <tr>
+                            <th class="p-2.5">ID do Pacote</th>
+                            <th class="p-2.5">Ciclo</th>
+                            <th class="p-2.5">Status</th>
+                            <th class="p-2.5">Hora</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modalRotaTabela" class="divide-y divide-slate-100">
+                        <!-- Preenchido via JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="flex justify-end pt-2">
+                <button onclick="fecharModalRota()" class="px-4 py-2 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-lg text-xs font-semibold transition">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODAL DE EDIÇÃO MANUAL ================= -->
     <div id="modalEditar" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 space-y-4">
             <div class="flex justify-between items-center border-b pb-3">
@@ -401,6 +448,7 @@
         // Estado Global
         let pacotes = JSON.parse(localStorage.getItem('kn_pacotes')) || [];
         let charts = {};
+        let rotaSelecionadaIDs = [];
 
         // Inicialização
         document.addEventListener('DOMContentLoaded', () => {
@@ -418,7 +466,6 @@
             });
         });
 
-        // Alternância de Ciclo Badge
         function atualizarCicloBadge() {
             const ciclo = document.getElementById('selectCiclo').value;
             const badge = document.getElementById('badge-ciclo');
@@ -426,7 +473,6 @@
             badge.className = `text-[10px] ${ciclo === 'AM' ? 'bg-amber-500' : 'bg-indigo-600'} text-white px-2.5 py-1 rounded font-mono font-bold shadow-sm`;
         }
 
-        // Lógica de Leitura por Bip
         function processarBip(codigo) {
             if (!codigo) return;
 
@@ -437,7 +483,6 @@
             const agora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
             if (index === -1) {
-                // 1º Bipe: Em Rota
                 pacotes.unshift({
                     id: codigo,
                     rota: rota,
@@ -448,7 +493,6 @@
                 });
                 exibirAlerta(`Pacote ${codigo} adicionado: EM ROTA`, 'sucesso');
             } else {
-                // 2º Bipe: Entregue
                 pacotes[index].status = 'ENTREGUE';
                 pacotes[index].bips += 1;
                 pacotes[index].hora = agora;
@@ -459,7 +503,6 @@
             salvarEAtualizar();
         }
 
-        // Processar Texto/Print do ML
         function processarPrintMercadoLivre() {
             const texto = document.getElementById('mlTextInput').value;
             if (!texto.trim()) return;
@@ -506,7 +549,6 @@
             salvarEAtualizar();
         }
 
-        // Processar Massa Entregue
         function processarMassaEntregue() {
             const idsText = document.getElementById('bulkInput').value;
             if (!idsText.trim()) return;
@@ -540,7 +582,6 @@
             salvarEAtualizar();
         }
 
-        // Utilitários e Atualizações da Interface
         function exibirAlerta(msg, tipo) {
             const alerta = document.getElementById('feedbackAlerta');
             alerta.innerText = msg;
@@ -640,19 +681,96 @@
                 if (p.status === 'FALHA_NA_ENTREGA') agrupamento[p.rota].falha++;
             });
 
-            Object.keys(agrupamento).sort().forEach(rota => {
+            const rotasChaves = Object.keys(agrupamento).sort();
+
+            if (rotasChaves.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-400 font-sans">Nenhum pacote registado nas rotas.</td></tr>`;
+                return;
+            }
+
+            rotasChaves.forEach(rota => {
                 const d = agrupamento[rota];
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 transition border-b border-slate-100">
-                        <td class="p-3 font-bold text-kn-navy">${rota}</td>
+                        <td class="p-3 font-bold text-kn-navy">
+                            <button onclick="verIDsRota('${rota.replace(/'/g, "\\'")}')" class="hover:underline flex items-center space-x-1.5 text-left text-kn-blue">
+                                <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                                <span>${rota}</span>
+                            </button>
+                        </td>
                         <td class="p-3 font-semibold">${d.total}</td>
                         <td class="p-3 text-emerald-600 font-semibold">${d.emRota}</td>
                         <td class="p-3 text-green-700 font-semibold">${d.entregue}</td>
                         <td class="p-3 text-sky-600 font-semibold">${d.despachar}</td>
                         <td class="p-3 text-rose-600 font-semibold">${d.falha}</td>
+                        <td class="p-3 text-right">
+                            <button onclick="exportarCSVRota('${rota.replace(/'/g, "\\'")}')" title="Descarregar CSV da Rota" class="px-2 py-1 bg-sky-50 hover:bg-sky-100 text-sky-700 rounded border border-sky-200 text-xs font-semibold inline-flex items-center space-x-1 transition">
+                                <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                                <span>Baixar CSV</span>
+                            </button>
+                        </td>
                     </tr>
                 `;
             });
+            lucide.createIcons();
+        }
+
+        // Funções para Ver IDs da Rota (Modal)
+        function verIDsRota(nomeRota) {
+            const pacotesRota = pacotes.filter(p => p.rota === nomeRota);
+            rotaSelecionadaIDs = pacotesRota.map(p => p.id);
+
+            document.getElementById('modalRotaTitulo').innerText = `Pacotes na Rota: ${nomeRota}`;
+            document.getElementById('modalRotaContador').innerText = `${pacotesRota.length} Pacotes encontrados`;
+
+            const tbody = document.getElementById('modalRotaTabela');
+            tbody.innerHTML = '';
+
+            pacotesRota.forEach(p => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-2.5 font-bold text-kn-navy">${p.id}</td>
+                        <td class="p-2.5">${p.ciclo}</td>
+                        <td class="p-2.5">${p.status.replace(/_/g, ' ')}</td>
+                        <td class="p-2.5 text-slate-500">${p.hora}</td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('modalRota').classList.remove('hidden');
+            document.getElementById('modalRota').classList.add('flex');
+            lucide.createIcons();
+        }
+
+        function fecharModalRota() {
+            document.getElementById('modalRota').classList.add('hidden');
+            document.getElementById('modalRota').classList.remove('flex');
+        }
+
+        function copiarIDsModalRota() {
+            if (rotaSelecionadaIDs.length === 0) return;
+            const texto = rotaSelecionadaIDs.join('\n');
+            navigator.clipboard.writeText(texto).then(() => {
+                alert('IDs da rota copiados com sucesso!');
+            });
+        }
+
+        function exportarCSVRota(nomeRota) {
+            const dadosRota = pacotes.filter(p => p.rota === nomeRota);
+            if (dadosRota.length === 0) return;
+
+            let csvContent = "data:text/csv;charset=utf-8,ID,ROTA,CICLO,STATUS,HORA\n";
+            dadosRota.forEach(p => {
+                csvContent += `${p.id},${p.rota},${p.ciclo},${p.status},${p.hora}\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Rota_${nomeRota.replace(/[^a-z0-9]/gi, '_')}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         // Funções da Modal de Edição Manual
@@ -692,7 +810,7 @@
             }
         }
 
-        // Funções de Utilitários (CSV, Área de Transferência)
+        // Funções de Utilitários (CSV Geral, Área de Transferência)
         function copiarTodosIDs() {
             const ids = pacotes.map(p => p.id).join('\n');
             if(ids) {
