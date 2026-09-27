@@ -139,9 +139,9 @@
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Em Rota</span>
                     <div id="kpiEmRota" class="text-xl font-black text-emerald-600 mt-1">0</div>
                 </div>
-                <div class="bg-white p-4 rounded-xl shadow-sm border border-kn-border border-l-4 border-l-amber-500">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">No Piso</span>
-                    <div id="kpiPiso" class="text-xl font-black text-amber-600 mt-1">0</div>
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-kn-border border-l-4 border-l-green-600">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Entregue</span>
+                    <div id="kpiEntregue" class="text-xl font-black text-green-700 mt-1">0</div>
                 </div>
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-kn-border border-l-4 border-l-rose-500">
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Falha Entrega</span>
@@ -175,7 +175,7 @@
                             <div>
                                 <label class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Código de Barras</label>
                                 <input type="text" id="barcodeInput" autofocus placeholder="Aguardando leitura..." class="w-full p-3 border border-slate-300 rounded-lg font-mono text-sm focus:ring-2 focus:ring-kn-navy focus:border-kn-navy focus:outline-none bg-slate-50/50 mt-1">
-                                <span class="text-[11px] text-slate-400 mt-1.5 block leading-tight">⚡ 1º Bipe: Em Rota de Entrega | 2º Bipe: Ficou no Piso</span>
+                                <span class="text-[11px] text-slate-400 mt-1.5 block leading-tight">⚡ 1º Bipe: Em Rota de Entrega | 2º Bipe: Entregue</span>
                             </div>
 
                             <div class="grid grid-cols-2 gap-3 pt-3 border-t border-slate-100">
@@ -205,7 +205,7 @@
                         </div>
                         <div>
                             <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Cole o texto/print copiado do ML</label>
-                            <textarea id="mlTextInput" rows="4" placeholder="Cole aqui as linhas/tabela do Mercado Livre...&#10;Ex:&#10;MLB12345 - Despachar&#10;MLB98765 - Em rota de entrega" class="w-full p-3 border border-amber-300 rounded-lg font-mono text-xs mt-1 focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white resize-none"></textarea>
+                            <textarea id="mlTextInput" rows="4" placeholder="Cole aqui as linhas/tabela do Mercado Livre...&#10;Ex:&#10;MLB12345 - Despachar&#10;MLB98765 - Entregue" class="w-full p-3 border border-amber-300 rounded-lg font-mono text-xs mt-1 focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white resize-none"></textarea>
                         </div>
                         <button onclick="processarPrintMercadoLivre()" class="w-full bg-amber-600 hover:bg-amber-700 text-white p-2.5 rounded-lg text-xs font-bold transition shadow-sm flex items-center justify-center space-x-2">
                             <i data-lucide="refresh-cw" class="w-4 h-4"></i>
@@ -213,19 +213,19 @@
                         </button>
                     </div>
 
-                    <!-- Verificação em Massa (Piso) -->
+                    <!-- Verificação em Massa (Entregue) -->
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border space-y-4">
                         <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                            <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider">Marcador em Massa (No Piso)</h2>
+                            <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider">Marcador em Massa (Entregue)</h2>
                             <i data-lucide="layers" class="w-4 h-4 text-kn-navy"></i>
                         </div>
                         <div>
                             <label class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Cole os IDs (um por linha)</label>
                             <textarea id="bulkInput" rows="3" placeholder="Cole vários IDs aqui..." class="w-full p-3 border border-slate-300 rounded-lg font-mono text-xs mt-1 focus:ring-2 focus:ring-kn-navy focus:outline-none bg-slate-50/50 resize-none"></textarea>
                         </div>
-                        <button onclick="processarMassaPiso()" class="w-full bg-slate-700 hover:bg-slate-800 text-white p-2.5 rounded-lg text-xs font-bold transition shadow-sm flex items-center justify-center space-x-2">
+                        <button onclick="processarMassaEntregue()" class="w-full bg-slate-700 hover:bg-slate-800 text-white p-2.5 rounded-lg text-xs font-bold transition shadow-sm flex items-center justify-center space-x-2">
                             <i data-lucide="check-check" class="w-4 h-4"></i>
-                            <span>Marcar IDs no Piso em Massa</span>
+                            <span>Marcar IDs como Entregue em Massa</span>
                         </button>
                     </div>
                 </div>
@@ -255,7 +255,7 @@
                                 <option value="">Todos os Status</option>
                                 <option value="DESPACHAR">Despachar</option>
                                 <option value="EM_ROTA_DE_ENTREGA">Em Rota de Entrega</option>
-                                <option value="FICOU_NO_PISO">Ficou no Piso</option>
+                                <option value="ENTREGUE">Entregue</option>
                                 <option value="FALHA_NA_ENTREGA">Falha na Entrega</option>
                                 <option value="SOLUCAO_DE_PROBLEMA">Solução de Problema</option>
                                 <option value="NULO">Status Nulo</option>
@@ -301,7 +301,7 @@
                                 <th class="p-3">Rota</th>
                                 <th class="p-3">Total Pacotes</th>
                                 <th class="p-3">Em Rota</th>
-                                <th class="p-3">No Piso</th>
+                                <th class="p-3">Entregue</th>
                                 <th class="p-3">Despachar</th>
                                 <th class="p-3">Falha</th>
                             </tr>
@@ -378,7 +378,7 @@
                     <select id="editStatus" class="w-full p-2.5 border border-slate-300 rounded-lg text-xs mt-1 bg-white font-semibold text-slate-700 focus:ring-2 focus:ring-kn-navy focus:outline-none">
                         <option value="DESPACHAR">DESPACHAR</option>
                         <option value="EM_ROTA_DE_ENTREGA">EM ROTA DE ENTREGA</option>
-                        <option value="FICOU_NO_PISO">FICOU NO PISO</option>
+                        <option value="ENTREGUE">ENTREGUE</option>
                         <option value="FALHA_NA_ENTREGA">FALHA NA ENTREGA</option>
                         <option value="SOLUCAO_DE_PROBLEMA">SOLUÇÃO DE PROBLEMA</option>
                         <option value="NULO">NULO</option>
@@ -448,12 +448,12 @@
                 });
                 exibirAlerta(`Pacote ${codigo} adicionado: EM ROTA`, 'sucesso');
             } else {
-                // 2º Bipe: Ficou no piso
-                pacotes[index].status = 'FICOU_NO_PISO';
+                // 2º Bipe: Entregue
+                pacotes[index].status = 'ENTREGUE';
                 pacotes[index].bips += 1;
                 pacotes[index].hora = agora;
                 if(rota !== 'Sem Rota') pacotes[index].rota = rota;
-                exibirAlerta(`Pacote ${codigo} atualizado: FICOU NO PISO`, 'aviso');
+                exibirAlerta(`Pacote ${codigo} atualizado: ENTREGUE`, 'sucesso');
             }
 
             salvarEAtualizar();
@@ -475,8 +475,8 @@
 
                     if (linha.toLowerCase().includes('rota') || linha.toLowerCase().includes('caminho')) {
                         status = 'EM_ROTA_DE_ENTREGA';
-                    } else if (linha.toLowerCase().includes('piso') || linha.toLowerCase().includes('retido')) {
-                        status = 'FICOU_NO_PISO';
+                    } else if (linha.toLowerCase().includes('entregue') || linha.toLowerCase().includes('sucesso')) {
+                        status = 'ENTREGUE';
                     } else if (linha.toLowerCase().includes('falha') || linha.toLowerCase().includes('cancelado')) {
                         status = 'FALHA_NA_ENTREGA';
                     }
@@ -506,28 +506,28 @@
             salvarEAtualizar();
         }
 
-        // Processar Massa Piso
-        function processarMassaPiso() {
+        // Processar Massa Entregue
+        function processarMassaEntregue() {
             const idsText = document.getElementById('bulkInput').value;
             if (!idsText.trim()) return;
             
             const ids = idsText.split('\n').map(id => id.trim()).filter(id => id !== '');
             const ciclo = document.getElementById('selectCiclo').value;
-            const rota = document.getElementById('atribuicaoInput').value.trim() || 'No Piso';
+            const rota = document.getElementById('atribuicaoInput').value.trim() || 'Entregue';
             const agora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
             let atualizados = 0;
 
             ids.forEach(id => {
                 const idx = pacotes.findIndex(p => p.id === id);
                 if (idx !== -1) {
-                    pacotes[idx].status = 'FICOU_NO_PISO';
+                    pacotes[idx].status = 'ENTREGUE';
                     pacotes[idx].hora = agora;
                 } else {
                     pacotes.unshift({
                         id: id,
                         rota: rota,
                         ciclo: ciclo,
-                        status: 'FICOU_NO_PISO',
+                        status: 'ENTREGUE',
                         hora: agora,
                         bips: 1
                     });
@@ -536,7 +536,7 @@
             });
 
             document.getElementById('bulkInput').value = '';
-            exibirAlerta(`${atualizados} IDs marcados no piso em massa!`, 'aviso');
+            exibirAlerta(`${atualizados} IDs marcados como Entregue em massa!`, 'sucesso');
             salvarEAtualizar();
         }
 
@@ -587,7 +587,7 @@
                 
                 let corStatus = 'bg-slate-100 text-slate-600';
                 if (p.status === 'EM_ROTA_DE_ENTREGA') corStatus = 'bg-emerald-100 text-emerald-700';
-                else if (p.status === 'FICOU_NO_PISO') corStatus = 'bg-amber-100 text-amber-700';
+                else if (p.status === 'ENTREGUE') corStatus = 'bg-green-100 text-green-800 font-bold';
                 else if (p.status === 'DESPACHAR') corStatus = 'bg-sky-100 text-sky-700';
                 else if (p.status === 'FALHA_NA_ENTREGA') corStatus = 'bg-rose-100 text-rose-700';
                 else if (p.status === 'SOLUCAO_DE_PROBLEMA') corStatus = 'bg-purple-100 text-purple-700';
@@ -619,7 +619,7 @@
             document.getElementById('kpiTotal').innerText = pacotes.length;
             document.getElementById('kpiDespachar').innerText = pacotes.filter(p => p.status === 'DESPACHAR').length;
             document.getElementById('kpiEmRota').innerText = pacotes.filter(p => p.status === 'EM_ROTA_DE_ENTREGA').length;
-            document.getElementById('kpiPiso').innerText = pacotes.filter(p => p.status === 'FICOU_NO_PISO').length;
+            document.getElementById('kpiEntregue').innerText = pacotes.filter(p => p.status === 'ENTREGUE').length;
             document.getElementById('kpiFalha').innerText = pacotes.filter(p => p.status === 'FALHA_NA_ENTREGA').length;
             document.getElementById('kpiSolucao').innerText = pacotes.filter(p => p.status === 'SOLUCAO_DE_PROBLEMA').length;
         }
@@ -631,11 +631,11 @@
             const agrupamento = {};
             pacotes.forEach(p => {
                 if (!agrupamento[p.rota]) {
-                    agrupamento[p.rota] = { total: 0, emRota: 0, noPiso: 0, despachar: 0, falha: 0 };
+                    agrupamento[p.rota] = { total: 0, emRota: 0, entregue: 0, despachar: 0, falha: 0 };
                 }
                 agrupamento[p.rota].total++;
                 if (p.status === 'EM_ROTA_DE_ENTREGA') agrupamento[p.rota].emRota++;
-                if (p.status === 'FICOU_NO_PISO') agrupamento[p.rota].noPiso++;
+                if (p.status === 'ENTREGUE') agrupamento[p.rota].entregue++;
                 if (p.status === 'DESPACHAR') agrupamento[p.rota].despachar++;
                 if (p.status === 'FALHA_NA_ENTREGA') agrupamento[p.rota].falha++;
             });
@@ -647,7 +647,7 @@
                         <td class="p-3 font-bold text-kn-navy">${rota}</td>
                         <td class="p-3 font-semibold">${d.total}</td>
                         <td class="p-3 text-emerald-600 font-semibold">${d.emRota}</td>
-                        <td class="p-3 text-amber-600 font-semibold">${d.noPiso}</td>
+                        <td class="p-3 text-green-700 font-semibold">${d.entregue}</td>
                         <td class="p-3 text-sky-600 font-semibold">${d.despachar}</td>
                         <td class="p-3 text-rose-600 font-semibold">${d.falha}</td>
                     </tr>
@@ -777,7 +777,7 @@
             const calcularDados = (lista) => [
                 lista.filter(p => p.status === 'DESPACHAR').length,
                 lista.filter(p => p.status === 'EM_ROTA_DE_ENTREGA').length,
-                lista.filter(p => p.status === 'FICOU_NO_PISO').length,
+                lista.filter(p => p.status === 'ENTREGUE').length,
                 lista.filter(p => p.status === 'FALHA_NA_ENTREGA').length,
                 lista.filter(p => p.status === 'SOLUCAO_DE_PROBLEMA').length
             ];
@@ -785,8 +785,8 @@
             const pacotesAM = pacotes.filter(p => p.ciclo === 'AM');
             const pacotesPM = pacotes.filter(p => p.ciclo === 'PM');
             
-            const labelsStatus = ['Despachar', 'Em Rota', 'No Piso', 'Falha', 'Solução Prob.'];
-            const coresStatus = ['#0284c7', '#10b981', '#f59e0b', '#e11d48', '#9333ea'];
+            const labelsStatus = ['Despachar', 'Em Rota', 'Entregue', 'Falha', 'Solução Prob.'];
+            const coresStatus = ['#0284c7', '#10b981', '#15803d', '#e11d48', '#9333ea'];
 
             const ctxGeral = document.getElementById('chartGeralStatus').getContext('2d');
             charts.geralStatus = new Chart(ctxGeral, {
