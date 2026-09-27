@@ -10,88 +10,94 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- SheetJS (Excel Parser) & PapaParse (CSV) -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     body { font-family: 'Inter', sans-serif; }
+    .sidebar-detail-transition { transition: transform 0.3s ease-in-out, margin-right 0.3s ease-in-out; }
   </style>
 </head>
 <body class="bg-slate-100 text-slate-800 flex h-screen overflow-hidden">
 
-  <!-- SIDEBAR (Navegação Esquerda) -->
-  <aside class="w-64 bg-slate-900 text-white flex flex-col justify-between shrink-0">
+  <!-- SIDEBAR ESQUERDA (Navegação Geral) -->
+  <aside class="w-64 bg-slate-900 text-white flex flex-col justify-between shrink-0 z-20">
     <div>
-      <!-- Header Logos -->
       <div class="p-4 border-b border-slate-800 flex items-center justify-between">
         <div class="bg-yellow-400 text-slate-900 px-2 py-1 rounded font-bold text-xs">Mercado Livre</div>
         <span class="text-xs text-slate-400 font-semibold tracking-wider">KUEHNE+NAGEL</span>
       </div>
 
-      <!-- Menu Navigation -->
-      <nav class="mt-4 px-2 space-y-1">
-        <a href="#" class="flex items-center gap-3 px-3 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium">
+      <!-- Links de Navegação com Troca de Ecrã -->
+      <nav class="mt-4 px-2 space-y-1" id="mainNav">
+        <button onclick="navegarPara('dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-3 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium transition">
           <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
-        </a>
-        <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg text-sm font-medium transition">
+        </button>
+        <button onclick="navegarPara('consultar')" id="nav-consultar" class="w-full flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg text-sm font-medium transition">
           <i data-lucide="search" class="w-5 h-5"></i> Consultar ID
-        </a>
-        <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg text-sm font-medium transition">
+        </button>
+        <button onclick="navegarPara('reatribuicao')" id="nav-reatribuicao" class="w-full flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg text-sm font-medium transition">
           <i data-lucide="arrow-left-right" class="w-5 h-5"></i> Reatribuição
-        </a>
-        <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg text-sm font-medium transition">
+        </button>
+        <button onclick="navegarPara('problemsolving')" id="nav-problemsolving" class="w-full flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg text-sm font-medium transition">
           <i data-lucide="alert-triangle" class="w-5 h-5"></i> Problem Solving
-        </a>
-        <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg text-sm font-medium transition">
+        </button>
+        <button onclick="navegarPara('performance')" id="nav-performance" class="w-full flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg text-sm font-medium transition">
           <i data-lucide="bar-chart-2" class="w-5 h-5"></i> Performance
-        </a>
-        <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg text-sm font-medium transition">
+        </button>
+        <button onclick="navegarPara('historico')" id="nav-historico" class="w-full flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg text-sm font-medium transition">
           <i data-lucide="history" class="w-5 h-5"></i> Histórico
-        </a>
-        <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg text-sm font-medium transition">
+        </button>
+        <button onclick="navegarPara('configuracoes')" id="nav-configuracoes" class="w-full flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg text-sm font-medium transition">
           <i data-lucide="settings" class="w-5 h-5"></i> Configurações
-        </a>
+        </button>
       </nav>
     </div>
 
-    <!-- Sidebar Footer -->
     <div class="p-4 border-t border-slate-800 text-xs text-slate-400 space-y-1">
       <p class="font-bold text-slate-300">Juntos</p>
       <p>entregamos um amanhã melhor.</p>
     </div>
   </aside>
 
-  <!-- PAINEL PRINCIPAL + SIDEBAR DIREITA -->
+  <!-- ÁREA CENTRAL DE CONTEÚDO -->
   <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
 
     <!-- HEADER SUPERIOR -->
     <header class="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between shrink-0">
       <div>
-        <h1 class="text-xl font-bold text-slate-900">Central de Reatribuição</h1>
-        <p class="text-xs text-slate-500">Gestão operacional de pacotes</p>
+        <h1 class="text-xl font-bold text-slate-900" id="headerTitle">Central de Reatribuição</h1>
+        <p class="text-xs text-slate-500" id="headerSub">Gestão operacional de pacotes</p>
       </div>
 
       <div class="flex items-center gap-4 text-xs text-slate-500">
+        <!-- Importador de Planilha CSV/XLSX -->
+        <label class="flex items-center gap-1.5 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg border border-blue-200 font-semibold cursor-pointer hover:bg-blue-100 transition">
+          <i data-lucide="file-up" class="w-4 h-4"></i> Carregar Planilha
+          <input type="file" id="fileInput" accept=".csv, .xlsx, .xls" class="hidden" onchange="carregarPlanilha(event)">
+        </label>
+
         <div class="flex items-center gap-1.5">
-          <i data-lucide="rotate-cw" class="w-4 h-4 cursor-pointer hover:text-slate-700" onclick="window.location.reload()"></i>
-          <span>Atualizado em: <strong class="text-slate-700" id="lastUpdate">05/09/2026 15:42</strong></span>
+          <i data-lucide="rotate-cw" class="w-4 h-4 cursor-pointer hover:text-slate-700" onclick="resetarDados()"></i>
+          <span>Atualizado: <strong class="text-slate-700" id="lastUpdate">Agora</strong></span>
         </div>
-        <button class="p-1 hover:bg-slate-100 rounded-lg"><i data-lucide="sliders-horizontal" class="w-4 h-4"></i></button>
-        <button class="p-1 hover:bg-slate-100 rounded-lg"><i data-lucide="x" class="w-4 h-4"></i></button>
       </div>
     </header>
 
-    <!-- CONTEÚDO (DASHBOARD + DETALHES) -->
-    <div class="flex-1 flex overflow-hidden">
-      
-      <!-- DASHBOARD CENTRAL -->
-      <main class="flex-1 p-6 overflow-y-auto space-y-6">
+    <!-- ÁREA DE ECRÃS VARIÁVEIS -->
+    <div class="flex-1 flex overflow-hidden relative">
 
-        <!-- BUSCA GERAL -->
+      <!-- SECÇÃO: DASHBOARD (PADRÃO) -->
+      <main id="screen-dashboard" class="view-screen flex-1 p-6 overflow-y-auto space-y-6">
+
+        <!-- BUSCA RÁPIDA -->
         <div class="flex gap-2">
           <div class="relative flex-1">
             <i data-lucide="search" class="w-5 h-5 absolute left-3 top-2.5 text-slate-400"></i>
-            <input type="text" id="searchInput" onkeyup="filtrarTabela()" placeholder="Digite um ID, rota, bairro, cidade ou placa..." class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+            <input type="text" id="searchInput" onkeyup="aplicarFiltros()" placeholder="Digite um ID, rota, bairro, cidade..." class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
           </div>
-          <button onclick="filtrarTabela()" class="px-6 py-2 bg-slate-900 text-white rounded-lg text-sm font-semibold hover:bg-slate-800 transition">Consultar</button>
+          <button onclick="aplicarFiltros()" class="px-6 py-2 bg-slate-900 text-white rounded-lg text-sm font-semibold hover:bg-slate-800 transition">Consultar</button>
         </div>
 
         <!-- CARDS DE MÉTRICAS (KPIs) -->
@@ -100,8 +106,7 @@
             <div class="p-3 bg-blue-50 text-blue-600 rounded-lg"><i data-lucide="box" class="w-6 h-6"></i></div>
             <div>
               <p class="text-xs font-semibold text-slate-500">Total de IDs</p>
-              <h3 class="text-xl font-bold text-slate-900">4.093</h3>
-              <span class="text-[10px] text-slate-400">100%</span>
+              <h3 class="text-xl font-bold text-slate-900" id="kpiTotal">0</h3>
             </div>
           </div>
 
@@ -109,8 +114,7 @@
             <div class="p-3 bg-amber-50 text-amber-600 rounded-lg"><i data-lucide="alert-circle" class="w-6 h-6"></i></div>
             <div>
               <p class="text-xs font-semibold text-slate-500">Pendentes</p>
-              <h3 class="text-xl font-bold text-amber-600">820</h3>
-              <span class="text-[10px] text-amber-500 font-medium">20,0%</span>
+              <h3 class="text-xl font-bold text-amber-600" id="kpiPendentes">0</h3>
             </div>
           </div>
 
@@ -118,8 +122,7 @@
             <div class="p-3 bg-red-50 text-red-600 rounded-lg"><i data-lucide="alert-octagon" class="w-6 h-6"></i></div>
             <div>
               <p class="text-xs font-semibold text-slate-500">Problem Solving</p>
-              <h3 class="text-xl font-bold text-red-600">147</h3>
-              <span class="text-[10px] text-red-500 font-medium">3,6%</span>
+              <h3 class="text-xl font-bold text-red-600" id="kpiPS">0</h3>
             </div>
           </div>
 
@@ -127,39 +130,34 @@
             <div class="p-3 bg-indigo-50 text-indigo-600 rounded-lg"><i data-lucide="truck" class="w-6 h-6"></i></div>
             <div>
               <p class="text-xs font-semibold text-slate-500">Rotas</p>
-              <h3 class="text-xl font-bold text-slate-900">126</h3>
-              <span class="text-[10px] text-slate-400">-</span>
+              <h3 class="text-xl font-bold text-slate-900" id="kpiRotas">0</h3>
             </div>
           </div>
 
           <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3">
             <div class="p-3 bg-emerald-50 text-emerald-600 rounded-lg"><i data-lucide="check-circle" class="w-6 h-6"></i></div>
             <div>
-              <p class="text-xs font-semibold text-slate-500">Reatribuições</p>
-              <h3 class="text-xl font-bold text-emerald-600">3.126</h3>
-              <span class="text-[10px] text-emerald-500 font-medium">76,4%</span>
+              <p class="text-xs font-semibold text-slate-500">At Station / Concluídos</p>
+              <h3 class="text-xl font-bold text-emerald-600" id="kpiConcluidos">0</h3>
             </div>
           </div>
         </div>
 
-        <!-- FILTROS MÚLTIPLOS -->
+        <!-- FILTROS MÚLTIPLOS DINÂMICOS -->
         <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
           <div class="flex items-center gap-2 text-xs font-semibold text-slate-600">
             <i data-lucide="filter" class="w-4 h-4"></i> Filtros
           </div>
 
-          <div class="grid grid-cols-5 gap-3">
-            <select class="border border-slate-200 rounded-lg p-2 text-xs text-slate-600 bg-slate-50 focus:bg-white"><option>Data: Todos</option></select>
-            <select class="border border-slate-200 rounded-lg p-2 text-xs text-slate-600 bg-slate-50 focus:bg-white"><option>Ciclo: Todos</option></select>
-            <select class="border border-slate-200 rounded-lg p-2 text-xs text-slate-600 bg-slate-50 focus:bg-white"><option>Cluster: Todos</option></select>
-            <select class="border border-slate-200 rounded-lg p-2 text-xs text-slate-600 bg-slate-50 focus:bg-white"><option>Status: Todos</option></select>
-            <select class="border border-slate-200 rounded-lg p-2 text-xs text-slate-600 bg-slate-50 focus:bg-white"><option>Promessa: Todos</option></select>
-            <select class="border border-slate-200 rounded-lg p-2 text-xs text-slate-600 bg-slate-50 focus:bg-white"><option>Cidade: Todos</option></select>
-            <select class="border border-slate-200 rounded-lg p-2 text-xs text-slate-600 bg-slate-50 focus:bg-white"><option>Bairro: Todos</option></select>
-            <select class="border border-slate-200 rounded-lg p-2 text-xs text-slate-600 bg-slate-50 focus:bg-white"><option>Transportadora: Todos</option></select>
-            <select class="border border-slate-200 rounded-lg p-2 text-xs text-slate-600 bg-slate-50 focus:bg-white"><option>Rota: Todos</option></select>
-            
-            <button onclick="limparFiltros()" class="flex items-center justify-center gap-2 border border-slate-300 text-slate-700 rounded-lg p-2 text-xs font-medium hover:bg-slate-50 transition">
+          <div class="grid grid-cols-5 gap-3" id="filterContainer">
+            <select id="filterCidade" onchange="aplicarFiltros()" class="border border-slate-200 rounded-lg p-2 text-xs text-slate-600 bg-slate-50"><option value="">Cidade: Todas</option></select>
+            <select id="filterBairro" onchange="aplicarFiltros()" class="border border-slate-200 rounded-lg p-2 text-xs text-slate-600 bg-slate-50"><option value="">Bairro: Todos</option></select>
+            <select id="filterCluster" onchange="aplicarFiltros()" class="border border-slate-200 rounded-lg p-2 text-xs text-slate-600 bg-slate-50"><option value="">Cluster: Todos</option></select>
+            <select id="filterStatus" onchange="aplicarFiltros()" class="border border-slate-200 rounded-lg p-2 text-xs text-slate-600 bg-slate-50"><option value="">Status: Todos</option></select>
+            <select id="filterRota" onchange="aplicarFiltros()" class="border border-slate-200 rounded-lg p-2 text-xs text-slate-600 bg-slate-50"><option value="">Rota: Todas</option></select>
+          </div>
+          <div class="flex justify-end">
+            <button onclick="limparFiltros()" class="flex items-center gap-2 border border-slate-300 text-slate-700 rounded-lg px-3 py-1.5 text-xs font-medium hover:bg-slate-50 transition">
               <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Limpar filtros
             </button>
           </div>
@@ -169,23 +167,17 @@
         <div class="grid grid-cols-3 gap-4">
           <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
             <h4 class="text-xs font-bold text-slate-700 mb-3">Pacotes por Cluster</h4>
-            <div class="h-44">
-              <canvas id="barClusterChart"></canvas>
-            </div>
-          </div>
-
-          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
-            <h4 class="text-xs font-bold text-slate-700 mb-1">Status dos Pacotes</h4>
-            <div class="h-44 relative flex items-center justify-center">
-              <canvas id="donutStatusChart"></canvas>
-            </div>
+            <div class="h-44"><canvas id="barClusterChart"></canvas></div>
           </div>
 
           <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-            <h4 class="text-xs font-bold text-slate-700 mb-3">Promessa x Quantidade</h4>
-            <div class="h-44">
-              <canvas id="linePromessaChart"></canvas>
-            </div>
+            <h4 class="text-xs font-bold text-slate-700 mb-1">Status dos Pacotes</h4>
+            <div class="h-44 relative"><canvas id="donutStatusChart"></canvas></div>
+          </div>
+
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <h4 class="text-xs font-bold text-slate-700 mb-3">Distribuição por Rota</h4>
+            <div class="h-44"><canvas id="linePromessaChart"></canvas></div>
           </div>
         </div>
 
@@ -194,19 +186,18 @@
           <div class="p-4 border-b border-slate-100 flex items-center justify-between">
             <div class="flex items-center gap-3">
               <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-                <i data-lucide="boxes" class="w-4 h-4 text-blue-600"></i> Pacotes para Reatribuição
+                <i data-lucide="boxes" class="w-4 h-4 text-blue-600"></i> Pacotes em Exibição
               </h3>
-              <span class="bg-blue-100 text-blue-700 text-xs font-semibold px-2.5 py-0.5 rounded-full" id="countRegistros">820 registros</span>
+              <span class="bg-blue-100 text-blue-700 text-xs font-semibold px-2.5 py-0.5 rounded-full" id="countRegistros">0 registros</span>
             </div>
           </div>
 
-          <!-- Tabela com IDs Reais -->
           <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs border-collapse" id="pacotesTable">
+            <table class="w-full text-left text-xs border-collapse">
               <thead class="bg-slate-50 text-slate-500 border-b border-slate-200">
                 <tr>
-                  <th class="p-3"><input type="checkbox" class="rounded text-blue-600"></th>
-                  <th class="p-3">ID</th>
+                  <th class="p-3"><input type="checkbox" class="rounded"></th>
+                  <th class="p-3">ID Pacote</th>
                   <th class="p-3">Cidade</th>
                   <th class="p-3">Bairro</th>
                   <th class="p-3">Cluster</th>
@@ -217,159 +208,284 @@
                   <th class="p-3 text-center">Ações</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-100 text-slate-700 font-medium" id="tabelaCorpo">
-                <!-- Preenchido via JavaScript -->
-              </tbody>
+              <tbody class="divide-y divide-slate-100 text-slate-700 font-medium" id="tabelaCorpo"></tbody>
             </table>
-          </div>
-
-          <!-- Paginação -->
-          <div class="p-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
-            <div class="flex items-center gap-1">
-              <button class="px-2 py-1 border rounded bg-white">&lt;</button>
-              <button class="px-2 py-1 border rounded bg-blue-600 text-white font-bold">1</button>
-              <button class="px-2 py-1 border rounded bg-white">2</button>
-              <button class="px-2 py-1 border rounded bg-white">3</button>
-              <button class="px-2 py-1 border rounded bg-white">4</button>
-              <span>... 82</span>
-              <button class="px-2 py-1 border rounded bg-white">&gt;</button>
-            </div>
-            <span>Itens por página: <b>10</b></span>
           </div>
         </div>
 
       </main>
 
-      <!-- SIDEBAR DIREITA (DETALHE DO PACOTE SELECIONADO) -->
-      <aside class="w-80 bg-white border-l border-slate-200 p-4 flex flex-col justify-between shrink-0 overflow-y-auto space-y-4">
-        
+      <!-- SECÇÕES COMPLEMENTARES (MENU SECUNDÁRIO) -->
+      <main id="screen-consultar" class="view-screen hidden flex-1 p-6 overflow-y-auto space-y-4">
+        <h2 class="text-lg font-bold text-slate-800">Consulta Avançada de ID</h2>
+        <div class="bg-white p-4 rounded-xl border border-slate-200">
+          <input type="text" id="consultarIdInput" placeholder="Informe o ID do Pacote..." class="border p-2 rounded text-sm w-80">
+          <button onclick="consultarIdDireto()" class="bg-blue-600 text-white px-4 py-2 rounded text-sm font-semibold">Pesquisar</button>
+        </div>
+      </main>
+
+      <main id="screen-reatribuicao" class="view-screen hidden flex-1 p-6 overflow-y-auto">
+        <h2 class="text-lg font-bold text-slate-800">Módulo de Reatribuição Operacional</h2>
+        <p class="text-sm text-slate-500 mt-2">Área dedicada para envio e alteração em lote de rotas e gaiolas.</p>
+      </main>
+
+      <main id="screen-problemsolving" class="view-screen hidden flex-1 p-6 overflow-y-auto">
+        <h2 class="text-lg font-bold text-slate-800">Tratativa de Problem Solving</h2>
+        <p class="text-sm text-slate-500 mt-2">Lista de pacotes retidos ou com falha de triagem.</p>
+      </main>
+
+      <main id="screen-performance" class="view-screen hidden flex-1 p-6 overflow-y-auto">
+        <h2 class="text-lg font-bold text-slate-800">Métricas de Performance</h2>
+        <p class="text-sm text-slate-500 mt-2">Relatório de reatribuições e produtividade por operador.</p>
+      </main>
+
+      <main id="screen-historico" class="view-screen hidden flex-1 p-6 overflow-y-auto">
+        <h2 class="text-lg font-bold text-slate-800">Histórico de Alterações</h2>
+        <p class="text-sm text-slate-500 mt-2">Registo de logs e movimentações.</p>
+      </main>
+
+      <main id="screen-configuracoes" class="view-screen hidden flex-1 p-6 overflow-y-auto">
+        <h2 class="text-lg font-bold text-slate-800">Configurações do Sistema</h2>
+        <p class="text-sm text-slate-500 mt-2">Ajuste de mapeamento de colunas da planilha e preferências.</p>
+      </main>
+
+      <!-- SIDEBAR DIREITA (DETALHES DO PACOTE - ABRÍVEL/FECHÁVEL) -->
+      <aside id="detailSidebar" class="w-80 bg-white border-l border-slate-200 p-4 flex flex-col justify-between shrink-0 overflow-y-auto space-y-4 absolute right-0 top-0 bottom-0 shadow-lg transform translate-x-full sidebar-detail-transition z-10">
         <div>
           <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-            <h3 class="font-bold text-slate-800 text-sm">Detalhe do Pacote</h3>
-            <button class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+            <h3 class="font-bold text-slate-800 text-sm">Detalhes do Pacote</h3>
+            <button onclick="fecharSidebarDireita()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg border hover:bg-slate-50">
+              <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
           </div>
 
-          <!-- Busca de ID na Sidebar -->
           <div class="mt-3 flex gap-1">
-            <input type="text" id="sideSearchInput" value="12345678" class="w-full border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-800">
+            <input type="text" id="sideSearchInput" class="w-full border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-800">
             <button onclick="buscarPorIdSide()" class="bg-slate-900 text-white p-2 rounded-lg hover:bg-slate-800"><i data-lucide="search" class="w-4 h-4"></i></button>
           </div>
 
           <div class="mt-3 flex items-center justify-between">
-            <span class="bg-amber-100 text-amber-700 text-xs font-bold px-2 py-0.5 rounded" id="detalheStatusBadge">Pendente</span>
+            <span class="bg-amber-100 text-amber-700 text-xs font-bold px-2 py-0.5 rounded" id="detalheStatusBadge">-</span>
             <span class="text-xs font-bold text-slate-700 flex items-center gap-1">
-              <div class="w-2 h-2 rounded-full bg-yellow-400"></div> Mercado Livre
+              <div class="w-2 h-2 rounded-full bg-yellow-400"></div> Operação Mercado Livre
             </span>
           </div>
 
-          <h2 class="text-lg font-bold text-slate-900 mt-2" id="detalheIdHeader">ID: 12345678</h2>
+          <h2 class="text-lg font-bold text-slate-900 mt-2" id="detalheIdHeader">ID: -</h2>
 
-          <!-- Localização -->
           <div class="mt-4 space-y-2 text-xs">
             <p class="font-bold text-slate-700 border-b pb-1">Localização</p>
             <div class="grid grid-cols-2 gap-y-2 text-slate-600">
-              <span class="flex items-center gap-1"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-400"></i> Cidade:</span>
-              <strong class="text-slate-800" id="detalheCidade">Queimados</strong>
-              <span class="flex items-center gap-1"><i data-lucide="navigation" class="w-3.5 h-3.5 text-slate-400"></i> Bairro:</span>
-              <strong class="text-slate-800" id="detalheBairro">Centro</strong>
-              <span class="flex items-center gap-1"><i data-lucide="layers" class="w-3.5 h-3.5 text-slate-400"></i> Cluster:</span>
-              <strong class="text-slate-800" id="detalheCluster">R6</strong>
-              <span class="flex items-center gap-1"><i data-lucide="mail" class="w-3.5 h-3.5 text-slate-400"></i> CEP:</span>
-              <strong class="text-slate-800" id="detalheCep">26385-000</strong>
+              <span>Cidade:</span> <strong class="text-slate-800" id="detalheCidade">-</strong>
+              <span>Bairro:</span> <strong class="text-slate-800" id="detalheBairro">-</strong>
+              <span>Cluster:</span> <strong class="text-slate-800" id="detalheCluster">-</strong>
+              <span>CEP:</span> <strong class="text-slate-800" id="detalheCep">-</strong>
             </div>
           </div>
 
-          <!-- Operação -->
           <div class="mt-4 space-y-2 text-xs">
             <p class="font-bold text-slate-700 border-b pb-1">Operação</p>
             <div class="space-y-1.5 text-slate-600">
-              <div class="flex justify-between"><span>Status:</span> <span class="text-amber-600 font-bold" id="detalheStatus">Pendente</span></div>
-              <div class="flex justify-between"><span>Descrição:</span> <strong class="text-slate-800">Produto eletrônico</strong></div>
-              <div class="flex justify-between"><span>Promessa:</span> <strong class="text-slate-800" id="detalhePromessa">09/09/2026</strong></div>
-              <div class="flex justify-between"><span>Rota atual:</span> <strong class="text-slate-800" id="detalheRotaAtual">A25_PM1</strong></div>
-              <div class="flex justify-between"><span>Transportadora:</span> <strong class="text-slate-800" id="detalheTransp">Mercado Livre</strong></div>
+              <div class="flex justify-between"><span>Status:</span> <span class="text-amber-600 font-bold" id="detalheStatus">-</span></div>
+              <div class="flex justify-between"><span>Promessa:</span> <strong class="text-slate-800" id="detalhePromessa">-</strong></div>
+              <div class="flex justify-between"><span>Rota Sugerida:</span> <strong class="text-blue-600" id="detalheRotaAtual">-</strong></div>
+              <div class="flex justify-between"><span>Transportadora:</span> <strong class="text-slate-800" id="detalheTransp">-</strong></div>
             </div>
           </div>
 
-          <!-- Recomendação Inteligente -->
           <div class="mt-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl space-y-2">
             <div class="flex items-center gap-1.5 text-emerald-800 font-bold text-xs">
-              <i data-lucide="lightbulb" class="w-4 h-4 text-emerald-600"></i> Recomendação
+              <i data-lucide="lightbulb" class="w-4 h-4 text-emerald-600"></i> Sugestão de Reatribuição
             </div>
             <div class="text-xs text-slate-700 space-y-1">
-              <p>Gaiola sugerida: <strong class="text-emerald-800" id="detalheGaiola">G-034</strong></p>
-              <p>Rota sugerida: <strong class="text-emerald-800" id="detalheRotaSugerida">A27_PM1</strong></p>
-              <p>Cluster: <strong class="text-slate-800" id="detalheRecCluster">R6</strong></p>
-              <p>Bairro: <strong class="text-slate-800" id="detalheRecBairro">Centro</strong></p>
+              <p>Gaiola Recomendada: <strong class="text-emerald-800" id="detalheGaiola">G-01</strong></p>
+              <p>Rota Recomendada: <strong class="text-emerald-800" id="detalheRotaSugerida">-</strong></p>
             </div>
             
             <button onclick="confirmarReatribuicao()" class="w-full mt-2 py-2 bg-emerald-600 text-white text-xs font-bold rounded-lg hover:bg-emerald-700 transition flex items-center justify-center gap-1.5 shadow-sm">
               <i data-lucide="check-circle-2" class="w-4 h-4"></i> Confirmar Reatribuição
             </button>
           </div>
-
-          <!-- Histórico -->
-          <div class="mt-4 space-y-2 text-xs">
-            <p class="font-bold text-slate-700 border-b pb-1 flex items-center gap-1">
-              <i data-lucide="clock" class="w-3.5 h-3.5"></i> Histórico do ID
-            </p>
-            <ul class="space-y-2 text-[11px] text-slate-600" id="detalheHistorico">
-              <li class="flex gap-2"><span class="text-slate-400">05/09 10:24</span> <span>Inclusão na base</span></li>
-              <li class="flex gap-2"><span class="text-slate-400">05/09 12:37</span> <span>Status alterado para Pendente</span></li>
-              <li class="flex gap-2"><span class="text-slate-400">05/09 14:02</span> <span>Sugerida reatribuição</span></li>
-            </ul>
-          </div>
         </div>
-
       </aside>
 
     </div>
-
   </div>
 
-  <!-- SCRIPT DE DADOS E LÓGICA LOCAL -->
+  <!-- LÓGICA E SCRIPTS DA APLICAÇÃO -->
   <script>
-    // Base de dados mockada (Simula o banco de dados local)
-    const pacotesMock = [
+    // Base Inicial Mockada
+    const pacotesMockPadrao = [
       { id: "12345678", cidade: "Queimados", bairro: "Centro", cluster: "R6", cep: "26385-000", promessa: "09/09/2026", status: "Pendente", rotaSugerida: "A25_PM1", gaiola: "G-034", transp: "Mercado Livre" },
       { id: "12345679", cidade: "Japeri", bairro: "Vila de Cava", cluster: "6", cep: "26400-110", promessa: "09/09/2026", status: "At Station", rotaSugerida: "A26_PM1", gaiola: "G-012", transp: "Mercado Livre" },
       { id: "12345680", cidade: "Nova Iguaçu", bairro: "Tinguá", cluster: "R10", cep: "26000-000", promessa: "10/09/2026", status: "Problem Solving", rotaSugerida: "A30_AM1", gaiola: "G-089", transp: "DHL" },
       { id: "12345681", cidade: "Queimados", bairro: "Centro", cluster: "10", cep: "26385-100", promessa: "09/09/2026", status: "Pendente", rotaSugerida: "A31_PM1", gaiola: "G-034", transp: "Mercado Livre" },
       { id: "12345682", cidade: "Seropédica", bairro: "Santa Rita", cluster: "R6", cep: "23890-000", promessa: "11/09/2026", status: "Em trânsito", rotaSugerida: "A28_PM1", gaiola: "G-055", transp: "Jadlog" },
-      { id: "12345683", cidade: "Itaguaí", bairro: "Jardim América", cluster: "R10", cep: "23810-000", promessa: "12/09/2026", status: "At Station", rotaSugerida: "A32_AM1", gaiola: "G-022", transp: "DHL" },
-      { id: "12345684", cidade: "Queimados", bairro: "Parque Estoril", cluster: "6", cep: "26383-000", promessa: "09/09/2026", status: "Pendente", rotaSugerida: "A25_PM1", gaiola: "G-034", transp: "Mercado Livre" },
-      { id: "12345685", cidade: "Nova Iguaçu", bairro: "Vila de Cava", cluster: "10", cep: "26080-000", promessa: "10/09/2026", status: "Problem Solving", rotaSugerida: "A30_AM1", gaiola: "G-089", transp: "Jadlog" }
+      { id: "12345683", cidade: "Itaguaí", bairro: "Jardim América", cluster: "R10", cep: "23810-000", promessa: "12/09/2026", status: "At Station", rotaSugerida: "A32_AM1", gaiola: "G-022", transp: "DHL" }
     ];
 
-    // Renderizar Tabela Inicial
+    let basePacotes = [...pacotesMockPadrao];
+    let pacotesFiltrados = [...pacotesMockPadrao];
+    let barChartInstance = null;
+    let donutChartInstance = null;
+    let lineChartInstance = null;
+
+    // Função de Troca de Ecrãs (Navegação)
+    function navegarPara(menu) {
+      document.querySelectorAll('.view-screen').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('#mainNav button').forEach(el => {
+        el.classList.remove('bg-blue-600', 'text-white');
+        el.classList.add('text-slate-400');
+      });
+
+      const activeNav = document.getElementById(`nav-${menu}`);
+      const activeScreen = document.getElementById(`screen-${menu}`);
+
+      if (activeNav && activeScreen) {
+        activeNav.classList.add('bg-blue-600', 'text-white');
+        activeNav.classList.remove('text-slate-400');
+        activeScreen.classList.remove('hidden');
+      }
+
+      // Atualiza o título do topo conforme a secção
+      const titulos = {
+        dashboard: "Central de Reatribuição",
+        consultar: "Consultar ID",
+        reatribuicao: "Módulo de Reatribuição",
+        problemsolving: "Problem Solving",
+        performance: "Métricas de Performance",
+        historico: "Histórico de Registos",
+        configuracoes: "Configurações Gerais"
+      };
+      document.getElementById('headerTitle').innerText = titulos[menu] || "Sistema Operacional";
+    }
+
+    // Leitura Dinâmica de Planilhas (CSV / XLSX)
+    function carregarPlanilha(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const fileExt = file.name.split('.').pop().toLowerCase();
+
+      if (fileExt === 'csv') {
+        Papa.parse(file, {
+          header: true,
+          skipEmptyLines: true,
+          complete: function(results) { processarDadosImportados(results.data); }
+        });
+      } else if (fileExt === 'xlsx' || fileExt === 'xls') {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheet = workbook.SheetNames[0];
+          const excelData = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
+          processarDadosImportados(excelData);
+        };
+        reader.readAsArrayBuffer(file);
+      }
+    }
+
+    function processarDadosImportados(data) {
+      if (!data || data.length === 0) return alert("A planilha está vazia ou é inválida.");
+
+      basePacotes = data.map((row, index) => ({
+        id: String(row.ID || row.id || row.Pacote || `ID-${index + 1}`),
+        cidade: row.Cidade || row.cidade || "N/A",
+        bairro: row.Bairro || row.bairro || "N/A",
+        cluster: row.Cluster || row.cluster || "N/A",
+        cep: row.CEP || row.cep || "N/A",
+        promessa: row.Promessa || row.promessa || "N/A",
+        status: row.Status || row.status || "Pendente",
+        rotaSugerida: row.Rota || row.rota || row.RotaSugerida || "A00_PM1",
+        gaiola: row.Gaiola || row.gaiola || "G-00",
+        transp: row.Transportadora || row.transp || "Mercado Livre"
+      }));
+
+      popularOpcoesFiltros();
+      aplicarFiltros();
+      alert(`Planilha importada com sucesso! ${basePacotes.length} registos carregados.`);
+    }
+
+    // Povoar Opções dos Dropdowns
+    function popularOpcoesFiltros() {
+      const extrairUnicos = (chave) => [...new Set(basePacotes.map(item => item[chave]))].filter(Boolean);
+
+      const preencherSelect = (idSelect, lista, label) => {
+        const select = document.getElementById(idSelect);
+        select.innerHTML = `<option value="">${label}: Todos</option>`;
+        lista.forEach(val => select.innerHTML += `<option value="${val}">${val}</option>`);
+      };
+
+      preencherSelect('filterCidade', extrairUnicos('cidade'), 'Cidade');
+      preencherSelect('filterBairro', extrairUnicos('bairro'), 'Bairro');
+      preencherSelect('filterCluster', extrairUnicos('cluster'), 'Cluster');
+      preencherSelect('filterStatus', extrairUnicos('status'), 'Status');
+      preencherSelect('filterRota', extrairUnicos('rotaSugerida'), 'Rota');
+    }
+
+    // Filtragem Geral
+    function aplicarFiltros() {
+      const termo = document.getElementById('searchInput').value.toLowerCase();
+      const cidade = document.getElementById('filterCidade').value;
+      const bairro = document.getElementById('filterBairro').value;
+      const cluster = document.getElementById('filterCluster').value;
+      const status = document.getElementById('filterStatus').value;
+      const rota = document.getElementById('filterRota').value;
+
+      pacotesFiltrados = basePacotes.filter(p => {
+        const matchesBusca = p.id.toLowerCase().includes(termo) ||
+                             p.cidade.toLowerCase().includes(termo) ||
+                             p.bairro.toLowerCase().includes(termo) ||
+                             p.rotaSugerida.toLowerCase().includes(termo);
+        const matchesCidade = !cidade || p.cidade === cidade;
+        const matchesBairro = !bairro || p.bairro === bairro;
+        const matchesCluster = !cluster || p.cluster === cluster;
+        const matchesStatus = !status || p.status === status;
+        const matchesRota = !rota || p.rotaSugerida === rota;
+
+        return matchesBusca && matchesCidade && matchesBairro && matchesCluster && matchesStatus && matchesRota;
+      });
+
+      renderTabela(pacotesFiltrados);
+      atualizarKPIs(pacotesFiltrados);
+      atualizarGraficos(pacotesFiltrados);
+    }
+
+    function limparFiltros() {
+      document.getElementById('searchInput').value = '';
+      document.querySelectorAll('#filterContainer select').forEach(s => s.value = '');
+      aplicarFiltros();
+    }
+
+    // Atualização da Tabela com Clique nos IDs e Rotas
     function renderTabela(lista) {
       const corpo = document.getElementById('tabelaCorpo');
       corpo.innerHTML = '';
 
+      document.getElementById('countRegistros').innerText = `${lista.length} registros`;
+
       lista.forEach(item => {
-        let statusBadge = '';
+        let statusBadge = 'bg-slate-100 text-slate-700';
         if (item.status === 'Pendente') statusBadge = 'bg-amber-100 text-amber-700';
         else if (item.status === 'At Station') statusBadge = 'bg-cyan-100 text-cyan-700';
         else if (item.status === 'Problem Solving') statusBadge = 'bg-red-100 text-red-700';
-        else statusBadge = 'bg-emerald-100 text-emerald-700';
 
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50 transition cursor-pointer';
-        tr.onclick = () => carregarDetalhes(item.id);
 
         tr.innerHTML = `
           <td class="p-3" onclick="event.stopPropagation()"><input type="checkbox" class="rounded"></td>
-          <td class="p-3 font-semibold text-slate-900">${item.id}</td>
+          <td class="p-3 font-bold text-blue-600 hover:underline" onclick="abrirSidebarDireita('${item.id}')">${item.id}</td>
           <td class="p-3">${item.cidade}</td>
           <td class="p-3">${item.bairro}</td>
           <td class="p-3">${item.cluster}</td>
           <td class="p-3">${item.promessa}</td>
           <td class="p-3"><span class="${statusBadge} px-2 py-0.5 rounded font-semibold text-[11px]">${item.status}</span></td>
-          <td class="p-3 text-blue-600 font-semibold">${item.rotaSugerida}</td>
+          <td class="p-3 font-semibold text-blue-600 hover:underline" onclick="abrirSidebarDireita('${item.id}')">${item.rotaSugerida}</td>
           <td class="p-3">${item.transp}</td>
           <td class="p-3 text-center flex justify-center gap-2" onclick="event.stopPropagation()">
-            <button onclick="carregarDetalhes('${item.id}')" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 font-semibold">Ver</button>
-            <button class="text-slate-400 hover:text-slate-600"><i data-lucide="more-vertical" class="w-4 h-4"></i></button>
+            <button onclick="abrirSidebarDireita('${item.id}')" class="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 font-semibold text-[10px]">Ver</button>
           </td>
         `;
         corpo.appendChild(tr);
@@ -377,9 +493,18 @@
       lucide.createIcons();
     }
 
-    // Carregar Detalhes do Pacote Selecionado
-    function carregarDetalhes(id) {
-      const item = pacotesMock.find(p => p.id === id);
+    // Contadores KPIs
+    function atualizarKPIs(lista) {
+      document.getElementById('kpiTotal').innerText = lista.length;
+      document.getElementById('kpiPendentes').innerText = lista.filter(p => p.status === 'Pendente').length;
+      document.getElementById('kpiPS').innerText = lista.filter(p => p.status === 'Problem Solving').length;
+      document.getElementById('kpiRotas').innerText = [...new Set(lista.map(p => p.rotaSugerida))].length;
+      document.getElementById('kpiConcluidos').innerText = lista.filter(p => p.status === 'At Station' || p.status === 'Concluído').length;
+    }
+
+    // Sidebar Direita (Abrir / Fechar)
+    function abrirSidebarDireita(id) {
+      const item = basePacotes.find(p => p.id === id);
       if (!item) return;
 
       document.getElementById('sideSearchInput').value = item.id;
@@ -395,81 +520,85 @@
       document.getElementById('detalheTransp').innerText = item.transp;
       document.getElementById('detalheGaiola').innerText = item.gaiola;
       document.getElementById('detalheRotaSugerida').innerText = item.rotaSugerida;
-      document.getElementById('detalheRecCluster').innerText = item.cluster;
-      document.getElementById('detalheRecBairro').innerText = item.bairro;
+
+      document.getElementById('detailSidebar').classList.remove('translate-x-full');
     }
 
-    // Filtro de Busca
-    function filtrarTabela() {
-      const termo = document.getElementById('searchInput').value.toLowerCase();
-      const filtrados = pacotesMock.filter(p => 
-        p.id.toLowerCase().includes(termo) ||
-        p.cidade.toLowerCase().includes(termo) ||
-        p.bairro.toLowerCase().includes(termo) ||
-        p.rotaSugerida.toLowerCase().includes(termo)
-      );
-      renderTabela(filtrados);
-    }
-
-    function limparFiltros() {
-      document.getElementById('searchInput').value = '';
-      renderTabela(pacotesMock);
+    function fecharSidebarDireita() {
+      document.getElementById('detailSidebar').classList.add('translate-x-full');
     }
 
     function buscarPorIdSide() {
       const id = document.getElementById('sideSearchInput').value;
-      carregarDetalhes(id);
+      abrirSidebarDireita(id);
+    }
+
+    function consultarIdDireto() {
+      const id = document.getElementById('consultarIdInput').value;
+      navegarPara('dashboard');
+      abrirSidebarDireita(id);
     }
 
     function confirmarReatribuicao() {
-      alert("Reatribuição confirmada com sucesso!");
+      alert("Reatribuição realizada e registada no histórico!");
+      fecharSidebarDireita();
     }
 
-    // Inicialização da Tabela e Gráficos
-    window.onload = () => {
-      renderTabela(pacotesMock);
-      carregarDetalhes("12345678");
+    function resetarDados() {
+      basePacotes = [...pacotesMockPadrao];
+      popularOpcoesFiltros();
+      aplicarFiltros();
+    }
 
-      // Gráficos Chart.js
-      new Chart(document.getElementById('barClusterChart'), {
+    // Gestão de Gráficos Reativos
+    function atualizarGraficos(lista) {
+      // 1. Cluster
+      const clusters = {};
+      lista.forEach(p => clusters[p.cluster] = (clusters[p.cluster] || 0) + 1);
+
+      if (barChartInstance) barChartInstance.destroy();
+      barChartInstance = new Chart(document.getElementById('barClusterChart'), {
         type: 'bar',
         data: {
-          labels: ['Cluster 6', 'Cluster R6', 'Cluster 10', 'Cluster R10', 'Outros'],
-          datasets: [{
-            data: [820, 640, 510, 430, 693],
-            backgroundColor: ['#3b82f6', '#f97316', '#14b8a6', '#a855f7', '#94a3b8'],
-            borderRadius: 4
-          }]
+          labels: Object.keys(clusters),
+          datasets: [{ data: Object.values(clusters), backgroundColor: '#3b82f6', borderRadius: 4 }]
         },
         options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
       });
 
-      new Chart(document.getElementById('donutStatusChart'), {
+      // 2. Status
+      const statusMap = {};
+      lista.forEach(p => statusMap[p.status] = (statusMap[p.status] || 0) + 1);
+
+      if (donutChartInstance) donutChartInstance.destroy();
+      donutChartInstance = new Chart(document.getElementById('donutStatusChart'), {
         type: 'doughnut',
         data: {
-          labels: ['Em trânsito', 'At Station', 'Problem Solving', 'Pendente', 'Outros'],
-          datasets: [{
-            data: [540, 210, 147, 380, 2816],
-            backgroundColor: ['#0284c7', '#10b981', '#ef4444', '#f59e0b', '#cbd5e1']
-          }]
+          labels: Object.keys(statusMap),
+          datasets: [{ data: Object.values(statusMap), backgroundColor: ['#f59e0b', '#10b981', '#ef4444', '#0284c7'] }]
         },
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 10 } } } }, cutout: '70%' }
       });
 
-      new Chart(document.getElementById('linePromessaChart'), {
-        type: 'line',
+      // 3. Rotas
+      const rotasMap = {};
+      lista.forEach(p => rotasMap[p.rotaSugerida] = (rotasMap[p.rotaSugerida] || 0) + 1);
+
+      if (lineChartInstance) lineChartInstance.destroy();
+      lineChartInstance = new Chart(document.getElementById('linePromessaChart'), {
+        type: 'bar',
         data: {
-          labels: ['08/09', '09/09', '10/09', '11/09', '12/09', '13/09', '14/09'],
-          datasets: [{
-            data: [260, 280, 380, 330, 250, 190, 170],
-            borderColor: '#0284c7',
-            backgroundColor: 'rgba(2, 132, 199, 0.1)',
-            fill: true,
-            tension: 0.3
-          }]
+          labels: Object.keys(rotasMap),
+          datasets: [{ data: Object.values(rotasMap), backgroundColor: '#6366f1', borderRadius: 4 }]
         },
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
       });
+    }
+
+    // Inicialização
+    window.onload = () => {
+      popularOpcoesFiltros();
+      aplicarFiltros();
     };
   </script>
 </body>
