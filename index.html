@@ -28,18 +28,9 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-        }
-        * { box-sizing: border-box; }
-    </style>
 </head>
-<body class="bg-kn-light flex h-screen w-screen overflow-hidden font-sans text-slate-800">
- 
+<body class="bg-kn-light flex h-screen overflow-hidden font-sans text-slate-800">
+
     <!-- ================= SIDEBAR CORPORATIVA (KUEHNE+NAGEL) ================= -->
     <aside class="w-64 bg-kn-navy text-white flex flex-col justify-between z-20 shadow-xl flex-shrink-0">
         <div class="flex-1 flex flex-col overflow-hidden">
@@ -58,7 +49,7 @@
                     </div>
                 </div>
             </div>
- 
+
             <nav id="nav-menu" class="p-3 space-y-1.5 text-xs overflow-y-auto flex-1">
                 <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider px-3 pb-1 pt-2">Operação Last Mile</div>
                 
@@ -66,43 +57,38 @@
                     <i data-lucide="scan-barcode" class="w-4 h-4"></i>
                     <span>Bipagem Inteligente</span>
                 </button>
- 
+
                 <button onclick="mudarAba('rotas')" id="btn-aba-rotas" class="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-white/5 text-slate-300 hover:text-white transition font-medium">
                     <i data-lucide="truck" class="w-4 h-4"></i>
                     <span>Resumo por Rota</span>
                 </button>
- 
-                <button onclick="mudarAba('confronto')" id="btn-aba-confronto" class="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-white/5 text-slate-300 hover:text-white transition font-medium">
-                    <i data-lucide="git-compare-arrows" class="w-4 h-4"></i>
-                    <span>Confronto de Status</span>
-                </button>
- 
+
                 <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider px-3 pb-1 pt-5">Business Intelligence</div>
                 
                 <button onclick="mudarAba('graficos-geral')" id="btn-aba-graficos-geral" class="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-white/5 text-slate-300 hover:text-white transition font-medium">
                     <i data-lucide="pie-chart" class="w-4 h-4"></i>
                     <span>Visão Comparativa</span>
                 </button>
- 
+
                 <button onclick="mudarAba('graficos-am')" id="btn-aba-graficos-am" class="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-white/5 text-slate-300 hover:text-white transition font-medium">
                     <i data-lucide="sun" class="w-4 h-4"></i>
                     <span>Painel Ciclo AM</span>
                 </button>
- 
+
                 <button onclick="mudarAba('graficos-pm')" id="btn-aba-graficos-pm" class="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-white/5 text-slate-300 hover:text-white transition font-medium">
                     <i data-lucide="moon" class="w-4 h-4"></i>
                     <span>Painel Ciclo PM</span>
                 </button>
             </nav>
         </div>
- 
+
         <div class="p-4 border-t border-white/10 text-[11px] text-slate-300 text-center flex flex-col items-center justify-center space-y-1 bg-[#002850]">
             <i data-lucide="code-2" class="w-4 h-4 text-sky-400 mb-0.5"></i>
             <span class="font-semibold tracking-wide text-white">Desenvolvido por Nathan</span>
             <span class="text-[9px] text-slate-400">Logistics Systems v2.6</span>
         </div>
     </aside>
- 
+
     <!-- ================= ÁREA DE CONTEÚDO PRINCIPAL ================= -->
     <main class="flex-1 flex flex-col overflow-y-auto bg-slate-50">
         
@@ -136,9 +122,9 @@
                 </button>
             </div>
         </header>
- 
+
         <div class="p-8 space-y-6 max-w-7xl mx-auto w-full">
- 
+
             <!-- CARDS DE KPIS EXECUTIVOS -->
             <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-kn-border border-l-4 border-l-kn-navy">
@@ -166,7 +152,7 @@
                     <div id="kpiSolucao" class="text-xl font-black text-purple-600 mt-1">0</div>
                 </div>
             </div>
- 
+
             <!-- ================= ABA 1: BIPAGEM INTELIGENTE ================= -->
             <section id="aba-operacao" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
@@ -182,16 +168,16 @@
                             </div>
                             <span id="badge-ciclo" class="text-[10px] bg-kn-navy text-white px-2.5 py-1 rounded font-mono font-bold shadow-sm">CICLO AM</span>
                         </div>
- 
+
                         <div id="feedbackAlerta" class="hidden p-3 rounded-lg text-xs font-medium border transition-all shadow-sm"></div>
- 
+
                         <div class="space-y-4">
                             <div>
                                 <label class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Código de Barras</label>
                                 <input type="text" id="barcodeInput" autofocus placeholder="Aguardando leitura..." class="w-full p-3 border border-slate-300 rounded-lg font-mono text-sm focus:ring-2 focus:ring-kn-navy focus:border-kn-navy focus:outline-none bg-slate-50/50 mt-1">
                                 <span class="text-[11px] text-slate-400 mt-1.5 block leading-tight">⚡ 1º Bipe: Em Rota de Entrega | 2º Bipe: Ficou no Piso</span>
                             </div>
- 
+
                             <div class="grid grid-cols-2 gap-3 pt-3 border-t border-slate-100">
                                 <div>
                                     <label class="text-xs font-semibold text-slate-600">Rota / Gaiola:</label>
@@ -207,7 +193,7 @@
                             </div>
                         </div>
                     </div>
- 
+
                     <!-- Reconciliação Mercado Livre -->
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-amber-200 space-y-4 bg-amber-50/20">
                         <div class="flex justify-between items-center border-b border-amber-100 pb-3">
@@ -226,7 +212,7 @@
                             <span>Reconciliar Status com Mercado Livre</span>
                         </button>
                     </div>
- 
+
                     <!-- Verificação em Massa (Piso) -->
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border space-y-4">
                         <div class="flex justify-between items-center border-b border-slate-100 pb-3">
@@ -243,7 +229,7 @@
                         </button>
                     </div>
                 </div>
- 
+
                 <!-- Tabela de Histórico -->
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border lg:col-span-2 space-y-4">
                     <div class="flex justify-between items-center border-b border-slate-100 pb-3">
@@ -256,7 +242,7 @@
                         </div>
                         <span id="contadorBips" class="text-xs font-semibold bg-slate-100 text-kn-navy px-3 py-1 rounded-full border border-slate-200">0 Pacotes</span>
                     </div>
- 
+
                     <!-- Filtros -->
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-50 p-3 rounded-lg border border-slate-200">
                         <div>
@@ -270,7 +256,6 @@
                                 <option value="DESPACHAR">Despachar</option>
                                 <option value="EM_ROTA_DE_ENTREGA">Em Rota de Entrega</option>
                                 <option value="FICOU_NO_PISO">Ficou no Piso</option>
-                                <option value="ENTREGUE">Entregue</option>
                                 <option value="FALHA_NA_ENTREGA">Falha na Entrega</option>
                                 <option value="SOLUCAO_DE_PROBLEMA">Solução de Problema</option>
                                 <option value="NULO">Status Nulo</option>
@@ -285,7 +270,7 @@
                             </select>
                         </div>
                     </div>
- 
+
                     <div class="overflow-x-auto max-h-[480px]">
                         <table class="w-full text-left text-xs">
                             <thead class="bg-slate-100 text-slate-600 font-bold uppercase border-b border-slate-200 sticky top-0">
@@ -305,7 +290,7 @@
                     </div>
                 </div>
             </section>
- 
+
             <!-- ================= ABA 2: RESUMO POR ROTA ================= -->
             <section id="aba-rotas" class="hidden bg-white p-6 rounded-xl shadow-sm border border-kn-border space-y-4">
                 <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider border-b pb-3">Resumo Agrupado por Rota</h2>
@@ -327,68 +312,7 @@
                     </table>
                 </div>
             </section>
- 
-            <!-- ================= ABA CONFRONTO DE STATUS ================= -->
-            <section id="aba-confronto" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border space-y-4">
-                    <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                        <div class="flex items-center space-x-2">
-                            <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider">Confrontar Lista de IDs</h2>
-                        </div>
-                        <i data-lucide="git-compare-arrows" class="w-4 h-4 text-kn-navy"></i>
-                    </div>
-                    <p class="text-[11px] text-slate-500 leading-relaxed">Cole aqui uma lista de IDs (ex: exportação do AWS/Mercado Livre por status). O sistema vai comparar cada ID com os pacotes já bipados na ferramenta — todo pacote que já existir na base e aparecer nessa lista terá o status atualizado automaticamente para o status escolhido abaixo. IDs que não estiverem na base são ignorados.</p>
- 
-                    <div>
-                        <label class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Lista de IDs (um por linha)</label>
-                        <textarea id="confrontoInput" rows="12" placeholder="Cole aqui a lista de IDs...&#10;Ex:&#10;47942778375&#10;47983610289&#10;48018857580" class="w-full p-3 border border-slate-300 rounded-lg font-mono text-xs mt-1 focus:ring-2 focus:ring-kn-navy focus:outline-none bg-slate-50/50 resize-none"></textarea>
-                    </div>
- 
-                    <div>
-                        <label class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Status a Aplicar nos Encontrados</label>
-                        <select id="confrontoStatus" class="w-full p-2.5 border border-slate-300 rounded-lg text-xs mt-1 bg-white font-bold text-kn-navy focus:outline-none focus:border-kn-navy">
-                            <option value="DESPACHAR">DESPACHAR</option>
-                            <option value="EM_ROTA_DE_ENTREGA">EM ROTA DE ENTREGA</option>
-                            <option value="FICOU_NO_PISO">FICOU NO PISO</option>
-                            <option value="ENTREGUE">ENTREGUE</option>
-                            <option value="FALHA_NA_ENTREGA">FALHA NA ENTREGA</option>
-                            <option value="SOLUCAO_DE_PROBLEMA">SOLUÇÃO DE PROBLEMA</option>
-                            <option value="NULO">NULO</option>
-                        </select>
-                    </div>
- 
-                    <div id="feedbackConfronto" class="hidden p-3 rounded-lg text-xs font-medium border transition-all shadow-sm"></div>
- 
-                    <button onclick="confrontarStatus()" class="w-full bg-kn-navy hover:bg-kn-blue text-white p-2.5 rounded-lg text-xs font-bold transition shadow-sm flex items-center justify-center space-x-2">
-                        <i data-lucide="git-compare-arrows" class="w-4 h-4"></i>
-                        <span>Confrontar com a Base Atual</span>
-                    </button>
-                </div>
- 
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-kn-border space-y-4">
-                    <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                        <h2 class="text-xs font-bold text-kn-navy uppercase tracking-wider">Resultado do Último Confronto</h2>
-                        <i data-lucide="list-checks" class="w-4 h-4 text-kn-navy"></i>
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-center">
-                            <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">Encontrados e Atualizados</span>
-                            <div id="confrontoEncontrados" class="text-2xl font-black text-emerald-700 mt-1">0</div>
-                        </div>
-                        <div class="bg-slate-50 border border-slate-200 rounded-lg p-4 text-center">
-                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Não Encontrados na Base</span>
-                            <div id="confrontoNaoEncontrados" class="text-2xl font-black text-slate-500 mt-1">0</div>
-                        </div>
-                    </div>
-                    <div>
-                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">IDs Atualizados</span>
-                        <div id="listaConfrontoEncontrados" class="mt-1 max-h-64 overflow-y-auto font-mono text-xs bg-slate-50 border border-slate-200 rounded-lg p-3 space-y-1 text-slate-600">
-                            <span class="text-slate-400">Nenhum confronto realizado ainda.</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
- 
+
             <!-- ================= ABAS BI / GRÁFICOS ================= -->
             <section id="aba-graficos-geral" class="hidden space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -402,20 +326,20 @@
                     </div>
                 </div>
             </section>
- 
+
             <section id="aba-graficos-am" class="hidden bg-white p-5 rounded-xl border border-kn-border shadow-sm">
                 <h3 class="text-xs font-bold text-kn-navy uppercase tracking-wider mb-4">Status Exclusivo - Ciclo AM</h3>
                 <canvas id="chartAM" class="max-h-72"></canvas>
             </section>
- 
+
             <section id="aba-graficos-pm" class="hidden bg-white p-5 rounded-xl border border-kn-border shadow-sm">
                 <h3 class="text-xs font-bold text-kn-navy uppercase tracking-wider mb-4">Status Exclusivo - Ciclo PM</h3>
                 <canvas id="chartPM" class="max-h-72"></canvas>
             </section>
- 
+
         </div>
     </main>
- 
+
     <!-- ================= MODAL DE EDIÇÃO MANUAL (CICLO, ROTA E STATUS) ================= -->
     <div id="modalEditar" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 space-y-4">
@@ -430,32 +354,17 @@
             </div>
             
             <input type="hidden" id="editIndex">
- 
+
             <div>
                 <label class="text-[10px] font-bold text-slate-500 uppercase">ID do Pacote</label>
                 <input type="text" id="editId" readonly class="w-full p-2.5 bg-slate-100 border border-slate-200 rounded-lg text-xs font-mono font-bold text-slate-500 mt-1 cursor-not-allowed">
             </div>
- 
+
             <div>
                 <label class="text-[10px] font-bold text-slate-500 uppercase">Rota / Gaiola Manual</label>
                 <input type="text" id="editRota" placeholder="Ex: Gaiola 05 / Rota X" class="w-full p-2.5 border border-slate-300 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-kn-navy focus:outline-none">
             </div>
- 
-            <div>
-                <label class="text-[10px] font-bold text-slate-500 uppercase">Nome do Log</label>
-                <input type="text" id="editLog" placeholder="Ex: Log 03" class="w-full p-2.5 border border-slate-300 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-kn-navy focus:outline-none">
-            </div>
- 
-            <div>
-                <label class="text-[10px] font-bold text-slate-500 uppercase">Nome do Motorista</label>
-                <input type="text" id="editMotorista" placeholder="Ex: João Silva" class="w-full p-2.5 border border-slate-300 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-kn-navy focus:outline-none">
-            </div>
- 
-            <div>
-                <label class="text-[10px] font-bold text-slate-500 uppercase">Nome da Empresa</label>
-                <input type="text" id="editEmpresa" placeholder="Ex: Transportadora XYZ" class="w-full p-2.5 border border-slate-300 rounded-lg text-xs mt-1 focus:ring-2 focus:ring-kn-navy focus:outline-none">
-            </div>
- 
+
             <div class="grid grid-cols-2 gap-3">
                 <div>
                     <label class="text-[10px] font-bold text-slate-500 uppercase">Ciclo Manual</label>
@@ -470,14 +379,13 @@
                         <option value="DESPACHAR">DESPACHAR</option>
                         <option value="EM_ROTA_DE_ENTREGA">EM ROTA DE ENTREGA</option>
                         <option value="FICOU_NO_PISO">FICOU NO PISO</option>
-                        <option value="ENTREGUE">ENTREGUE</option>
                         <option value="FALHA_NA_ENTREGA">FALHA NA ENTREGA</option>
                         <option value="SOLUCAO_DE_PROBLEMA">SOLUÇÃO DE PROBLEMA</option>
                         <option value="NULO">NULO</option>
                     </select>
                 </div>
             </div>
- 
+
             <div class="flex justify-end space-x-2 pt-3 border-t">
                 <button onclick="fecharModalEditar()" class="px-4 py-2 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-lg text-xs font-semibold transition">Cancelar</button>
                 <button onclick="salvarEdicaoManual()" class="px-4 py-2 bg-kn-navy text-white hover:bg-kn-blue rounded-lg text-xs font-bold transition shadow-sm flex items-center space-x-1.5">
@@ -487,13 +395,13 @@
             </div>
         </div>
     </div>
- 
+
     <!-- ================= SCRIPT DE LÓGICA E ESTADO ================= -->
     <script>
         // Estado Global
         let pacotes = JSON.parse(localStorage.getItem('kn_pacotes')) || [];
         let charts = {};
- 
+
         // Inicialização
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
@@ -509,7 +417,7 @@
                 }
             });
         });
- 
+
         // Alternância de Ciclo Badge
         function atualizarCicloBadge() {
             const ciclo = document.getElementById('selectCiclo').value;
@@ -517,17 +425,17 @@
             badge.innerText = `CICLO ${ciclo}`;
             badge.className = `text-[10px] ${ciclo === 'AM' ? 'bg-amber-500' : 'bg-indigo-600'} text-white px-2.5 py-1 rounded font-mono font-bold shadow-sm`;
         }
- 
+
         // Lógica de Leitura por Bip
         function processarBip(codigo) {
             if (!codigo) return;
- 
+
             const ciclo = document.getElementById('selectCiclo').value;
             const rota = document.getElementById('atribuicaoInput').value.trim() || 'Sem Rota';
             const index = pacotes.findIndex(p => p.id === codigo);
- 
+
             const agora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
- 
+
             if (index === -1) {
                 // 1º Bipe: Em Rota
                 pacotes.unshift({
@@ -547,24 +455,24 @@
                 if(rota !== 'Sem Rota') pacotes[index].rota = rota;
                 exibirAlerta(`Pacote ${codigo} atualizado: FICOU NO PISO`, 'aviso');
             }
- 
+
             salvarEAtualizar();
         }
- 
+
         // Processar Texto/Print do ML
         function processarPrintMercadoLivre() {
             const texto = document.getElementById('mlTextInput').value;
             if (!texto.trim()) return;
- 
+
             const linhas = texto.split('\n');
             let atualizados = 0;
- 
+
             linhas.forEach(linha => {
                 const match = linha.match(/(MLB\d+|\d{10,})/i);
                 if (match) {
                     const id = match[0].toUpperCase();
                     let status = 'DESPACHAR';
- 
+
                     if (linha.toLowerCase().includes('rota') || linha.toLowerCase().includes('caminho')) {
                         status = 'EM_ROTA_DE_ENTREGA';
                     } else if (linha.toLowerCase().includes('piso') || linha.toLowerCase().includes('retido')) {
@@ -572,11 +480,11 @@
                     } else if (linha.toLowerCase().includes('falha') || linha.toLowerCase().includes('cancelado')) {
                         status = 'FALHA_NA_ENTREGA';
                     }
- 
+
                     const idx = pacotes.findIndex(p => p.id === id);
                     const cicloAtual = document.getElementById('selectCiclo').value;
                     const rotaAtual = document.getElementById('atribuicaoInput').value.trim() || 'ML Import';
- 
+
                     if (idx !== -1) {
                         pacotes[idx].status = status;
                     } else {
@@ -592,12 +500,12 @@
                     atualizados++;
                 }
             });
- 
+
             document.getElementById('mlTextInput').value = '';
             exibirAlerta(`${atualizados} pacotes reconciliados com sucesso!`, 'sucesso');
             salvarEAtualizar();
         }
- 
+
         // Processar Massa Piso
         function processarMassaPiso() {
             const idsText = document.getElementById('bulkInput').value;
@@ -608,7 +516,7 @@
             const rota = document.getElementById('atribuicaoInput').value.trim() || 'No Piso';
             const agora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
             let atualizados = 0;
- 
+
             ids.forEach(id => {
                 const idx = pacotes.findIndex(p => p.id === id);
                 if (idx !== -1) {
@@ -626,60 +534,15 @@
                 }
                 atualizados++;
             });
- 
+
             document.getElementById('bulkInput').value = '';
             exibirAlerta(`${atualizados} IDs marcados no piso em massa!`, 'aviso');
             salvarEAtualizar();
         }
- 
-        // Confronto de Status: cruza uma lista colada de IDs com a base atual
-        function confrontarStatus() {
-            const texto = document.getElementById('confrontoInput').value;
-            const statusEscolhido = document.getElementById('confrontoStatus').value;
-            if (!texto.trim()) return;
- 
-            const linhas = texto.split('\n');
-            const agora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-            let encontrados = [];
-            let naoEncontrados = 0;
- 
-            linhas.forEach(linha => {
-                const match = linha.trim().match(/(MLB\d+|\d{6,})/i);
-                if (!match) return;
-                const id = match[0].toUpperCase();
-                const idx = pacotes.findIndex(p => p.id === id);
-                if (idx !== -1) {
-                    pacotes[idx].status = statusEscolhido;
-                    pacotes[idx].hora = agora;
-                    encontrados.push(id);
-                } else {
-                    naoEncontrados++;
-                }
-            });
- 
-            document.getElementById('confrontoEncontrados').innerText = encontrados.length;
-            document.getElementById('confrontoNaoEncontrados').innerText = naoEncontrados;
- 
-            const listaDiv = document.getElementById('listaConfrontoEncontrados');
-            if (encontrados.length > 0) {
-                listaDiv.innerHTML = encontrados.map(id => `<div>${id}</div>`).join('');
-            } else {
-                listaDiv.innerHTML = '<span class="text-slate-400">Nenhum ID da lista foi encontrado na base atual.</span>';
-            }
- 
-            document.getElementById('confrontoInput').value = '';
- 
-            if (encontrados.length > 0) {
-                exibirAlerta(`${encontrados.length} pacotes atualizados para ${statusEscolhido.replace(/_/g, ' ')}. ${naoEncontrados} não estavam na base.`, 'sucesso', 'feedbackConfronto');
-                salvarEAtualizar();
-            } else {
-                exibirAlerta(`Nenhum ID da lista foi encontrado na base atual (${naoEncontrados} ignorados).`, 'aviso', 'feedbackConfronto');
-            }
-        }
- 
+
         // Utilitários e Atualizações da Interface
-        function exibirAlerta(msg, tipo, elementId) {
-            const alerta = document.getElementById(elementId || 'feedbackAlerta');
+        function exibirAlerta(msg, tipo) {
+            const alerta = document.getElementById('feedbackAlerta');
             alerta.innerText = msg;
             
             alerta.className = 'p-3 rounded-lg text-xs font-medium border transition-all shadow-sm';
@@ -694,7 +557,7 @@
                 alerta.classList.add('hidden');
             }, 3000);
         }
- 
+
         function salvarEAtualizar() {
             localStorage.setItem('kn_pacotes', JSON.stringify(pacotes));
             renderizarTabela();
@@ -702,37 +565,35 @@
             renderizarResumoRotas();
             atualizarGraficosSeVisivel();
         }
- 
+
         function renderizarTabela() {
             const filtroTexto = document.getElementById('filtroTexto').value.toLowerCase();
             const filtroStatus = document.getElementById('filtroStatus').value;
             const filtroCiclo = document.getElementById('filtroCiclo').value;
             const tbody = document.getElementById('tabelaHistorico');
             tbody.innerHTML = '';
- 
+
             const filtrados = pacotes.filter(p => {
                 const textoMatch = p.id.toLowerCase().includes(filtroTexto) || p.rota.toLowerCase().includes(filtroTexto);
                 const statusMatch = filtroStatus === '' || p.status === filtroStatus;
                 const cicloMatch = filtroCiclo === '' || p.ciclo === filtroCiclo;
                 return textoMatch && statusMatch && cicloMatch;
             });
- 
+
             document.getElementById('contadorBips').innerText = `${filtrados.length} Pacotes`;
- 
+
             filtrados.forEach((p) => {
-                // Precisamos do index original no array principal para editar/excluir
                 const originalIndex = pacotes.indexOf(p);
                 
                 let corStatus = 'bg-slate-100 text-slate-600';
                 if (p.status === 'EM_ROTA_DE_ENTREGA') corStatus = 'bg-emerald-100 text-emerald-700';
                 else if (p.status === 'FICOU_NO_PISO') corStatus = 'bg-amber-100 text-amber-700';
-                else if (p.status === 'ENTREGUE') corStatus = 'bg-teal-100 text-teal-700';
                 else if (p.status === 'DESPACHAR') corStatus = 'bg-sky-100 text-sky-700';
                 else if (p.status === 'FALHA_NA_ENTREGA') corStatus = 'bg-rose-100 text-rose-700';
                 else if (p.status === 'SOLUCAO_DE_PROBLEMA') corStatus = 'bg-purple-100 text-purple-700';
- 
+
                 let corCiclo = p.ciclo === 'AM' ? 'text-amber-500' : 'text-indigo-500';
- 
+
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 transition border-b border-slate-100">
                         <td class="p-3 font-bold text-kn-navy">${p.id}</td>
@@ -753,7 +614,7 @@
             });
             lucide.createIcons();
         }
- 
+
         function atualizarKPIs() {
             document.getElementById('kpiTotal').innerText = pacotes.length;
             document.getElementById('kpiDespachar').innerText = pacotes.filter(p => p.status === 'DESPACHAR').length;
@@ -762,7 +623,7 @@
             document.getElementById('kpiFalha').innerText = pacotes.filter(p => p.status === 'FALHA_NA_ENTREGA').length;
             document.getElementById('kpiSolucao').innerText = pacotes.filter(p => p.status === 'SOLUCAO_DE_PROBLEMA').length;
         }
- 
+
         function renderizarResumoRotas() {
             const tbody = document.getElementById('tabelaRotas');
             tbody.innerHTML = '';
@@ -778,7 +639,7 @@
                 if (p.status === 'DESPACHAR') agrupamento[p.rota].despachar++;
                 if (p.status === 'FALHA_NA_ENTREGA') agrupamento[p.rota].falha++;
             });
- 
+
             Object.keys(agrupamento).sort().forEach(rota => {
                 const d = agrupamento[rota];
                 tbody.innerHTML += `
@@ -793,35 +654,29 @@
                 `;
             });
         }
- 
+
         // Funções da Modal de Edição Manual
         function abrirModalEditar(index) {
             const p = pacotes[index];
             document.getElementById('editIndex').value = index;
             document.getElementById('editId').value = p.id;
             document.getElementById('editRota').value = p.rota;
-            document.getElementById('editLog').value = p.log || '';
-            document.getElementById('editMotorista').value = p.motorista || '';
-            document.getElementById('editEmpresa').value = p.empresa || '';
             document.getElementById('editCiclo').value = p.ciclo;
             document.getElementById('editStatus').value = p.status;
             
             document.getElementById('modalEditar').classList.remove('hidden');
             document.getElementById('modalEditar').classList.add('flex');
         }
- 
+
         function fecharModalEditar() {
             document.getElementById('modalEditar').classList.add('hidden');
             document.getElementById('modalEditar').classList.remove('flex');
         }
- 
+
         function salvarEdicaoManual() {
             const index = document.getElementById('editIndex').value;
             if (index !== '') {
                 pacotes[index].rota = document.getElementById('editRota').value || 'Sem Rota';
-                pacotes[index].log = document.getElementById('editLog').value.trim();
-                pacotes[index].motorista = document.getElementById('editMotorista').value.trim();
-                pacotes[index].empresa = document.getElementById('editEmpresa').value.trim();
                 pacotes[index].ciclo = document.getElementById('editCiclo').value;
                 pacotes[index].status = document.getElementById('editStatus').value;
                 
@@ -829,14 +684,14 @@
                 salvarEAtualizar();
             }
         }
- 
+
         function excluirPacote(index) {
             if (confirm('Tem certeza que deseja excluir este pacote do histórico?')) {
                 pacotes.splice(index, 1);
                 salvarEAtualizar();
             }
         }
- 
+
         // Funções de Utilitários (CSV, Área de Transferência)
         function copiarTodosIDs() {
             const ids = pacotes.map(p => p.id).join('\n');
@@ -846,30 +701,30 @@
                 });
             }
         }
- 
+
         function limparBase() {
             if (confirm('Você está prestes a ZERAR toda a base de dados. Esta ação não pode ser desfeita. Confirmar?')) {
                 pacotes = [];
                 salvarEAtualizar();
             }
         }
- 
+
         function exportarCSV(tipoCiclo) {
             let dadosExportar = pacotes;
             if (tipoCiclo !== 'TODOS') {
                 dadosExportar = pacotes.filter(p => p.ciclo === tipoCiclo);
             }
- 
+
             if (dadosExportar.length === 0) {
                 alert('Nenhum dado encontrado para exportar.');
                 return;
             }
- 
+
             let csvContent = "data:text/csv;charset=utf-8,ID,ROTA,CICLO,STATUS,HORA\n";
             dadosExportar.forEach(p => {
                 csvContent += `${p.id},${p.rota},${p.ciclo},${p.status},${p.hora}\n`;
             });
- 
+
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
@@ -878,10 +733,10 @@
             link.click();
             document.body.removeChild(link);
         }
- 
+
         // Navegação de Abas
         function mudarAba(abaDestino) {
-            const abas = ['operacao', 'rotas', 'confronto', 'graficos-geral', 'graficos-am', 'graficos-pm'];
+            const abas = ['operacao', 'rotas', 'graficos-geral', 'graficos-am', 'graficos-pm'];
             
             abas.forEach(aba => {
                 const section = document.getElementById(`aba-${aba}`);
@@ -897,13 +752,12 @@
                     btn.classList.add('hover:bg-white/5', 'text-slate-300');
                 }
             });
- 
+
             if (abaDestino.includes('graficos')) {
                 atualizarGraficos();
             }
         }
- 
-        // Atualização Condicional de Gráficos
+
         function atualizarGraficosSeVisivel() {
             const abasGraficosVisiveis = !document.getElementById('aba-graficos-geral').classList.contains('hidden') ||
                                          !document.getElementById('aba-graficos-am').classList.contains('hidden') ||
@@ -912,31 +766,28 @@
                 atualizarGraficos();
             }
         }
- 
+
         // Chart.js Implementação
         function atualizarGraficos() {
-            // Destroi os gráficos antigos se existirem para evitar sobreposição
             if (charts.geralStatus) charts.geralStatus.destroy();
             if (charts.geralCiclos) charts.geralCiclos.destroy();
             if (charts.am) charts.am.destroy();
             if (charts.pm) charts.pm.destroy();
- 
+
             const calcularDados = (lista) => [
                 lista.filter(p => p.status === 'DESPACHAR').length,
                 lista.filter(p => p.status === 'EM_ROTA_DE_ENTREGA').length,
                 lista.filter(p => p.status === 'FICOU_NO_PISO').length,
-                lista.filter(p => p.status === 'ENTREGUE').length,
                 lista.filter(p => p.status === 'FALHA_NA_ENTREGA').length,
                 lista.filter(p => p.status === 'SOLUCAO_DE_PROBLEMA').length
             ];
- 
+
             const pacotesAM = pacotes.filter(p => p.ciclo === 'AM');
             const pacotesPM = pacotes.filter(p => p.ciclo === 'PM');
             
-            const labelsStatus = ['Despachar', 'Em Rota', 'No Piso', 'Entregue', 'Falha', 'Solução Prob.'];
-            const coresStatus = ['#0284c7', '#10b981', '#f59e0b', '#0d9488', '#e11d48', '#9333ea'];
- 
-            // Gráfico Geral de Status
+            const labelsStatus = ['Despachar', 'Em Rota', 'No Piso', 'Falha', 'Solução Prob.'];
+            const coresStatus = ['#0284c7', '#10b981', '#f59e0b', '#e11d48', '#9333ea'];
+
             const ctxGeral = document.getElementById('chartGeralStatus').getContext('2d');
             charts.geralStatus = new Chart(ctxGeral, {
                 type: 'doughnut',
@@ -950,8 +801,7 @@
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
             });
- 
-            // Gráfico de Volume de Ciclos
+
             const ctxCiclos = document.getElementById('chartGeralCiclos').getContext('2d');
             charts.geralCiclos = new Chart(ctxCiclos, {
                 type: 'pie',
@@ -965,8 +815,7 @@
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
             });
- 
-            // Gráfico Ciclo AM
+
             const ctxAM = document.getElementById('chartAM').getContext('2d');
             charts.am = new Chart(ctxAM, {
                 type: 'bar',
@@ -981,8 +830,7 @@
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
- 
-            // Gráfico Ciclo PM
+
             const ctxPM = document.getElementById('chartPM').getContext('2d');
             charts.pm = new Chart(ctxPM, {
                 type: 'bar',
@@ -1001,8 +849,3 @@
     </script>
 </body>
 </html>
- 
-
-
-
-
